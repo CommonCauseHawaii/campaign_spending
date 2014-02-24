@@ -37,7 +37,7 @@ var params = {
   y_axis_color: "gray",
   y_axis_fontcolor: "gray",
   y_axis_fontsize: 10,
-  max_bubble_rad: 22,
+  max_bubble_rad: 16,
   bubble_alpha: 0.85,
   bubble_color: "black",
   h_shift: 0,
@@ -77,24 +77,26 @@ function draw(data) {
   params.viz_data = data;
   //"#486135", "#2C6E3E", "#89AC6E", "#B5C8A0"
   var color_list = ["#224970", "#6BA2DB", "#A0C3E8", "#E3EBF5",  "#B99F69", "#D9955E", "#E3AD65", "#EFD299"]
-  var headers = d3.keys(data[0]); 		//alert(headers); 
-  //var categories = headers.slice(1); 		alert(categories.toSource());
+  var headers = d3.keys(data[0]);
 
-  var max_x_val = 2300; // replace with actual value from data
-  //var max_y_val = 1; // replace with actual value from data
-  var max_y_val = 20; // replace with actual value from data
-  var max_r_val = 2000;// replace with actual value from data
+  var getX = function(d) { return d.days_held; };
+  //var getY = function(d) { return d.percentage_lost; };
+  var getY = function(d) { return d.depreciation_per_day; };
+  var getR = function(d) { return d.acquisition_amount; };
+  var getColor = function(d) {
+    if(d.party === 'Republican') {
+      return d3.rgb(255, 0, 0);
+    } else if(d.party === 'Democrat') {
+      return d3.rgb(0, 0, 255);
+    } else {
+      return d3.rgb(0, 255, 0);
+    }
+  };
 
-  // alert(data.toSource());
-  //
-  // var formatted_data = []; //format should be [{s_type: X, e_type: Y, amount: Z}..]
-  // data.forEach(function(data_row, i){
-  // 	d3.entries(data_row).slice(1).forEach(function(category_entry){
-  // 		formatted_data.push({m_earnings: pf(med_ear_male), f_earnings: pf(med_ear_female) , jobs: pf(total_jobs), color:color_list[i]});
-  // 	});
-  // });
-  //
-  // alert(formatted_data.toSource());
+  var max_x_val = d3.max(data, getX);
+  var max_y_val = d3.max(data, getY);
+  var max_r_val = d3.max(data, getR);
+
   //preparing SVG Area
   var svg = d3.selectAll("svg");
   svg.
@@ -109,39 +111,14 @@ function draw(data) {
   //var color = d3.scale.linear().domain([0,50,100]).range(["#EA7F2F","#919496", "#41BADC"]);
   var color = d3.scale.linear().domain([0,50,100]).range(["#EA7F2F","#EEE", "#41BADC"]);
 
-  // Show as table
-  var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
-  var table = d3.select("#table-container").append("table"),
-  thead = table.append("thead"),
-  tbody = table.append("tbody");
-
-  thead.append("tr")
-  .selectAll("th")
-  .data(columns)
-  .enter()
-  .append("th")
-  .text(function(column) { return column; });
-
-  var tr = tbody.selectAll("tr")
-  .data(data)
-  .enter().append("tr");
-  var td = tr.selectAll("td")
-  .data(function(row) {
-    return columns.map(function(column) {
-      return {column: column, value: row[column]};
-    })
-  })
-  .enter().append("td")
-  .text(function(d) { return d.value; });
-
   //------ data Bubbles -------------------------------------------------------------------
   //console.log('data is ' + data);
   //debugger;
   var data_bubbles = init_viz_element(svg, "circle.expenditure", data)
-  .attr("r", function(d) { return r(Math.sqrt(pf(d.acquisition_amount))); })
-  .attr("cx", function(d) { return x(pf(d.days_held)); })
-  .attr("cy", function(d) { return y(pf(d.depreciation_per_day)); })
-  .attr("fill", function(d) { return color(10); })
+  .attr("r", function(d) { return r(Math.sqrt(pf(getR(d)))); })
+  .attr("cx", function(d) { return x(pf(getX(d))); })
+  .attr("cy", function(d) { return y(pf(getY(d))); })
+  .attr("fill", function(d) { return getColor(d); })
   .attr("occ", function(d) { return "type"; })
 
   //.attr("stroke", function(d) { return "#BBB"; })
@@ -202,6 +179,32 @@ function draw(data) {
 
 }
 
+var tabulate = function(data) {
+  // Show as table
+  var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
+  var table = d3.select("#table-container").append("table"),
+  thead = table.append("thead"),
+  tbody = table.append("tbody");
+
+  thead.append("tr")
+  .selectAll("th")
+  .data(columns)
+  .enter()
+  .append("th")
+  .text(function(column) { return column; });
+
+  var tr = tbody.selectAll("tr")
+  .data(data)
+  .enter().append("tr");
+  var td = tr.selectAll("td")
+  .data(function(row) {
+    return columns.map(function(column) {
+      return {column: column, value: row[column]};
+    })
+  })
+  .enter().append("td")
+  .text(function(d) { return d.value; });
+}
 
 
 //read data once and start do initial draw
@@ -250,6 +253,7 @@ d3.json("durable_assets.json", function(data) {
   window.full_records = full_records;
 
   draw(full_records);
+  tabulate(full_records);
 });
 
 //all dat.gui changes should trigger a redraw
