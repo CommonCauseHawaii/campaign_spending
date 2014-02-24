@@ -18,7 +18,7 @@ var dat_gui_ranges = {
 
 //put all hard coded values in this object
 var params = {
-  scale: 2,
+  scale: 1.7,
   w: 400,
   h: 400,
   t_margin: 50,

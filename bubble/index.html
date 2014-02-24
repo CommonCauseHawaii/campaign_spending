@@ -1,0 +1,60 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Foundation | Welcome</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+    <script src="js/vendor/modernizr.js"></script>
+    <script type="text/javascript">
+      function export_svg() {
+        $('svg').svg();
+        var xml = $('svg').svg('get').toSVG();
+        $('#svgexport').html(xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+      }
+    </script>
+    <!-- Styles don't flow into exported SVG, so only use for web -->
+    <style>
+      svg {border: 1px solid gray;}
+      .row.full-width {
+        width: 100%;
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <h1>Durable Asset Visualization</h1>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <div id= "chart_div">
+          <svg></svg>
+        </div>
+        <button onclick="export_svg();" />export</button>
+        <pre><div id="svgexport">export will go here</div></pre>
+      </div>
+    </div>
+
+    <div class="row full-width">
+      <div class="large-12 columns">
+        <div id='table-container'></div>
+      </div>
+    </div>
+
+
+    <script src="js/vendor/jquery.js"></script>
+    <script type="text/javascript" src="jquery.svg.js"></script>
+    <script src="js/foundation.min.js"></script>
+    <script type="text/javascript" src="dat.gui.min.js"></script>
+    <script type="text/javascript" src="./d3.v3.min.js"></script>
+    <script type="text/javascript" src="./durable_assets.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
+  </body>
+</html>
