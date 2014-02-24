@@ -21,8 +21,6 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
 
 	</head>
   	<body>
-        <div id='table-container'>
-        </div>
 
     <script type="text/javascript">
 	
@@ -80,7 +78,11 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
 	function h_shift(s_type) {return s_type.indexOf("Undergraduate") === -1 ? params.h_shift : params.h_shift * -1 }
 	
 	function pf(num) {
-		return parseFloat(num.replace(",", ""));
+          if(typeof(num) === 'number') {
+            return num;
+          } else {
+            return parseFloat(num.replace(",", ""));
+          }
 	}
 	
 	function init_viz_element(svg, elem_with_class, data) {
@@ -96,6 +98,7 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
 	}
 	
 	function draw(data) {
+                // TODO: should probably fix the data before calling the draw method
 		//store things for next draw iteration
 		params.viz_data = data;
 		//"#486135", "#2C6E3E", "#89AC6E", "#B5C8A0"
@@ -103,9 +106,9 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
 		var headers = d3.keys(data[0]); 		//alert(headers); 
 		//var categories = headers.slice(1); 		alert(categories.toSource());
 
-		var max_x_val = 120000; // replace with actual value from data
-		var max_y_val = 120000; // replace with actual value from data
-		var max_r_val = 65000;// replace with actual value from data
+		var max_x_val = 2300; // replace with actual value from data
+		var max_y_val = 1; // replace with actual value from data
+		var max_r_val = 650;// replace with actual value from data
 		
 		// alert(data.toSource());
 		// 
@@ -151,6 +154,11 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
                     if(sell_record === undefined) {
                       return undefined;
                     }
+                    // TODO: move into function
+                    var millisInDay = 86400000;
+                    var start_millis = Date.parse(buy_record.date);
+                    var end_millis = Date.parse(sell_record.date);
+                    var days_held = (end_millis - start_millis) / millisInDay;
                     return {
                       durable_asset_id: buy_record.durable_asset_id,
                       candidate_name: buy_record.candidate_name,
@@ -158,7 +166,8 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
                       acquisition_amount: buy_record.amount,
                       disposition_amount: sell_record.diposition_amount,
                       amount_difference: buy_record.amount - sell_record.diposition_amount,
-                      percentage_lost: (buy_record.amount - sell_record.diposition_amount)/buy_record.amount
+                      percentage_lost: (buy_record.amount - sell_record.diposition_amount)/buy_record.amount,
+                      days_held: days_held
                     };
                 });
                 var full_records = full_records_with_empty.filter(function(d) { return d !== undefined });
@@ -194,6 +203,7 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
                           .text(function(d) { return d.value; });
                 console.log('first data point is ' + JSON.stringify(data[10]));
                 //debugger;
+                var data = full_records;
                 console.log('AFTER DEBUGGER');
                 // Throw out records without matching buy and sell
                 // Add fields: date_acquired, date_disposed (from the two dates)
@@ -204,14 +214,13 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
                 // percentage_lost: (acquisition_amount-disposition_amount)/acquisition_amount
 
 
-                return;
 		//------ data Bubbles -------------------------------------------------------------------
                 //console.log('data is ' + data);
                 //debugger;
-		var data_bubbles = init_viz_element(svg, "circle.expenditure", data)
-			.attr("r", function(d) { return r(Math.sqrt(pf(d.amount))); })
-			.attr("cx", function(d) { return x(pf(20)); })
-			.attr("cy", function(d) { return y(pf(30)); })
+		var data_bubbles = init_viz_element(svg, "circle.expenditure", full_records)
+			.attr("r", function(d) { return r(Math.sqrt(pf(d.acquisition_amount))); })
+			.attr("cx", function(d) { return x(pf(d.days_held)); })
+			.attr("cy", function(d) { return y(pf(d.percentage_lost)); })
 			.attr("fill", function(d) { return color(10); })
 			.attr("occ", function(d) { return "type"; })
 			
@@ -296,6 +305,7 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
 	</div>
 	<button onclick="export_svg();" />export</button>
 	<pre><div id="svgexport">export will go here</div></pre>
+        <div id='table-container'></div>
 </body>
 </html>
 
