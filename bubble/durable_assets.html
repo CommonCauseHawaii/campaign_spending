@@ -107,8 +107,9 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
 		//var categories = headers.slice(1); 		alert(categories.toSource());
 
 		var max_x_val = 2300; // replace with actual value from data
-		var max_y_val = 1; // replace with actual value from data
-		var max_r_val = 650;// replace with actual value from data
+		//var max_y_val = 1; // replace with actual value from data
+		var max_y_val = 20; // replace with actual value from data
+		var max_r_val = 2000;// replace with actual value from data
 		
 		// alert(data.toSource());
 		// 
@@ -155,10 +156,12 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
                       return undefined;
                     }
                     // TODO: move into function
+                    // TODO: do advanced calculation based on fixed data
                     var millisInDay = 86400000;
                     var start_millis = Date.parse(buy_record.date);
                     var end_millis = Date.parse(sell_record.date);
                     var days_held = (end_millis - start_millis) / millisInDay;
+                    var depreciation_per_day = (buy_record.amount - sell_record.diposition_amount) / days_held;
                     return {
                       durable_asset_id: buy_record.durable_asset_id,
                       candidate_name: buy_record.candidate_name,
@@ -167,6 +170,7 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
                       disposition_amount: sell_record.diposition_amount,
                       amount_difference: buy_record.amount - sell_record.diposition_amount,
                       percentage_lost: (buy_record.amount - sell_record.diposition_amount)/buy_record.amount,
+                      depreciation_per_day: depreciation_per_day,
                       days_held: days_held
                     };
                 });
@@ -174,7 +178,7 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
                 window.full_records = full_records;
 
                 // Show as table
-                var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost'];
+                var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
                 var table = d3.select("#table-container").append("table"),
                     thead = table.append("thead"),
                     tbody = table.append("tbody");
@@ -220,7 +224,7 @@ color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org
 		var data_bubbles = init_viz_element(svg, "circle.expenditure", full_records)
 			.attr("r", function(d) { return r(Math.sqrt(pf(d.acquisition_amount))); })
 			.attr("cx", function(d) { return x(pf(d.days_held)); })
-			.attr("cy", function(d) { return y(pf(d.percentage_lost)); })
+			.attr("cy", function(d) { return y(pf(d.depreciation_per_day)); })
 			.attr("fill", function(d) { return color(10); })
 			.attr("occ", function(d) { return "type"; })
 			
