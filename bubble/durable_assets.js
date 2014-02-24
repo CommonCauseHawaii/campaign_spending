@@ -109,48 +109,6 @@ function draw(data) {
   //var color = d3.scale.linear().domain([0,50,100]).range(["#EA7F2F","#919496", "#41BADC"]);
   var color = d3.scale.linear().domain([0,50,100]).range(["#EA7F2F","#EEE", "#41BADC"]);
 
-  // Fix data records
-
-  // Combine rows with matching 'durable_asset_id'
-  //var combined_data =
-  var matrix = [
-    [11975,  5871, 8916, 2868],
-    [ 1951, 10048, 2060, 6171],
-    [ 8010, 16145, 8090, 8045],
-    [ 1013,   990,  940, 6907]
-  ];
-  var buy_records = data.filter(function(d) { return d.amount !== undefined });
-  // Note: disposition spelled as diposition
-  var sell_records = data.filter(function(d) { return d.diposition_amount !== undefined });
-  window.buy_records = buy_records;
-  window.sell_records = sell_records;
-  var full_records_with_empty = buy_records.map(function(buy_record) {
-    var sell_record = sell_records.filter(function(d) { return d.durable_asset_id === buy_record.durable_asset_id })[0];
-    if(sell_record === undefined) {
-      return undefined;
-    }
-    // TODO: move into function
-    // TODO: do advanced calculation based on fixed data
-    var millisInDay = 86400000;
-    var start_millis = Date.parse(buy_record.date);
-    var end_millis = Date.parse(sell_record.date);
-    var days_held = (end_millis - start_millis) / millisInDay;
-    var depreciation_per_day = (buy_record.amount - sell_record.diposition_amount) / days_held;
-    return {
-      durable_asset_id: buy_record.durable_asset_id,
-      candidate_name: buy_record.candidate_name,
-      party: buy_record.party,
-      acquisition_amount: buy_record.amount,
-      disposition_amount: sell_record.diposition_amount,
-      amount_difference: buy_record.amount - sell_record.diposition_amount,
-      percentage_lost: (buy_record.amount - sell_record.diposition_amount)/buy_record.amount,
-      depreciation_per_day: depreciation_per_day,
-      days_held: days_held
-    };
-  });
-  var full_records = full_records_with_empty.filter(function(d) { return d !== undefined });
-  window.full_records = full_records;
-
   // Show as table
   var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
   var table = d3.select("#table-container").append("table"),
@@ -165,13 +123,9 @@ function draw(data) {
   .text(function(column) { return column; });
 
   var tr = tbody.selectAll("tr")
-  .data(full_records)
+  .data(data)
   .enter().append("tr");
   var td = tr.selectAll("td")
-  //.data(function(d) { return d.party; })
-  //.data(function(d) { return d.party; })
-  //.data(function(row) { return [{ name: 'name', party: 'partay' }, {name: '2', party: '2'}]; })
-  //.data(function(row) { return [row]; })
   .data(function(row) {
     return columns.map(function(column) {
       return {column: column, value: row[column]};
@@ -179,23 +133,11 @@ function draw(data) {
   })
   .enter().append("td")
   .text(function(d) { return d.value; });
-  console.log('first data point is ' + JSON.stringify(data[10]));
-  //debugger;
-  var data = full_records;
-  console.log('AFTER DEBUGGER');
-  // Throw out records without matching buy and sell
-  // Add fields: date_acquired, date_disposed (from the two dates)
-  // Keep fields: Candidate Name, Vender Name, method (as disposition_method)
-
-  // Do calculations on data
-  // days_held: number of days between date_acquired and date_disposed
-  // percentage_lost: (acquisition_amount-disposition_amount)/acquisition_amount
-
 
   //------ data Bubbles -------------------------------------------------------------------
   //console.log('data is ' + data);
   //debugger;
-  var data_bubbles = init_viz_element(svg, "circle.expenditure", full_records)
+  var data_bubbles = init_viz_element(svg, "circle.expenditure", data)
   .attr("r", function(d) { return r(Math.sqrt(pf(d.acquisition_amount))); })
   .attr("cx", function(d) { return x(pf(d.days_held)); })
   .attr("cy", function(d) { return y(pf(d.depreciation_per_day)); })
@@ -264,7 +206,51 @@ function draw(data) {
 
 //read data once and start do initial draw
 //d3.csv("mf_earnings_data.csv", draw);
-d3.json("durable_assets.json", draw);
+d3.json("durable_assets.json", function(data) {
+  // Fix data records
+  // Add fields: date_acquired, date_disposed (from the two dates)
+  // Keep fields: Candidate Name, Vender Name, method (as disposition_method)
+
+  // Do calculations on data
+  // days_held: number of days between date_acquired and date_disposed
+  // percentage_lost: (acquisition_amount-disposition_amount)/acquisition_amount
+
+
+  // Combine rows with matching 'durable_asset_id' (throw out records without matching buy and sell)
+  var buy_records = data.filter(function(d) { return d.amount !== undefined });
+  // Note: disposition spelled as diposition
+  var sell_records = data.filter(function(d) { return d.diposition_amount !== undefined });
+  window.buy_records = buy_records;
+  window.sell_records = sell_records;
+  var full_records_with_empty = buy_records.map(function(buy_record) {
+    var sell_record = sell_records.filter(function(d) { return d.durable_asset_id === buy_record.durable_asset_id })[0];
+    if(sell_record === undefined) {
+      return undefined;
+    }
+    // TODO: move into function
+    // TODO: do advanced calculation based on fixed data
+    var millisInDay = 86400000;
+    var start_millis = Date.parse(buy_record.date);
+    var end_millis = Date.parse(sell_record.date);
+    var days_held = (end_millis - start_millis) / millisInDay;
+    var depreciation_per_day = (buy_record.amount - sell_record.diposition_amount) / days_held;
+    return {
+      durable_asset_id: buy_record.durable_asset_id,
+      candidate_name: buy_record.candidate_name,
+      party: buy_record.party,
+      acquisition_amount: buy_record.amount,
+      disposition_amount: sell_record.diposition_amount,
+      amount_difference: buy_record.amount - sell_record.diposition_amount,
+      percentage_lost: (buy_record.amount - sell_record.diposition_amount)/buy_record.amount,
+      depreciation_per_day: depreciation_per_day,
+      days_held: days_held
+    };
+  });
+  var full_records = full_records_with_empty.filter(function(d) { return d !== undefined });
+  window.full_records = full_records;
+
+  draw(full_records);
+});
 
 //all dat.gui changes should trigger a redraw
 // generate the dat.gui control for any numerical ranges
