@@ -72,7 +72,6 @@ function init_viz_element(svg, elem_with_class, data) {
 }
 
 function draw(data) {
-  // TODO: should probably fix the data before calling the draw method
   //store things for next draw iteration
   params.viz_data = data;
   //"#486135", "#2C6E3E", "#89AC6E", "#B5C8A0"
@@ -91,6 +90,16 @@ function draw(data) {
     } else {
       return d3.rgb(0, 255, 0);
     }
+  };
+  var getTitle = function(d) {
+    // TODO: make tabular. Foundation?
+    var str = "Candidate: " + d.candidate_name;
+    str += "<br/>Description: " + d.durable_asset_description;
+    str += "<br/>Bought for: $" + d.acquisition_amount;
+    str += "<br/>Sold for: $" + d.disposition_amount;
+    str += "<br/>Sold To: " + d.sold_to;
+    str += "<br/>TODO: insert link to record on Socrata";
+    return str;
   };
 
   var max_x_val = d3.max(data, getX);
@@ -111,15 +120,20 @@ function draw(data) {
   //var color = d3.scale.linear().domain([0,50,100]).range(["#EA7F2F","#919496", "#41BADC"]);
   var color = d3.scale.linear().domain([0,50,100]).range(["#EA7F2F","#EEE", "#41BADC"]);
 
+  var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d) { return getTitle(d); })
+  svg.call(tip);
   //------ data Bubbles -------------------------------------------------------------------
-  //console.log('data is ' + data);
-  //debugger;
-  var data_bubbles = init_viz_element(svg, "circle.expenditure", data)
+  var data_bubbles = init_viz_element(svg, "circle.asset", data)
   .attr("r", function(d) { return r(Math.sqrt(pf(getR(d)))); })
   .attr("cx", function(d) { return x(pf(getX(d))); })
   .attr("cy", function(d) { return y(pf(getY(d))); })
   .attr("fill", function(d) { return getColor(d); })
   .attr("occ", function(d) { return "type"; })
+  .on('mouseover', tip.show)
+  .on('mouseout', tip.hide)
 
   //.attr("stroke", function(d) { return "#BBB"; })
   //.attr("fill-opacity", params.bubble_alpha);
@@ -210,6 +224,20 @@ var tabulate = function(data) {
 //read data once and start do initial draw
 //d3.csv("mf_earnings_data.csv", draw);
 d3.json("durable_assets.json", function(data) {
+  // TODO: move data fixing to named function
+  // TODO: add categorization
+  // * printer/scanner
+  // * computer
+  // * camera
+  // * other
+  // * phone
+  // ** iPad/tablet
+  // * software
+  // * tables
+  // * computer peripheral (monitor)
+  // * projector
+  // * car?
+  // * power tools (chain saw)
   // Fix data records
   // Add fields: date_acquired, date_disposed (from the two dates)
   // Keep fields: Candidate Name, Vender Name, method (as disposition_method)
@@ -243,6 +271,8 @@ d3.json("durable_assets.json", function(data) {
       party: buy_record.party,
       acquisition_amount: buy_record.amount,
       disposition_amount: sell_record.diposition_amount,
+      durable_asset_description: buy_record.durable_asset_description,
+      sold_to: sell_record.to_whom,
       amount_difference: buy_record.amount - sell_record.diposition_amount,
       percentage_lost: (buy_record.amount - sell_record.diposition_amount)/buy_record.amount,
       depreciation_per_day: depreciation_per_day,
