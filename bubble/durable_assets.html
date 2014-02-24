@@ -1,35 +1,33 @@
-color<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-	<head>
-	    <title>New Visualization</title>
-		<script type="text/javascript" src="dat.gui.min.js"></script>
-	    <script type="text/javascript" src="./d3.v3.min.js"></script>
-		<script type="text/javascript" src="jquery.js"></script>
-		<script type="text/javascript" src="jquery.svg.js"></script>
-                <script type="text/javascript" src="./durable_assets.js"></script>
-		<script type="text/javascript">
-		function export_svg() {
-			$('svg').svg();
-			var xml = $('svg').svg('get').toSVG();
-			$('#svgexport').html(xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-		}
-		</script>
-	
-		<!-- Styles don't flow into exported SVG, so only use for web -->
-		<style>
-			svg {border: 1px solid gray;}
-		</style>
+<html>
+  <head>
+    <title>New Visualization</title>
+    <script type="text/javascript" src="dat.gui.min.js"></script>
+    <script type="text/javascript" src="./d3.v3.min.js"></script>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="jquery.svg.js"></script>
+    <script type="text/javascript" src="./durable_assets.js"></script>
+    <script type="text/javascript">
+      function export_svg() {
+        $('svg').svg();
+        var xml = $('svg').svg('get').toSVG();
+        $('#svgexport').html(xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+      }
+    </script>
 
-	</head>
-  	<body>
+    <!-- Styles don't flow into exported SVG, so only use for web -->
+    <style>
+  svg {border: 1px solid gray;}
+    </style>
+  </head>
+  <body>
 
-	<h1>Student Spending</h1>
-	<div id= "chart_div">
-		<svg></svg>
-	</div>
-	<button onclick="export_svg();" />export</button>
-	<pre><div id="svgexport">export will go here</div></pre>
-        <div id='table-container'></div>
+  <h1>Durable Asset Visualization</h1>
+  <div id= "chart_div">
+    <svg></svg>
+  </div>
+  <button onclick="export_svg();" />export</button>
+  <pre><div id="svgexport">export will go here</div></pre>
+  <div id='table-container'></div>
 </body>
 </html>
 
