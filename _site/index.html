@@ -1,0 +1,192 @@
+<html>
+  <head>
+    <title>Campaign Finance</title>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+      // campaign.js
+      $(document).ready(function() {
+  var urls = {
+    senate_campaign_contributions: 'https://data.hawaii.gov/resource/jexd-xbcg.json'
+    ,state_county_candidate_spending: 'https://data.hawaii.gov/resource/3maa-4fgr.json'
+  }
+  $.get( urls.senate_campaign_contributions + '?$limit=11', function( data ) {
+    console.log("got data" + JSON.stringify(data));
+    var table = tabulate(data, ['contributor_name', 'candidate_name', 'amount', "contributor_type", "street_address_1"]);
+
+    var formatted_data = data.map(function(d,i){return {'value':data[i]['amount'],'day':data[i]['contributor_name']}})
+
+    // Sum donations by contributor
+    var nest = d3.nest().
+      key(function(d) { return d.contributor_name; }).
+      rollup(function(leaves)
+             { return {contributor_name:leaves[0].contributor_name, amount:d3.sum(leaves, function(d) {return parseFloat(d.amount);})}; }).entries(data);
+
+    var mapData = nest.map(function(d) { console.log(JSON.stringify(d)); return d.values; });
+    barChart(mapData);
+    // Make data accessible in the console
+    window.data = data;
+    window.formatted_data = formatted_data;
+  });
+});
+
+// Show data as table on the page
+function tabulate(data, columns) {
+  var table = d3.select("#table-container").append("table"),
+    thead = table.append("thead"),
+    tbody = table.append("tbody");
+
+  // append the header row
+  thead.append("tr")
+    .selectAll("th")
+    .data(columns)
+    .enter()
+    .append("th")
+      .text(function(column) { return column; });
+
+  // create a row for each object in the data
+  var rows = tbody.selectAll("tr")
+    .data(data)
+    .enter()
+    .append("tr");
+
+  // create a cell in each row for each column
+  var cells = rows.selectAll("td")
+    .data(function(row) {
+      return columns.map(function(column) {
+        return {column: column, value: row[column]};
+      });
+    })
+    .enter()
+    .append("td")
+      .text(function(d) { return d.value; });
+
+  return table;
+}
+
+    </script>
+    <script type="text/javascript">
+      // bar-chart.js
+      function barChart(data) {
+  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+
+  var x = d3.scale.ordinal()
+      .rangeRoundBands([0, width], .1);
+
+  var y = d3.scale.linear()
+      .range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .tickSize(0);
+
+  var svg = d3.select("#bar-chart").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  //d3.tsv("data.tsv", type, function(error, data) {
+    x.domain(data.map(function(d) { console.log("data " + JSON.stringify(d)); return d.contributor_name; }));
+    y.domain([0, d3.max(data, function(d) { return +d.amount; })]);
+    console.log('found max as ' + d3.max(data, function(d) { return +d.amount; }));
+    //y.domain([0, 400]);
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Amount ($)");
+
+    svg.selectAll(".bar")
+        .data(data)
+      .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function(d) { return x(d.contributor_name); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.amount); })
+        .attr("height", function(d) { return height - y(d.amount); });
+
+
+  function type(d) {
+    console.log('in type');
+    d.frequency = +d.frequency;
+    return d;
+  }
+}
+
+    </script>
+  </head>
+<style>
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+
+
+  <body>
+  <a href="https://github.com/axelson/campaign_finance_starter_package"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+
+
+    <!-- Show amount contributed to each candidate -->
+    <h1>Contributors by amount</h1>
+    <div id="bar-chart"></div>
+    <h2>Raw Data</h2>
+    <div id="table-container"></div>
+    <div>
+      <p>View the raw data at:
+      <ul>
+        <li>Senate Campaign Contributions: <a href="https://data.hawaii.gov/Community/Campaign-Contributions-Received-By-Hawaii-State-an/jexd-xbcg">https://data.hawaii.gov/Community/Campaign-Contributions-Received-By-Hawaii-State-an/jexd-xbcg</a>
+        </li>
+        <li>State and County Campaign Spending: <a href="https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-Candi/3maa-4fgr">https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-Candi/3maa-4fgr</a>
+        </li>
+      </ul>
+
+
+    </div>
+    <h1>Example questions to be answered</h1>
+    <h2>Which candidate received the most money</h2>
+    And from whom?
+    <h2>Who donated the most money?</h2>
+    <h2>What did the candidate spend money on?</h2>
+    This should default to a candidate and allow a selector
+
+  </body>
+</html>
