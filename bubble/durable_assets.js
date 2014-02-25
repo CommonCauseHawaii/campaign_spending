@@ -98,7 +98,8 @@ function draw(data) {
     str += "<br/>Bought for: $" + d.acquisition_amount;
     str += "<br/>Sold for: $" + d.disposition_amount;
     str += "<br/>Sold To: " + d.sold_to;
-    str += "<br/>TODO: insert link to record on Socrata";
+    str += "<br/>Days held: " + d.days_held;
+    str += "<br/>Depreciation per day: $" + d.depreciation_per_day.toFixed(2);
     return str;
   };
 
@@ -132,8 +133,11 @@ function draw(data) {
   .attr("cy", function(d) { return y(pf(getY(d))); })
   .attr("fill", function(d) { return getColor(d); })
   .attr("occ", function(d) { return "type"; })
+  .sort(function(a,b) { return a.acquisition_amount < b.acquisition_amount; })
   .on('mouseover', tip.show)
   .on('mouseout', tip.hide)
+  .attr('data-link', function(d) { return d.link; })
+  .on('click', function(e) { window.open($(this).data('link'), '_blank'); })
 
   //.attr("stroke", function(d) { return "#BBB"; })
   //.attr("fill-opacity", params.bubble_alpha);
@@ -190,7 +194,6 @@ function draw(data) {
   .text(function(d) {return d; });
 
   //------ y Axis End -------------------------------------------------------------------
-
 }
 
 var tabulate = function(data) {
@@ -219,7 +222,6 @@ var tabulate = function(data) {
   .enter().append("td")
   .text(function(d) { return d.value; });
 }
-
 
 //read data once and start do initial draw
 //d3.csv("mf_earnings_data.csv", draw);
@@ -272,6 +274,8 @@ d3.json("durable_assets.json", function(data) {
       acquisition_amount: buy_record.amount,
       disposition_amount: sell_record.diposition_amount,
       durable_asset_description: buy_record.durable_asset_description,
+      // TODO: Learn how to link to html view on socrata
+      link: "https://data.hawaii.gov/resource/fmfj-bac2.json?$where=durable_asset_id='" + buy_record.durable_asset_id + "'",
       sold_to: sell_record.to_whom,
       amount_difference: buy_record.amount - sell_record.diposition_amount,
       percentage_lost: (buy_record.amount - sell_record.diposition_amount)/buy_record.amount,
