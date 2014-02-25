@@ -63,11 +63,18 @@
       </div>
     </div>
 
+    <div class="row full-width">
+      <div class="large-8 columns">
+        <div id= "chart_div">
+          <svg id='chart-container'></svg>
+        </div>
+      </div>
+      <div class="large-4 columns">
+        <div id='candidate-container'></div>
+      </div>
+    </div>
     <div class="row">
       <div class="large-12 columns">
-        <div id= "chart_div">
-          <svg></svg>
-        </div>
         <button onclick="export_svg();" />export</button>
         <pre><div id="svgexport">export will go here</div></pre>
         <span data-tooltip class="has-tip" title="this is title">has a tooltip?</span>

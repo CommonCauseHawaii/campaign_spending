@@ -223,6 +223,32 @@ var tabulate = function(data) {
   .text(function(d) { return d.value; });
 }
 
+var create_candidate_list = function(data) {
+  var uniq_candidates = []
+  $.each(data, function(i) {
+    if($.inArray(this.candidate_name, uniq_candidates) == -1) {
+      uniq_candidates.push(this.candidate_name)
+    }
+  });
+  d3.select('#candidate-container').append('ul')
+  .selectAll('li')
+  .data(uniq_candidates)
+  .enter()
+    .append('li')
+    .text(function(d) { return d; })
+    .on('mouseover', function(e) {
+      var candidate_name = $(this).text();
+      d3.select('#chart-container').selectAll('.asset')
+      .attr('fill', function(d) {
+        if(candidate_name === d.candidate_name) {
+          return d3.rgb(255, 50, 50);
+        } else {
+          return d3.rgb(0, 0, 0);
+        }
+      })
+    })
+}
+
 //read data once and start do initial draw
 //d3.csv("mf_earnings_data.csv", draw);
 d3.json("durable_assets.json", function(data) {
@@ -287,6 +313,7 @@ d3.json("durable_assets.json", function(data) {
   window.full_records = full_records;
 
   draw(full_records);
+  create_candidate_list(full_records);
   tabulate(full_records);
 });
 
