@@ -224,20 +224,19 @@ var tabulate = function(data) {
 }
 
 var create_candidate_list = function(data) {
-  var uniq_candidates = []
-  $.each(data, function(i) {
-    if($.inArray(this.candidate_name, uniq_candidates) == -1) {
-      uniq_candidates.push(this.candidate_name)
-    }
-  });
+  var candidates = d3.nest()
+    .key(function(d) { return d.candidate_name; })
+    .entries(data)
+
   d3.select('#candidate-container').append('ul')
   .selectAll('li')
-  .data(uniq_candidates)
+  .data(candidates)
   .enter()
     .append('li')
-    .text(function(d) { return d; })
+    .text(function(d) { return d.key + " " + d.values.length + " assets"; })
+    .attr('data-candidate-name', function(d) { return d.key; })
     .on('mouseover', function(e) {
-      var candidate_name = $(this).text();
+      var candidate_name = $(this).data('candidate-name');
       d3.select('#chart-container').selectAll('.asset')
       .attr('fill', function(d) {
         if(candidate_name === d.candidate_name) {
