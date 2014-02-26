@@ -324,4 +324,6 @@ d3.entries(dat_gui_ranges).forEach(function(elem) {
   gui.add(params, attr, range[0], range[1]).onChange(function() { draw(params.viz_data); });
 } );
 
+$('.dg.ac').find('ul').toggleClass('closed');
+
 //add color or custom controls here
