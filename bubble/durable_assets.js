@@ -205,33 +205,6 @@ function draw(data) {
   //------ y Axis End -------------------------------------------------------------------
 }
 
-var tabulate = function(data) {
-  // Show as table
-  var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
-  var table = d3.select("#table-container").append("table"),
-  thead = table.append("thead"),
-  tbody = table.append("tbody");
-
-  thead.append("tr")
-  .selectAll("th")
-  .data(columns)
-  .enter()
-  .append("th")
-  .text(function(column) { return column; });
-
-  var tr = tbody.selectAll("tr")
-  .data(data)
-  .enter().append("tr");
-  var td = tr.selectAll("td")
-  .data(function(row) {
-    return columns.map(function(column) {
-      return {column: column, value: row[column]};
-    })
-  })
-  .enter().append("td")
-  .text(function(d) { return d.value; });
-}
-
 var create_candidate_list = function(data) {
   var candidates = d3.nest()
     .key(function(d) { return d.candidate_name; })
@@ -332,7 +305,8 @@ d3.json("durable_assets.json", function(data) {
 
   draw(full_records);
   create_candidate_list(full_records);
-  tabulate(full_records);
+  var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
+  tabulate(full_records, columns, '#table-container');
 });
 
 //all dat.gui changes should trigger a redraw
@@ -345,4 +319,38 @@ d3.entries(dat_gui_ranges).forEach(function(elem) {
 
 $('.dg.ac').find('ul').toggleClass('closed');
 
-//add color or custom controls here
+// add color or custom controls here
+
+// Show data as table on the page
+function tabulate(data, columns, container) {
+  var table = d3.select(container).append("table"),
+    thead = table.append("thead"),
+    tbody = table.append("tbody");
+
+  // append the header row
+  thead.append("tr")
+    .selectAll("th")
+    .data(columns)
+    .enter()
+    .append("th")
+      .text(function(column) { return column; });
+
+  // create a row for each object in the data
+  var rows = tbody.selectAll("tr")
+    .data(data)
+    .enter()
+    .append("tr");
+
+  // create a cell in each row for each column
+  var cells = rows.selectAll("td")
+    .data(function(row) {
+      return columns.map(function(column) {
+        return {column: column, value: row[column]};
+      });
+    })
+    .enter()
+    .append("td")
+      .text(function(d) { return d.value; });
+
+  return table;
+}
