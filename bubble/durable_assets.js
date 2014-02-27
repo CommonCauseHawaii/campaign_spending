@@ -91,13 +91,22 @@ function draw(data) {
       return d3.rgb(0, 255, 0);
     }
   };
+  var splitLongLines = function(text) {
+    var length_limit = 30;
+    var lines = []
+    for( var i=0; i<text.length; i+=length_limit ) {
+      console.log('on i ' + i + ' < ' + text.length);
+      lines.push(text.substring(i, length_limit+i))
+    }
+    return lines.join('<br/>');
+  }
   var getTitle = function(d) {
     // TODO: make tabular. Foundation?
     var str = "Candidate: " + d.candidate_name;
-    str += "<br/>Description: " + d.durable_asset_description;
+    str += "<br/>Description: " + splitLongLines(d.durable_asset_description);
     str += "<br/>Bought for: $" + d.acquisition_amount;
     str += "<br/>Sold for: $" + d.disposition_amount;
-    str += "<br/>Sold To: " + d.sold_to;
+    str += "<br/>Sold To: " + splitLongLines(d.sold_to);
     str += "<br/>Days held: " + d.days_held;
     str += "<br/>Depreciation per day: $" + d.depreciation_per_day.toFixed(2);
     return str;
