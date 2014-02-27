@@ -235,14 +235,24 @@ var tabulate = function(data) {
 var create_candidate_list = function(data) {
   var candidates = d3.nest()
     .key(function(d) { return d.candidate_name; })
-    .entries(data)
+    .rollup(function(leaves)
+            { return {candidate_name:leaves[0].candidate_name,
+              num_assets: d3.sum(leaves, function(d) {return 1;}),
+              sum_acquisitions: d3.sum(leaves, function(d) {return parseFloat(d.acquisition_amount);}),
+              sum_dispositions: d3.sum(leaves, function(d) {return parseFloat(d.disposition_amount);})
+            };})
+    .entries(data);
+  candidates.map(function(candidate) {
+    candidate.values.average_depreciation_per_day = (candidate.values.sum_acquisitions - candidate.values.sum_dispositions)/candidate.values.num_assets;
+  });
+
 
   d3.select('#candidate-container').append('ul')
   .selectAll('li')
   .data(candidates)
   .enter()
     .append('li')
-    .text(function(d) { return d.key + " " + d.values.length + " assets"; })
+    .text(function(d) { return d.key + " " + d.values.num_assets + " assets " + d.values.average_depreciation_per_day; })
     .attr('data-candidate-name', function(d) { return d.key; })
     .on('mouseover', function(e) {
       var candidate_name = $(this).data('candidate-name');
