@@ -2,29 +2,26 @@ var gui = new dat.GUI();
 
 // General Util
 var money = d3.format('$,.2f');
-var sort_by_asc = function(float_function) {
+var sort_by_either = function(ascending, float_function) {
   var comparator = function(a, b) {
-    if(float_function(a) < float_function(b)) {
-      return -1;
-    } else if(float_function(a) > float_function(b)) {
-      return 1;
+    if(float_function(a) > float_function(b)) {
+      return ascending ? 1 : -1;
+    } else if(float_function(a) < float_function(b)) {
+      return ascending ? -1 : 1;
     } else {
       return 0;
     }
   }
   return comparator;
 }
-var sort_by_desc = function(float_function) {
-  var comparator = function(a, b) {
-    if(float_function(a) > float_function(b)) {
-      return -1;
-    } else if(float_function(a) < float_function(b)) {
-      return 1;
-    } else {
-      return 0;
-    }
+var sort_by_asc = function(float_function) { return sort_by_either(true, float_function); }
+var sort_by_desc = function(float_function) { return sort_by_either(false, float_function); }
+
+var get_attr = function(attribute) {
+  var getter_function = function(data) {
+    return data[attribute];
   }
-  return comparator;
+  return getter_function;
 }
 
 var dat_gui_ranges = {
@@ -105,10 +102,10 @@ function draw(data) {
   var color_list = ["#224970", "#6BA2DB", "#A0C3E8", "#E3EBF5",  "#B99F69", "#D9955E", "#E3AD65", "#EFD299"]
   var headers = d3.keys(data[0]);
 
-  var getX = function(d) { return d.days_held; };
-  //var getY = function(d) { return d.percentage_lost; };
-  var getY = function(d) { return d.depreciation_per_day; };
-  var getR = function(d) { return d.acquisition_amount; };
+  var getX = get_attr('days_held');
+  //var getY = get_attr('percentage_lost');
+  var getY = get_attr('depreciation_per_day');
+  var getR = get_attr('acquisition_amount');
   var getColor = function(d) {
     if(d.party === 'Republican') {
       return d3.rgb(255, 0, 0);
@@ -172,7 +169,7 @@ function draw(data) {
   .sort(function(a,b) { return a.acquisition_amount < b.acquisition_amount; })
   .on('mouseover', tip.show)
   .on('mouseout', tip.hide)
-  .attr('data-link', function(d) { return d.link; })
+  .attr('data-link', get_attr('link'))
   .on('click', function(e) { window.open($(this).data('link'), '_blank'); })
 
   //.attr("stroke", function(d) { return "#BBB"; })
@@ -234,13 +231,13 @@ function draw(data) {
 
 var create_candidate_list = function(data) {
   var candidates = d3.nest()
-    .key(function(d) { return d.candidate_name; })
+    .key(get_attr('candidate_name'))
     .rollup(function(leaves)
             { return {candidate_name:leaves[0].candidate_name,
               num_assets: d3.sum(leaves, function(d) {return 1;}),
-              sum_days_held: d3.sum(leaves, function(d) {return d.days_held}),
-              sum_acquisitions: d3.sum(leaves, function(d) {return parseFloat(d.acquisition_amount);}),
-              sum_dispositions: d3.sum(leaves, function(d) {return parseFloat(d.disposition_amount);})
+              sum_days_held: d3.sum(leaves, get_attr('days_held')),
+              sum_acquisitions: d3.sum(leaves, get_attr('acquisition_amount')),
+              sum_dispositions: d3.sum(leaves, get_attr('disposition_amount'))
             };})
     .entries(data);
 
@@ -253,10 +250,6 @@ var create_candidate_list = function(data) {
     delete candidate.key
   });
 
-  var a_func = function(float_function) {
-    return 1;
-  }
-
   candidates.map(function(candidate) {
     var average_depreciation = (candidate.sum_acquisitions - candidate.sum_dispositions)/candidate.sum_days_held;
     candidate.average_depreciation_per_day = average_depreciation;
@@ -264,9 +257,7 @@ var create_candidate_list = function(data) {
   });
 
   // Sort candidates by depreciation rate
-  var sorted_candidates = candidates.sort(sort_by_desc(function(d) { return d.average_depreciation_per_day}));
-  sorted_candidates.map(function(c) {
-  });
+  var sorted_candidates = candidates.sort(sort_by_desc(get_attr('average_depreciation_per_day')));
 
   var headers = [['candidate_name', 'Candidate Name'],
     ['num_assets', '# assets'],
@@ -286,7 +277,7 @@ var create_candidate_list = function(data) {
     .data(sorted_candidates)
     .enter()
     .append('tr')
-      .attr('data-candidate-name', function(d) { return d.candidate_name; })
+      .attr('data-candidate-name', get_attr('candidate_name'))
       .on('mouseover', function(e) {
         var candidate_name = $(this).data('candidate-name');
         d3.select('#chart-container').selectAll('.asset')
@@ -307,7 +298,7 @@ var create_candidate_list = function(data) {
   })
   .enter()
   .append('td')
-    .text(function(d) { return d.value; });
+    .text(get_attr('value'));
 }
 
 //read data once and start do initial draw
@@ -420,7 +411,7 @@ function tabulate(data, columns, container) {
     })
     .enter()
     .append("td")
-      .text(function(d) { return d.value; });
+      .text(get_attr('value'));
 
   return table;
 }
