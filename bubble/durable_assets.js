@@ -1,5 +1,31 @@
 var gui = new dat.GUI();
+
+// General Util
 var money = d3.format('$,.2f');
+var sort_by_asc = function(float_function) {
+  var comparator = function(a, b) {
+    if(float_function(a) < float_function(b)) {
+      return -1;
+    } else if(float_function(a) > float_function(b)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  return comparator;
+}
+var sort_by_desc = function(float_function) {
+  var comparator = function(a, b) {
+    if(float_function(a) > float_function(b)) {
+      return -1;
+    } else if(float_function(a) < float_function(b)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  return comparator;
+}
 
 var dat_gui_ranges = {
   scale                 : [0.01, 3],
@@ -212,28 +238,39 @@ var create_candidate_list = function(data) {
     .rollup(function(leaves)
             { return {candidate_name:leaves[0].candidate_name,
               num_assets: d3.sum(leaves, function(d) {return 1;}),
+              sum_days_held: d3.sum(leaves, function(d) {return d.days_held}),
               sum_acquisitions: d3.sum(leaves, function(d) {return parseFloat(d.acquisition_amount);}),
               sum_dispositions: d3.sum(leaves, function(d) {return parseFloat(d.disposition_amount);})
             };})
     .entries(data);
-  candidates.map(function(candidate) {
-    var average_depreciation = (candidate.values.sum_acquisitions - candidate.values.sum_dispositions)/candidate.values.num_assets;
-    candidate.values.average_depreciation_per_day = money(average_depreciation);
-  });
 
-  //flat_candidates = candidates.map(function(candidate)
+  // Flatten candidates object
   candidates.map(function(candidate) {
     $.each(candidate.values, function(key, value) {
       candidate[key] = value;
-      //debugger;
     });
     delete candidate.values
     delete candidate.key
   });
 
+  var a_func = function(float_function) {
+    return 1;
+  }
+
+  candidates.map(function(candidate) {
+    var average_depreciation = (candidate.sum_acquisitions - candidate.sum_dispositions)/candidate.sum_days_held;
+    candidate.average_depreciation_per_day = average_depreciation;
+    candidate.average_depreciation_per_day_pretty = money(average_depreciation);
+  });
+
+  // Sort candidates by depreciation rate
+  var sorted_candidates = candidates.sort(sort_by_desc(function(d) { return d.average_depreciation_per_day}));
+  sorted_candidates.map(function(c) {
+  });
+
   var headers = [['candidate_name', 'Candidate Name'],
     ['num_assets', '# assets'],
-    ['average_depreciation_per_day', 'Average depreciation']];
+    ['average_depreciation_per_day_pretty', 'Average depreciation']];
   var table = d3.select('#candidate-container').append('table'),
     thead = table.append('thead'),
     tbody = table.append('tbody');
@@ -246,7 +283,7 @@ var create_candidate_list = function(data) {
       .text(function(header) { return header[1]; });
 
   var rows = tbody.selectAll('tr')
-    .data(candidates)
+    .data(sorted_candidates)
     .enter()
     .append('tr')
       .attr('data-candidate-name', function(d) { return d.candidate_name; })
