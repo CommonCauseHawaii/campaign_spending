@@ -1,4 +1,5 @@
 var gui = new dat.GUI();
+var money = d3.format('$,.2f');
 
 var dat_gui_ranges = {
   scale                 : [0.01, 3],
@@ -216,28 +217,60 @@ var create_candidate_list = function(data) {
             };})
     .entries(data);
   candidates.map(function(candidate) {
-    candidate.values.average_depreciation_per_day = (candidate.values.sum_acquisitions - candidate.values.sum_dispositions)/candidate.values.num_assets;
+    var average_depreciation = (candidate.values.sum_acquisitions - candidate.values.sum_dispositions)/candidate.values.num_assets;
+    candidate.values.average_depreciation_per_day = money(average_depreciation);
   });
 
+  //flat_candidates = candidates.map(function(candidate)
+  candidates.map(function(candidate) {
+    $.each(candidate.values, function(key, value) {
+      candidate[key] = value;
+      //debugger;
+    });
+    delete candidate.values
+    delete candidate.key
+  });
 
-  d3.select('#candidate-container').append('ul')
-  .selectAll('li')
-  .data(candidates)
-  .enter()
-    .append('li')
-    .text(function(d) { return d.key + " " + d.values.num_assets + " assets " + d.values.average_depreciation_per_day; })
-    .attr('data-candidate-name', function(d) { return d.key; })
-    .on('mouseover', function(e) {
-      var candidate_name = $(this).data('candidate-name');
-      d3.select('#chart-container').selectAll('.asset')
-      .attr('fill', function(d) {
-        if(candidate_name === d.candidate_name) {
-          return d3.rgb(255, 50, 50);
-        } else {
-          return d3.rgb(0, 0, 0);
-        }
+  var headers = [['candidate_name', 'Candidate Name'],
+    ['num_assets', '# assets'],
+    ['average_depreciation_per_day', 'Average depreciation']];
+  var table = d3.select('#candidate-container').append('table'),
+    thead = table.append('thead'),
+    tbody = table.append('tbody');
+
+  thead.append('tr')
+    .selectAll('th')
+    .data(headers)
+    .enter()
+    .append('th')
+      .text(function(header) { return header[1]; });
+
+  var rows = tbody.selectAll('tr')
+    .data(candidates)
+    .enter()
+    .append('tr')
+      .attr('data-candidate-name', function(d) { return d.candidate_name; })
+      .on('mouseover', function(e) {
+        var candidate_name = $(this).data('candidate-name');
+        d3.select('#chart-container').selectAll('.asset')
+        .attr('fill', function(d) {
+          if(candidate_name === d.candidate_name) {
+            return d3.rgb(255, 50, 50);
+          } else {
+            return d3.rgb(0, 0, 0);
+          }
+        })
       })
-    })
+
+  var cells = rows.selectAll('td')
+  .data(function(row) {
+    return headers.map(function(column) {
+      return {column: column[0], value: row[column[0]]};
+    });
+  })
+  .enter()
+  .append('td')
+    .text(function(d) { return d.value; });
 }
 
 //read data once and start do initial draw
