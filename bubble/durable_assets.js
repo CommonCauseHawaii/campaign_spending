@@ -368,7 +368,13 @@ d3.json("durable_assets.json", function(data) {
   create_candidate_list(full_records);
   var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
   tabulate(full_records, columns, '#table-container');
+
+  d3.select('#reset_colors_btn')
+    .on('click', function(e) {
+      draw(full_records);
+    });
 });
+
 
 //all dat.gui changes should trigger a redraw
 // generate the dat.gui control for any numerical ranges
