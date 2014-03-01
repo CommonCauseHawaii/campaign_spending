@@ -301,9 +301,7 @@ var create_candidate_list = function(data) {
     .text(get_attr('value'));
 }
 
-//read data once and start do initial draw
-//d3.csv("mf_earnings_data.csv", draw);
-d3.json("durable_assets.json", function(data) {
+var clean_candidate_list = function(data) {
   // TODO: move data fixing to named function
   // TODO: add categorization
   // * printer/scanner
@@ -362,8 +360,14 @@ d3.json("durable_assets.json", function(data) {
     };
   });
   var full_records = full_records_with_empty.filter(function(d) { return d !== undefined });
+  // Store full_records so it can be used in the console
   window.full_records = full_records;
+  return full_records;
+}
 
+//read data once and start do initial draw
+d3.json("durable_assets.json", function(data) {
+  var full_records = clean_candidate_list(data);
   draw(full_records);
   create_candidate_list(full_records);
   var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
