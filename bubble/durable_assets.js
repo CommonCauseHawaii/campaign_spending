@@ -96,6 +96,8 @@ function init_viz_element(svg, elem_with_class, data) {
 }
 
 function draw(data) {
+  data = filter_assets_list(data);
+
   //store things for next draw iteration
   params.viz_data = data;
   //"#486135", "#2C6E3E", "#89AC6E", "#B5C8A0"
@@ -105,6 +107,7 @@ function draw(data) {
   var getX = get_attr('days_held');
   //var getY = get_attr('percentage_lost');
   var getY = get_attr('depreciation_per_day');
+  //var getY = get_attr('days_till_zero_value');
   var getR = get_attr('acquisition_amount');
   var getColor = function(d) {
     if(d.party === 'Republican') {
@@ -133,11 +136,14 @@ function draw(data) {
     str += "<br/>Sold To: " + splitLongLines(d.sold_to);
     str += "<br/>Days held: " + d.days_held;
     str += "<br/>Depreciation per day: $" + d.depreciation_per_day.toFixed(2);
+    str += "<br/>Days till $0: " + d.days_till_zero_value.toFixed(0);
+    str += "<br/>Rate: " + d.rate.toFixed(2);
     return str;
   };
 
   var max_x_val = d3.max(data, getX);
-  var max_y_val = d3.max(data, getY);
+  var max_y_val = d3.max(data, function(d) { return getY(d) == Infinity ? 1000 : getY(d); });
+  console.log('max y val ' + max_y_val);
   var max_r_val = d3.max(data, getR);
 
   //preparing SVG Area
@@ -343,6 +349,7 @@ var clean_candidate_list = function(data) {
     var end_millis = Date.parse(sell_record.date);
     var days_held = (end_millis - start_millis) / millisInDay;
     var depreciation_per_day = (buy_record.amount - sell_record.diposition_amount) / days_held;
+    var depreciation_rate_per_day = depreciation_per_day/buy_record.amount;
     return {
       durable_asset_id: buy_record.durable_asset_id,
       candidate_name: buy_record.candidate_name,
@@ -356,21 +363,37 @@ var clean_candidate_list = function(data) {
       amount_difference: buy_record.amount - sell_record.diposition_amount,
       percentage_lost: (buy_record.amount - sell_record.diposition_amount)/buy_record.amount,
       depreciation_per_day: depreciation_per_day,
+      depreciation_rate_per_day: depreciation_rate_per_day,
+      rate: depreciation_rate_per_day * 1000,
+      days_till_zero_value: 1 / depreciation_rate_per_day,
       days_held: days_held
     };
   });
   var full_records = full_records_with_empty.filter(function(d) { return d !== undefined });
+
   // Store full_records so it can be used in the console
   window.full_records = full_records;
   return full_records;
 }
 
-//read data once and start do initial draw
+var filter_assets_list = function(data) {
+  var filter = $('.filter-buttons .button.selected').data('filter');
+
+  if(filter === "all") {
+    return data;
+  } else {
+    // Expect "> 500" or "< 500". Generally "(<|>) \d+"
+    var filter_func = function(d) { return eval('d.days_till_zero_value ' + filter ); };
+    return data.filter(filter_func);
+  }
+}
+
+//read data once and start to do initial draw
 d3.json("durable_assets.json", function(data) {
   var full_records = clean_candidate_list(data);
   draw(full_records);
   create_candidate_list(full_records);
-  var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day'];
+  var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day', 'days_till_zero_value'];
   tabulate(full_records, columns, '#table-container');
 
   d3.select('#reset_colors_btn')
@@ -390,7 +413,14 @@ d3.entries(dat_gui_ranges).forEach(function(elem) {
 
 $('.dg.ac').find('ul').toggleClass('closed');
 
-// add color or custom controls here
+$('.filter-buttons').on('click', '.button', function(e) {
+  e.preventDefault();
+  var $this = $(this);
+  $this.closest('.button-group').find('.button').removeClass('selected');
+  $this.addClass('selected');
+
+  draw(window.full_records);
+});
 
 // Show data as table on the page
 function tabulate(data, columns, container) {
