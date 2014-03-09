@@ -389,7 +389,7 @@ var filter_assets_list = function(data) {
 }
 
 //read data once and start to do initial draw
-d3.json("durable_assets.json", function(data) {
+d3.json("data/durable_assets.json", function(data) {
   var full_records = clean_candidate_list(data);
   draw(full_records);
   create_candidate_list(full_records);

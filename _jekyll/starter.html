@@ -1,0 +1,73 @@
+---
+---
+<html>
+  <head>
+    <title>Campaign Finance</title>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+      // campaign.js
+      {% include starter.js %}
+    </script>
+    <script type="text/javascript">
+      // bar-chart.js
+      {% include bar-chart.js %}
+    </script>
+  </head>
+<style>
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+
+
+  <body>
+  <a href="https://github.com/axelson/campaign_finance_starter_package"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+
+
+    <!-- Show amount contributed to each candidate -->
+    <h1>Contributors by amount</h1>
+    <div id="bar-chart"></div>
+    <h2>Raw Data</h2>
+    <div id="table-container"></div>
+    <div>
+      <p>View the raw data at:
+      <ul>
+        <li>Senate Campaign Contributions: <a href="https://data.hawaii.gov/Community/Campaign-Contributions-Received-By-Hawaii-State-an/jexd-xbcg">https://data.hawaii.gov/Community/Campaign-Contributions-Received-By-Hawaii-State-an/jexd-xbcg</a>
+        </li>
+        <li>State and County Campaign Spending: <a href="https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-Candi/3maa-4fgr">https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-Candi/3maa-4fgr</a>
+        </li>
+      </ul>
+
+
+    </div>
+    <h1>Example questions to be answered</h1>
+    <h2>Which candidate received the most money</h2>
+    And from whom?
+    <h2>Who donated the most money?</h2>
+    <h2>What did the candidate spend money on?</h2>
+    This should default to a candidate and allow a selector
+
+  </body>
+</html>
