@@ -412,6 +412,7 @@ d3.entries(dat_gui_ranges).forEach(function(elem) {
 } );
 
 $('.dg.ac').find('ul').toggleClass('closed');
+$('.dg.ac').hide();
 
 $('.filter-buttons').on('click', '.button', function(e) {
   e.preventDefault();
