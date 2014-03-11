@@ -365,17 +365,13 @@ var filter_assets_list = function(data) {
 }
 
 //read data once and start to do initial draw
-d3.json("data/durable_assets.json", function(data) {
-  var full_records = clean_candidate_list(data);
-  draw(full_records);
-  create_candidate_list(full_records);
-  var columns = ['durable_asset_id', 'candidate_name', 'party', 'acquisition_amount', 'disposition_amount', 'amount_difference', 'percentage_lost', 'depreciation_per_day', 'days_till_zero_value'];
+d3.json("data/short_candidate_spending.json", function(data) {
+  //var full_records = clean_candidate_list(data);
+  var full_records = data;
+  //draw(full_records);
+  //create_candidate_list(full_records);
+  var columns = ['candidate_name', 'party', 'vendor_name', 'amount', 'expenditure_category', 'purpose_of_expenditure'];
   tabulate(full_records, columns, '#table-container');
-
-  d3.select('#reset_colors_btn')
-    .on('click', function(e) {
-      draw(full_records);
-    });
 });
 
 
