@@ -1,192 +1,110 @@
-<html>
+<!doctype html>
+<html class="no-js" lang="en">
   <head>
-    <title>Campaign Finance</title>
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Foundation | Welcome</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+    <script src="js/vendor/modernizr.js"></script>
     <script type="text/javascript">
-      // campaign.js
-      $(document).ready(function() {
-  var urls = {
-    senate_campaign_contributions: 'https://data.hawaii.gov/resource/jexd-xbcg.json'
-    ,state_county_candidate_spending: 'https://data.hawaii.gov/resource/3maa-4fgr.json'
-  }
-  $.get( urls.senate_campaign_contributions + '?$limit=11', function( data ) {
-    console.log("got data" + JSON.stringify(data));
-    var table = tabulate(data, ['contributor_name', 'candidate_name', 'amount', "contributor_type", "street_address_1"]);
-
-    var formatted_data = data.map(function(d,i){return {'value':data[i]['amount'],'day':data[i]['contributor_name']}})
-
-    // Sum donations by contributor
-    var nest = d3.nest().
-      key(function(d) { return d.contributor_name; }).
-      rollup(function(leaves)
-             { return {contributor_name:leaves[0].contributor_name, amount:d3.sum(leaves, function(d) {return parseFloat(d.amount);})}; }).entries(data);
-
-    var mapData = nest.map(function(d) { console.log(JSON.stringify(d)); return d.values; });
-    barChart(mapData);
-    // Make data accessible in the console
-    window.data = data;
-    window.formatted_data = formatted_data;
-  });
-});
-
-// Show data as table on the page
-function tabulate(data, columns) {
-  var table = d3.select("#table-container").append("table"),
-    thead = table.append("thead"),
-    tbody = table.append("tbody");
-
-  // append the header row
-  thead.append("tr")
-    .selectAll("th")
-    .data(columns)
-    .enter()
-    .append("th")
-      .text(function(column) { return column; });
-
-  // create a row for each object in the data
-  var rows = tbody.selectAll("tr")
-    .data(data)
-    .enter()
-    .append("tr");
-
-  // create a cell in each row for each column
-  var cells = rows.selectAll("td")
-    .data(function(row) {
-      return columns.map(function(column) {
-        return {column: column, value: row[column]};
-      });
-    })
-    .enter()
-    .append("td")
-      .text(function(d) { return d.value; });
-
-  return table;
-}
-
+      function export_svg() {
+        $('svg').svg();
+        var xml = $('svg').svg('get').toSVG();
+        $('#svgexport').html(xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+      }
     </script>
-    <script type="text/javascript">
-      // bar-chart.js
-      function barChart(data) {
-  var margin = {top: 20, right: 20, bottom: 30, left: 40},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
-
-  var x = d3.scale.ordinal()
-      .rangeRoundBands([0, width], .1);
-
-  var y = d3.scale.linear()
-      .range([height, 0]);
-
-  var xAxis = d3.svg.axis()
-      .scale(x)
-      .orient("bottom");
-
-  var yAxis = d3.svg.axis()
-      .scale(y)
-      .orient("left")
-      .tickSize(0);
-
-  var svg = d3.select("#bar-chart").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  //d3.tsv("data.tsv", type, function(error, data) {
-    x.domain(data.map(function(d) { console.log("data " + JSON.stringify(d)); return d.contributor_name; }));
-    y.domain([0, d3.max(data, function(d) { return +d.amount; })]);
-    console.log('found max as ' + d3.max(data, function(d) { return +d.amount; }));
-    //y.domain([0, 400]);
-
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-      .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("Amount ($)");
-
-    svg.selectAll(".bar")
-        .data(data)
-      .enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", function(d) { return x(d.contributor_name); })
-        .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(d.amount); })
-        .attr("height", function(d) { return height - y(d.amount); });
-
-
-  function type(d) {
-    console.log('in type');
-    d.frequency = +d.frequency;
-    return d;
-  }
-}
-
-    </script>
+    <!-- Styles don't flow into exported SVG, so only use for web -->
+    <link rel="stylesheet" type="text/css" href="css/durable_assets.css">
   </head>
-<style>
-
-.bar {
-  fill: steelblue;
-}
-
-.bar:hover {
-  fill: brown;
-}
-
-.axis {
-  font: 10px sans-serif;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.x.axis path {
-  display: none;
-}
-
-</style>
-
-
   <body>
-  <a href="https://github.com/axelson/campaign_finance_starter_package"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/axelson/campaign_spending"><img style="position: absolute; top: 45px; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <nav class="top-bar" data-topbar>
+  <ul class="title-area">
+    <li class="name">
+      <h1><a href="/">Campaign Spending</a></h1>
+    </li>
+    <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+  </ul>
 
+  <section class="top-bar-section">
+    <!-- Right Nav Section -->
+    <ul class="right">
+      <li class="active"><a href="/">Durable Assets</a></li>
+      <li><a href="/candidate_spending.html">Candidate Spending</a></li>
+      <li class="has-dropdown">
+        <a href="#">Resources</a>
+        <ul class="dropdown">
+          <li><a href="https://docs.google.com/document/d/1VC0of6-rLtFrLmpBS8xWDLjLvtoPOr9LBfDJLYy_4fw/edit?usp=sharing">Campaign Spending Data Primer</a></li>
+          <li><a href="http://civic.celerator.org/">Civic*Celerator</a></li>
+          <li><a href="http://ags.hawaii.gov/campaign/">Campaign Spending Official Website</a></li>
+        </ul>
+      </li>
+    </ul>
 
-    <!-- Show amount contributed to each candidate -->
-    <h1>Contributors by amount</h1>
-    <div id="bar-chart"></div>
-    <h2>Raw Data</h2>
-    <div id="table-container"></div>
-    <div>
-      <p>View the raw data at:
-      <ul>
-        <li>Senate Campaign Contributions: <a href="https://data.hawaii.gov/Community/Campaign-Contributions-Received-By-Hawaii-State-an/jexd-xbcg">https://data.hawaii.gov/Community/Campaign-Contributions-Received-By-Hawaii-State-an/jexd-xbcg</a>
-        </li>
-        <li>State and County Campaign Spending: <a href="https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-Candi/3maa-4fgr">https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-Candi/3maa-4fgr</a>
-        </li>
-      </ul>
+    <!-- Left Nav Section -->
+    <ul class="left">
+    </ul>
+  </section>
+</nav>
 
-
+    <div class="row">
+      <div class="large-12 columns">
+        <h1>Durable Asset Visualization</h1>
+      </div>
     </div>
-    <h1>Example questions to be answered</h1>
-    <h2>Which candidate received the most money</h2>
-    And from whom?
-    <h2>Who donated the most money?</h2>
-    <h2>What did the candidate spend money on?</h2>
-    This should default to a candidate and allow a selector
 
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <div class="row full-width">
+      <div class="large-8 columns">
+        <div id="chart_div">
+          <svg id='chart-container'></svg>
+          <div><div id='reset_colors_btn' class='button'>Reset Colors</div></div>
+        </div>
+      </div>
+      <div class="large-4 columns">
+        <div class="row">
+          <ul class="button-group radius filter-buttons">
+            <li><a class="button" data-filter="< 500" href="#"> < 500 </a></li>
+            <li><a class="button selected" data-filter="all" href="#"> all </a></li>
+            <li><a class="button" data-filter="> 500" href="#"> > 500 </a></li>
+          </ul>
+        </div>
+        <div class="row">
+          <div id='candidate-container'></div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <button onclick="export_svg();" />export</button>
+        <pre><div id="svgexport">export will go here</div></pre>
+      </div>
+    </div>
+
+    <div class="row full-width">
+      <div class="large-12 columns">
+        <div id='table-container'></div>
+      </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/vendor/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.svg.js"></script>
+    <script type="text/javascript" src="js/foundation.min.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="js/d3.v3.min.js"></script>
+    <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/durable_assets.js"></script>
+    <script type="text/javascript" src="js/d3.tip.v0.6.3.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
   </body>
 </html>
