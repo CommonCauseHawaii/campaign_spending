@@ -1,0 +1,19 @@
+{
+  "name": "campaign_spending",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-less": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-copy": "*",
+    "bower": "*",
+    "grunt-exec": "*"
+  },
+  "engines": {
+    "npm": "1.2.x"
+  },
+  "devDependencies": {
+    "grunt-haml": "~0.9.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "campaign_spending",
+  "dependencies": {
+    "foundation": "~5.2.0",
+    "jquery": "~2.1.0"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ]
+}
