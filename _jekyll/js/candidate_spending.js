@@ -1,9 +1,3 @@
-// General initialization for candidate spending
-var init = function() {
-  $('.top-bar-section li').addClass('active');
-}
-init();
-
 var gui = new dat.GUI();
 
 var dat_gui_ranges = {
