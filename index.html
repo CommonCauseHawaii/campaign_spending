@@ -29,8 +29,8 @@
   <section class="top-bar-section">
     <!-- Right Nav Section -->
     <ul class="right">
-      <li class="active"><a href="/">Durable Assets</a></li>
-      <li><a href="/candidate_spending.html">Candidate Spending</a></li>
+      <li data-page='durable-assets' class="active"><a href="/">Durable Assets</a></li>
+      <li data-page='campaign-spending'><a href="/candidate_spending.html">Candidate Spending</a></li>
       <li class="has-dropdown">
         <a href="#">Resources</a>
         <ul class="dropdown">
@@ -70,6 +70,12 @@
       </div>
       <div class="large-4 columns">
         <div class="row">
+          <ul class="button-group radius y-axis-buttons">
+            <li><a class="button" data-filter="depreciation_per_day" href="#"> depreciation/day </a></li>
+            <li><a class="button selected" data-filter="days_till_zero_value" href="#"> days till $0 </a></li>
+          </ul>
+        </div>
+        <div class="row">
           <ul class="button-group radius filter-buttons">
             <li><a class="button" data-filter="< 500" href="#"> < 500 </a></li>
             <li><a class="button selected" data-filter="all" href="#"> all </a></li>
@@ -95,16 +101,19 @@
     </div>
 
 
+    <!-- TODO: Make this a common template -->
     <script type="text/javascript" src="js/vendor/jquery.js"></script>
     <script type="text/javascript" src="js/jquery.svg.js"></script>
     <script type="text/javascript" src="js/foundation.min.js"></script>
     <script type="text/javascript" src="js/dat.gui.min.js"></script>
     <script type="text/javascript" src="js/d3.v3.min.js"></script>
     <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/common.js"></script>
     <script type="text/javascript" src="js/durable_assets.js"></script>
     <script type="text/javascript" src="js/d3.tip.v0.6.3.js"></script>
     <script>
       $(document).foundation();
     </script>
+    <div class='hidden' id='app-info' data-page='durable-assets' />
   </body>
 </html>
