@@ -1,0 +1,23 @@
+/*
+Errno::ENOENT: No such file or directory - assets
+
+Backtrace:
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:360:in `read'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:360:in `update_stylesheet'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:203:in `block in update_stylesheets'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:201:in `each'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:201:in `update_stylesheets'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/plugin/compiler.rb:235:in `watch'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/plugin.rb:107:in `method_missing'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/exec.rb:463:in `watch_or_update'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/exec.rb:326:in `process_result'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/exec.rb:41:in `parse'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/lib/sass/exec.rb:21:in `parse!'
+/Users/jason/.rbenv/versions/2.0.0-p353/lib/ruby/gems/2.0.0/gems/sass-3.2.14/bin/scss:13:in `<top (required)>'
+/Users/jason/.rbenv/versions/2.0.0-p353/bin/scss:23:in `load'
+/Users/jason/.rbenv/versions/2.0.0-p353/bin/scss:23:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Errno::ENOENT: No such file or directory - assets"; }
