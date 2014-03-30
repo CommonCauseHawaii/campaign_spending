@@ -21,3 +21,7 @@ var get_attr = function(attribute) {
   }
   return getter_function;
 }
+
+function hash_code(s) {
+    return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+}

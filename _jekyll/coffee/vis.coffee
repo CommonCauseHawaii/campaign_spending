@@ -30,12 +30,16 @@ class BubbleChart
     @circles = null
 
     # nice looking colors - no reason to buck the trend
-    @fill_color = d3.scale.ordinal()
-      .domain(["low", "medium", "high"])
-      .range(["#d84b2a", "#beccae", "#7aa25c"])
+    @fill_color = (d) ->
+      #debugger
+      console.log 'hash is ' + hash_code(d.name)
+      d3.scale.linear()
+        .domain([-1000, 1000])
+#        .range(['red', 'green'])(hash_code(d.name) % 1000)
+        .range(['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd'])(hash_code(d.name) % 1000)
 
     # use the max total_amount in the data as the max in the scale's domain
-    max_amount = d3.max(@data, (d) -> parseInt(d.total_amount))
+    max_amount = d3.max(@data, (d) -> parseInt(d.amount.slice(1)))
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
     
     this.create_nodes()
@@ -48,13 +52,13 @@ class BubbleChart
   create_nodes: () =>
     @data.forEach (d) =>
       node = {
-        id: d.id
-        radius: @radius_scale(parseInt(d.total_amount))
-        value: d.total_amount
-        name: d.grant_title
-        org: d.organization
-        group: d.group
-        year: d.start_year
+        id: 1
+        radius: @radius_scale(parseInt(d.amount.slice(1)))
+        value: d.amount
+        name: d.candidate_name
+        org: 'org'
+        group: 'group'
+        year: d.expenditure_category
         x: Math.random() * 900
         y: Math.random() * 800
       }
@@ -72,7 +76,8 @@ class BubbleChart
       .attr("id", "svg_vis")
 
     @circles = @vis.selectAll("circle")
-      .data(@nodes, (d) -> d.id)
+      #.data(@nodes, (d) -> d.id)
+      .data(@nodes, (d) -> 1)
 
     # used because we need 'this' in the 
     # mouse callbacks
@@ -82,9 +87,9 @@ class BubbleChart
     # see transition below
     @circles.enter().append("circle")
       .attr("r", 0)
-      .attr("fill", (d) => @fill_color(d.group))
+      .attr("fill", (d) => @fill_color(d))
       .attr("stroke-width", 2)
-      .attr("stroke", (d) => d3.rgb(@fill_color(d.group)).darker())
+      .attr("stroke", (d) => d3.rgb(@fill_color(d)).darker())
       .attr("id", (d) -> "bubble_#{d.id}")
       .on("mouseover", (d,i) -> that.show_details(d,i,this))
       .on("mouseout", (d,i) -> that.hide_details(d,i,this))
@@ -183,17 +188,23 @@ class BubbleChart
 
 
   hide_details: (data, i, element) =>
-    d3.select(element).attr("stroke", (d) => d3.rgb(@fill_color(d.group)).darker())
+    d3.select(element).attr("stroke", (d) => d3.rgb(@fill_color(d)).darker())
     @tooltip.hideTooltip()
 
 
 root = exports ? this
 
+
 $ ->
+  console.log('begin vis.coffee')
   chart = null
 
   render_vis = (csv) ->
-    chart = new BubbleChart csv
+    filtered_csv = csv.filter( (d) ->
+      d.election_period == '2012-2014'
+    )
+    console.log('in render vis filter size ' + filtered_csv.size)
+    chart = new BubbleChart filtered_csv
     chart.start()
     root.display_all()
   root.display_all = () =>
@@ -206,4 +217,4 @@ $ ->
     else
       root.display_all()
 
-  d3.csv "data/gates_money.csv", render_vis
+  d3.csv "data/campaign_spending_summary.csv", render_vis
