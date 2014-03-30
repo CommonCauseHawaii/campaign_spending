@@ -41,3 +41,5 @@ svg {border: 1px solid gray;}
 }
 
 .filter-buttons .selected { background-color: #126582; }
+/* TODO: make into general class */
+.y-axis-buttons .selected { background-color: #126582; }
