@@ -1,12 +1,13 @@
 ---
 ---
+console.log('top of vis.coffee')
 class BubbleChart
   constructor: (data) ->
     @data = data
     @width = 940
     @height = 600
 
-    @tooltip = CustomTooltip("gates_tooltip", 540)
+    @tooltip = CustomTooltip("gates_tooltip", 240)
 
     # locations the nodes will move towards
     # depending on which view is currently being
@@ -32,7 +33,7 @@ class BubbleChart
     # nice looking colors - no reason to buck the trend
     @fill_color = (d) ->
       #debugger
-      console.log 'hash is ' + hash_code(d.name)
+      #console.log 'hash is ' + hash_code(d.name)
       d3.scale.linear()
         .domain([-1000, 1000])
 #        .range(['red', 'green'])(hash_code(d.name) % 1000)
@@ -59,6 +60,7 @@ class BubbleChart
         org: 'org'
         group: 'group'
         year: d.expenditure_category
+        election_period: d.election_period
         x: Math.random() * 900
         y: Math.random() * 800
       }
@@ -181,9 +183,10 @@ class BubbleChart
 
   show_details: (data, i, element) =>
     d3.select(element).attr("stroke", "black")
-    content = "<span class=\"name\">Title:</span><span class=\"value\"> #{data.name}</span><br/>"
+    content = "<span class=\"name\">Candidate:</span><span class=\"value\"> #{data.name}</span><br/>"
     content +="<span class=\"name\">Amount:</span><span class=\"value\"> $#{addCommas(data.value)}</span><br/>"
-    content +="<span class=\"name\">Year:</span><span class=\"value\"> #{data.year}</span>"
+    content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.year}</span><br/>"
+    content +="<span class=\"name\">Election Period:</span><span class=\"value\"> #{data.election_period}</span>"
     @tooltip.showTooltip(content,d3.event)
 
 
@@ -202,7 +205,25 @@ $ ->
   render_vis = (csv) ->
     filtered_csv = csv.filter( (d) ->
       d.election_period == '2012-2014'
+      d.election_period == '2010-2012' && d.office == 'Governor'
+      #d.election_period == '2012-2014' && d.candidate_name == 'Schatz, Brian'
+      #d.candidate_name == 'Schatz, Brian'
+      #d.candidate_name == 'Abercrombie, Neil'
     )
+    reduced = _.reduce(filtered_csv, (acc, d) ->
+      curr = acc[d.candidate_name]
+      curr = [] unless curr?
+      curr.push(d)
+      curr = _.sortBy(curr, (d) ->
+        return parseInt(d.amount.slice(5)))
+          .reverse()
+      acc[d.candidate_name] = _.first(curr, 4)
+      return acc
+    , {})
+    #filtered_csv = _.reduce(_.values(reduced), (acc, d) ->
+    #  return acc.concat(d)
+    #, [])
+
     console.log('in render vis filter size ' + filtered_csv.size)
     chart = new BubbleChart filtered_csv
     chart.start()
