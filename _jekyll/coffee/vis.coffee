@@ -14,9 +14,9 @@ class BubbleChart
     # used
     @center = {x: @width / 2, y: @height / 2}
     @year_centers = {
-      "2008": {x: @width / 3, y: @height / 2},
-      "2009": {x: @width / 2, y: @height / 2},
-      "2010": {x: 2 * @width / 3, y: @height / 2}
+      "2008-2010": {x: @width / 3, y: @height / 2},
+      "2010-2012": {x: @width / 2, y: @height / 2},
+      "2012-2014": {x: 2 * @width / 3, y: @height / 2}
     }
 
     # used when setting up force and
@@ -53,13 +53,15 @@ class BubbleChart
   create_nodes: () =>
     @data.forEach (d) =>
       node = {
-        id: 1
+        id: d.id
         radius: @radius_scale(parseInt(d.amount.slice(1)))
         value: d.amount
         name: d.candidate_name
         org: 'org'
         group: 'group'
-        year: d.expenditure_category
+        year: '2008'
+        category: d.expenditure_category
+        office: d.office
         election_period: d.election_period
         x: Math.random() * 900
         y: Math.random() * 800
@@ -67,7 +69,40 @@ class BubbleChart
       @nodes.push node
 
     @nodes.sort (a,b) -> b.value - a.value
+    window.nodes = @nodes
 
+  bind_data: () =>
+    obj = {category: 'fun', election_period: '2010-2012', group: 'gr', id: 1, name: 'jason', office: 'gov', org: 'org', value: '$110322.21', radius: 100, x: 500, y:244, year: '2008'}
+    @nodes.push(obj)
+    @circles = @vis.selectAll("circle")
+      .data(@nodes, (d) -> d.id)
+      #.data(@nodes, (d) -> 1)
+    that = this
+    @circles.enter().append("circle")
+    @circles.exit().remove()
+    @circles
+      #.attr("r", 0)
+      .attr("fill", (d) => @fill_color(d))
+      .attr("stroke-width", 2)
+      .attr("stroke", (d) => d3.rgb(@fill_color(d)).darker())
+      .attr("id", (d) -> "bubble_#{d.id}")
+      .on("mouseover", (d,i) -> that.show_details(d,i,this))
+      .on("mouseout", (d,i) -> that.hide_details(d,i,this))
+
+    # Fancy transition to make bubbles appear, ending with the
+    # correct radius
+    @circles.transition().duration(1000).attr("r", (d) -> d.radius)
+    console.log "nice display"
+    display_all()
+
+  # Need a way to arbitrarily have many sets of bubbles displayed at once
+  # side-by-side with labels underneath. Should only have to pass in the data
+  # to be displayed, how to separate the data, and what the labels should be.
+  # Example: set of bubbles on the left are for Abercrombie and the right are
+  # for Schatz. Others are hidden.
+  #
+  # Need a way for entering nodes to fly in from the right and exiting nodes to
+  # fly out from the left.
 
   # create svg at #vis and then 
   # create circle representation for each node
@@ -78,8 +113,8 @@ class BubbleChart
       .attr("id", "svg_vis")
 
     @circles = @vis.selectAll("circle")
-      #.data(@nodes, (d) -> d.id)
-      .data(@nodes, (d) -> 1)
+      .data(@nodes, (d) -> d.id)
+      #.data(@nodes, (d) -> 1)
 
     # used because we need 'this' in the 
     # mouse callbacks
@@ -158,14 +193,19 @@ class BubbleChart
 
   # move all circles to their associated @year_centers 
   move_towards_year: (alpha) =>
+    console.log('outer function with alpha ' + JSON.stringify(alpha))
     (d) =>
-      target = @year_centers[d.year]
+      console.log('in move towards year 22 ' + JSON.stringify(d))
+      #debugger
+      #console.log('after')
+      window.counter += 1
+      target = @year_centers[d.election_period]
       d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha * 1.1
       d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha * 1.1
 
   # Method to display year titles
   display_years: () =>
-    years_x = {"2008": 160, "2009": @width / 2, "2010": @width - 160}
+    years_x = {"2008-2010": 160, "2010-2012": @width / 2, "2012-2014": @width - 160}
     years_data = d3.keys(years_x)
     years = @vis.selectAll(".years")
       .data(years_data)
@@ -185,7 +225,8 @@ class BubbleChart
     d3.select(element).attr("stroke", "black")
     content = "<span class=\"name\">Candidate:</span><span class=\"value\"> #{data.name}</span><br/>"
     content +="<span class=\"name\">Amount:</span><span class=\"value\"> $#{addCommas(data.value)}</span><br/>"
-    content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.year}</span><br/>"
+    content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.category}</span><br/>"
+    content +="<span class=\"name\">Office:</span><span class=\"value\"> #{data.office}</span><br/>"
     content +="<span class=\"name\">Election Period:</span><span class=\"value\"> #{data.election_period}</span>"
     @tooltip.showTooltip(content,d3.event)
 
@@ -194,17 +235,24 @@ class BubbleChart
     d3.select(element).attr("stroke", (d) => d3.rgb(@fill_color(d)).darker())
     @tooltip.hideTooltip()
 
-
 root = exports ? this
 
 
 $ ->
+  $('.filter-buttons .button').on('click', (e) ->
+    e.preventDefault()
+    console.log('clicked filter button!')
+    #display_year()
+    window.get_chart().bind_data()
+  )
   console.log('begin vis.coffee')
+  window.counter = 0
   chart = null
 
   render_vis = (csv) ->
     filtered_csv = csv.filter( (d) ->
-      d.election_period == '2012-2014'
+      #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
+      #d.election_period == '2012-2014'
       d.election_period == '2010-2012' && d.office == 'Governor'
       #d.election_period == '2012-2014' && d.candidate_name == 'Schatz, Brian'
       #d.candidate_name == 'Schatz, Brian'
@@ -217,12 +265,12 @@ $ ->
       curr = _.sortBy(curr, (d) ->
         return parseInt(d.amount.slice(5)))
           .reverse()
-      acc[d.candidate_name] = _.first(curr, 4)
+      acc[d.candidate_name] = _.first(curr, 1)
       return acc
     , {})
-    #filtered_csv = _.reduce(_.values(reduced), (acc, d) ->
-    #  return acc.concat(d)
-    #, [])
+    filtered_csv = _.reduce(_.values(reduced), (acc, d) ->
+      return acc.concat(d)
+    , [])
 
     console.log('in render vis filter size ' + filtered_csv.size)
     chart = new BubbleChart filtered_csv
@@ -230,6 +278,8 @@ $ ->
     root.display_all()
   root.display_all = () =>
     chart.display_group_all()
+  root.get_chart = () =>
+    chart
   root.display_year = () =>
     chart.display_by_year()
   root.toggle_view = (view_type) =>

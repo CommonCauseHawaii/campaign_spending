@@ -386,14 +386,14 @@ d3.entries(dat_gui_ranges).forEach(function(elem) {
 $('.dg.ac').find('ul').toggleClass('closed');
 $('.dg.ac').hide();
 
-$('.filter-buttons').on('click', '.button', function(e) {
-  e.preventDefault();
-  var $this = $(this);
-  $this.closest('.button-group').find('.button').removeClass('selected');
-  $this.addClass('selected');
-
-  draw(window.full_records);
-});
+//$('.filter-buttons').on('click', '.button', function(e) {
+//  e.preventDefault();
+//  var $this = $(this);
+//  $this.closest('.button-group').find('.button').removeClass('selected');
+//  $this.addClass('selected');
+//
+//  draw(window.full_records);
+//});
 
 // Show data as table on the page
 function tabulate(data, columns, container) {
