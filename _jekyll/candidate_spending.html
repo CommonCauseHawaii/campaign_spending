@@ -37,20 +37,28 @@
     <br />
     <br />
     <div class="row full-width">
-      <div class="large-8 columns">
+      <div class="large-12 columns">
         <div id="vis"></div>
-        <div id="chart_div">
-          <svg id='chart-container'></svg>
-          <div><div id='reset_colors_btn' class='button'>Reset Colors</div></div>
-        </div>
+      </div>
+    </div>
+    <div class="row full-width">
+      <div class="large-12 columns">
+        <ul class="button-group radius filter-buttons">
+          <li><a class="button" data-filter="< 500" href="#"> < 500 </a></li>
+          <li><a class="button selected" data-filter="all" href="#"> all </a></li>
+          <li><a class="button" data-filter="> 500" href="#"> > 500 </a></li>
+        </ul>
+      </div>
+    </div>
+    </div>
+    <div class="row full-width">
+      <div id="vis"></div>
+    </div>
+    <div class="row full-width">
+      <div class="large-8 columns">
       </div>
       <div class="large-4 columns">
         <div class="row">
-          <ul class="button-group radius filter-buttons">
-            <li><a class="button" data-filter="< 500" href="#"> < 500 </a></li>
-            <li><a class="button selected" data-filter="all" href="#"> all </a></li>
-            <li><a class="button" data-filter="> 500" href="#"> > 500 </a></li>
-          </ul>
         </div>
         <div class="row">
           <div id='candidate-container'></div>

@@ -72,7 +72,7 @@ class BubbleChart
     window.nodes = @nodes
 
   bind_data: () =>
-    obj = {category: 'fun', election_period: '2010-2012', group: 'gr', id: 1, name: 'jason', office: 'gov', org: 'org', value: '$110322.21', radius: 100, x: 500, y:244, year: '2008'}
+    obj = {category: 'fun', election_period: '2010-2012', group: 'gr', id: 999, name: 'jason', office: 'gov', org: 'org', value: '$110322.21', radius: 100, x: 500, y:244, year: '2008'}
     @nodes.push(obj)
     @circles = @vis.selectAll("circle")
       .data(@nodes, (d) -> d.id)
@@ -92,7 +92,7 @@ class BubbleChart
     # Fancy transition to make bubbles appear, ending with the
     # correct radius
     @circles.transition().duration(1000).attr("r", (d) -> d.radius)
-    console.log "nice display"
+    this.display_group_all()
 
   # Need a way to arbitrarily have many sets of bubbles displayed at once
   # side-by-side with labels underneath. Should only have to pass in the data
