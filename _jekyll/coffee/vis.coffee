@@ -79,8 +79,6 @@ class BubbleChart
       #.data(@nodes, (d) -> 1)
     that = this
     @circles.enter().append("circle")
-    @circles.exit().remove()
-    @circles
       #.attr("r", 0)
       .attr("fill", (d) => @fill_color(d))
       .attr("stroke-width", 2)
@@ -89,11 +87,12 @@ class BubbleChart
       .on("mouseover", (d,i) -> that.show_details(d,i,this))
       .on("mouseout", (d,i) -> that.hide_details(d,i,this))
 
+    @circles.exit().remove()
+
     # Fancy transition to make bubbles appear, ending with the
     # correct radius
     @circles.transition().duration(1000).attr("r", (d) -> d.radius)
     console.log "nice display"
-    display_all()
 
   # Need a way to arbitrarily have many sets of bubbles displayed at once
   # side-by-side with labels underneath. Should only have to pass in the data
