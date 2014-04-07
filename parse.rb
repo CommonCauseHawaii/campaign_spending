@@ -7,6 +7,7 @@ CSV.open('header.csv', 'w',
            CSV.foreach("_jekyll/data/campaign_spending_summary.csv", :headers => true) do |row|
              puts "on row #{row}"
              row['id'] = id
+             row['amount'] = row['amount'][1..-1]
              output_csv << row
              # use row here...
              id += 1

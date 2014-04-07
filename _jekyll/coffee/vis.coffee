@@ -40,7 +40,7 @@ class BubbleChart
         .range(['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd'])(hash_code(d.name) % 1000)
 
     # use the max total_amount in the data as the max in the scale's domain
-    max_amount = d3.max(@data, (d) -> parseInt(d.amount.slice(1)))
+    max_amount = d3.max(@data, (d) -> parseInt(d.amount))
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
     
     this.create_nodes()
@@ -54,7 +54,7 @@ class BubbleChart
     @data.forEach (d) =>
       node = {
         id: d.id
-        radius: @radius_scale(parseInt(d.amount.slice(1)))
+        radius: @radius_scale(parseInt(d.amount))
         value: d.amount
         name: d.candidate_name
         org: 'org'
