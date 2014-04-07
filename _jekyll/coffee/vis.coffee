@@ -4,8 +4,8 @@ console.log('top of vis.coffee')
 class BubbleChart
   constructor: (data) ->
     @data = data
-    @width = 940
-    @height = 600
+    @width = 1250
+    @height = 900
 
     @tooltip = CustomTooltip("gates_tooltip", 240)
 
@@ -190,6 +190,68 @@ class BubbleChart
 
     this.display_years()
 
+  split_candidates: () =>
+    location_func = this.move_to_location_func @nodes, (d) -> d.name
+    @force.gravity(@layout_gravity)
+      .charge(this.charge)
+      .friction(0.9)
+      .on "tick", (e) =>
+        @circles.each(this.move_towards_candidates(e.alpha, location_func))
+          .attr('cx', (d) -> d.x)
+          .attr('cy', (d) -> d.y)
+    @force.start()
+
+    # TODO: change .years to .titles or something (might need to modify the CSS)
+    titles = @vis.selectAll('.years')
+      .data(location_func.values())
+
+    # TODO: figure out how to change text node to div and still have it displayed. Maybe need to set x and y differently
+    titles.enter().append('text')
+      .text (d) ->
+        #(d.name + '<br/> sum')
+        d.name
+        #(d.name + ' <div id="jason">content</div>')
+      .attr('x', (d) -> d.x)
+      .attr('y', (d) -> d.y + 200)
+
+  # move all circles to be grouped by candidate
+  # Move by alpha amount each time called
+  move_towards_candidates: (alpha, location_func) =>
+    (d) =>
+      target = location_func.get(d.name)
+      d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha * 1.1
+      d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha * 1.1
+
+
+  # computes move to location based upon what is passed in
+  # grouping will be determined by function
+  # will need to compute the number of groupings
+  # then based on the number of groupings it will determine the x and y location of each grouping
+  move_to_location_func: (nodes, grouping_func) =>
+    min_grouping_width = 300
+    groupings_per_row = Math.floor(@width / min_grouping_width)
+    # TODO: fix height for Ed Case
+    min_grouping_height = 230
+    height = @height/2
+    get_width = (i) =>
+      (i % groupings_per_row) * min_grouping_width
+    get_height = (i) =>
+      num_row = Math.ceil(i / groupings_per_row)
+      num_row * min_grouping_height
+    groups = d3.nest()
+      .key( grouping_func )
+      .rollup( (leaves) -> {sum: d3.sum(leaves, (d) -> parseFloat(d.value))} )
+      .map(nodes, d3.map)
+    i = 1
+    groups.keys().sort(d3.ascending).forEach (key) ->
+      entry = groups.get(key)
+      entry['name'] = key
+      entry['x'] = get_width(i)
+      entry['y'] = get_height(i)
+      groups.set(key, entry)
+      i += 1
+    groups
+
   # move all circles to their associated @year_centers 
   move_towards_year: (alpha) =>
     console.log('outer function with alpha ' + JSON.stringify(alpha))
@@ -242,7 +304,8 @@ $ ->
     e.preventDefault()
     console.log('clicked filter button!')
     #display_year()
-    window.get_chart().bind_data()
+    #window.get_chart().bind_data()
+    window.get_chart().split_candidates()
   )
   console.log('begin vis.coffee')
   window.counter = 0
@@ -254,27 +317,31 @@ $ ->
       #d.election_period == '2012-2014'
       d.election_period == '2010-2012' && d.office == 'Governor'
       #d.election_period == '2012-2014' && d.candidate_name == 'Schatz, Brian'
-      #d.candidate_name == 'Schatz, Brian'
-      #d.candidate_name == 'Abercrombie, Neil'
+      #d.candidate_name == 'Schatz, Brian' || d.candidate_name == 'Abercrombie, Neil'
     )
     reduced = _.reduce(filtered_csv, (acc, d) ->
       curr = acc[d.candidate_name]
       curr = [] unless curr?
       curr.push(d)
       curr = _.sortBy(curr, (d) ->
+        # Why the 5 here?
         return parseInt(d.amount.slice(5)))
           .reverse()
       acc[d.candidate_name] = _.first(curr, 1)
       return acc
     , {})
-    filtered_csv = _.reduce(_.values(reduced), (acc, d) ->
-      return acc.concat(d)
-    , [])
+    #filtered_csv = _.reduce(_.values(reduced), (acc, d) ->
+    #  return acc.concat(d)
+    #, [])
 
     console.log('in render vis filter size ' + filtered_csv.size)
     chart = new BubbleChart filtered_csv
     chart.start()
     root.display_all()
+    mygroups = chart.move_to_location_func(window.nodes, (d) => d.name)
+    console.log 'my groups is ' + JSON.stringify(mygroups)
+    console.log mygroups
+    window.mygroups = mygroups
   root.display_all = () =>
     chart.display_group_all()
   root.get_chart = () =>
