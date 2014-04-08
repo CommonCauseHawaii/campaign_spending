@@ -1,6 +1,5 @@
 ---
 ---
-console.log('top of vis.coffee')
 class BubbleChart
   constructor: (data) ->
     @data = data
@@ -194,6 +193,7 @@ class BubbleChart
     location_func = this.move_to_location_func @nodes, (d) -> d.name
     @force.gravity(@layout_gravity)
       .charge(this.charge)
+      .chargeDistance(200)
       .friction(0.9)
       .on "tick", (e) =>
         @circles.each(this.move_towards_candidates(e.alpha, location_func))
@@ -211,6 +211,7 @@ class BubbleChart
         #(d.name + '<br/> sum')
         d.name
         #(d.name + ' <div id="jason">content</div>')
+      .attr("text-anchor", "middle")
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y + 200)
 
@@ -229,20 +230,18 @@ class BubbleChart
   # then based on the number of groupings it will determine the x and y location of each grouping
   move_to_location_func: (nodes, grouping_func) =>
     min_grouping_width = 300
-    groupings_per_row = Math.floor(@width / min_grouping_width)
-    # TODO: fix height for Ed Case
-    min_grouping_height = 230
-    height = @height/2
+    groupings_per_row = Math.floor(@width / min_grouping_width) - 1
+    min_grouping_height = 300
     get_width = (i) =>
-      (i % groupings_per_row) * min_grouping_width
+      ((i % groupings_per_row) + 1) * min_grouping_width
     get_height = (i) =>
-      num_row = Math.ceil(i / groupings_per_row)
+      num_row = Math.floor(i / groupings_per_row) + 1
       num_row * min_grouping_height
     groups = d3.nest()
       .key( grouping_func )
       .rollup( (leaves) -> {sum: d3.sum(leaves, (d) -> parseFloat(d.value))} )
       .map(nodes, d3.map)
-    i = 1
+    i = 0
     groups.keys().sort(d3.ascending).forEach (key) ->
       entry = groups.get(key)
       entry['name'] = key
@@ -273,10 +272,10 @@ class BubbleChart
 
     years.enter().append("text")
       .attr("class", "years")
+      .attr("text-anchor", "middle")
       .attr("x", (d) => years_x[d] )
       .attr("y", 40)
-      .attr("text-anchor", "middle")
-      .text((d) -> d)
+      .text((d) -> 'af')
 
   # Method to hide year titiles
   hide_years: () =>
@@ -334,12 +333,12 @@ $ ->
     #  return acc.concat(d)
     #, [])
 
-    console.log('in render vis filter size ' + filtered_csv.size)
     chart = new BubbleChart filtered_csv
     chart.start()
     root.display_all()
     mygroups = chart.move_to_location_func(window.nodes, (d) => d.name)
-    console.log 'my groups is ' + JSON.stringify(mygroups)
+    _.each mygroups.values(), (d) ->
+      console.log(JSON.stringify(d))
     console.log mygroups
     window.mygroups = mygroups
   root.display_all = () =>
