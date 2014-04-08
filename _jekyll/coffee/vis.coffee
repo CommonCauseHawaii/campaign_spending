@@ -12,11 +12,6 @@ class BubbleChart
     # depending on which view is currently being
     # used
     @center = {x: @width / 2, y: @height / 2}
-    @year_centers = {
-      "2008-2010": {x: @width / 3, y: @height / 2},
-      "2010-2012": {x: @width / 2, y: @height / 2},
-      "2012-2014": {x: 2 * @width / 3, y: @height / 2}
-    }
 
     # used when setting up force and
     # moving around nodes
@@ -41,7 +36,7 @@ class BubbleChart
     # use the max total_amount in the data as the max in the scale's domain
     max_amount = d3.max(@data, (d) -> parseInt(d.amount))
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
-    
+
     this.create_nodes()
     this.create_vis()
 
@@ -58,7 +53,6 @@ class BubbleChart
         name: d.candidate_name
         org: 'org'
         group: 'group'
-        year: '2008'
         category: d.expenditure_category
         office: d.office
         election_period: d.election_period
@@ -71,7 +65,7 @@ class BubbleChart
     window.nodes = @nodes
 
   bind_data: () =>
-    obj = {category: 'fun', election_period: '2010-2012', group: 'gr', id: 999, name: 'jason', office: 'gov', org: 'org', value: '$110322.21', radius: 100, x: 500, y:244, year: '2008'}
+    obj = {category: 'fun', election_period: '2010-2012', group: 'gr', id: 999, name: 'jason', office: 'gov', org: 'org', value: '$110322.21', radius: 100, x: 500, y:244}
     @nodes.push(obj)
     @circles = @vis.selectAll("circle")
       .data(@nodes, (d) -> d.id)
@@ -253,12 +247,7 @@ class BubbleChart
 
   # move all circles to their associated @year_centers 
   move_towards_year: (alpha) =>
-    console.log('outer function with alpha ' + JSON.stringify(alpha))
     (d) =>
-      console.log('in move towards year 22 ' + JSON.stringify(d))
-      #debugger
-      #console.log('after')
-      window.counter += 1
       target = @year_centers[d.election_period]
       d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha * 1.1
       d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha * 1.1
