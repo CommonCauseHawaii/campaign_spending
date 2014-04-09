@@ -4,7 +4,7 @@ class BubbleChart
   constructor: (data) ->
     @data = data
     @width = 1250
-    @height = 900
+    @height = 1500
 
     @tooltip = CustomTooltip("gates_tooltip", 240)
 
@@ -160,8 +160,6 @@ class BubbleChart
           .attr("cy", (d) -> d.y)
     @force.start()
 
-    this.hide_years()
-
   # Moves all circles towards the @center
   # of the visualization
   move_towards_center: (alpha) =>
@@ -238,7 +236,7 @@ class BubbleChart
       ((i % groupings_per_row) + 1) * min_grouping_width
     get_height = (i) =>
       num_row = Math.floor(i / groupings_per_row) + 1
-      num_row * min_grouping_height
+      num_row * min_grouping_height - 100
     groups = d3.nest()
       .key( grouping_func )
       .rollup( (leaves) -> {sum: d3.sum(leaves, (d) -> parseFloat(d.value))} )
@@ -259,24 +257,6 @@ class BubbleChart
       target = @year_centers[d.election_period]
       d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha * 1.1
       d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha * 1.1
-
-  # Method to display year titles
-  display_years: () =>
-    years_x = {"2008-2010": 160, "2010-2012": @width / 2, "2012-2014": @width - 160}
-    years_data = d3.keys(years_x)
-    years = @vis.selectAll(".years")
-      .data(years_data)
-
-    years.enter().append("text")
-      .attr("class", "years")
-      .attr("text-anchor", "middle")
-      .attr("x", (d) => years_x[d] )
-      .attr("y", 40)
-      .text((d) -> 'af')
-
-  # Method to hide year titiles
-  hide_years: () =>
-    years = @vis.selectAll(".years").remove()
 
   show_details: (data, i, element) =>
     d3.select(element).attr("stroke", "black")
@@ -328,18 +308,20 @@ $ ->
   filter_data = (records) ->
     filtered_csv = records.filter( (d) ->
       #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
-      #d.election_period == '2012-2014'
-      d.election_period == '2010-2012' && d.office == 'Governor'
+      d.election_period == '2012-2014'
+      #d.election_period == '2010-2012' && d.office == 'Governor'
       #d.election_period == '2012-2014' && d.candidate_name == 'Schatz, Brian'
       #d.candidate_name == 'Schatz, Brian' || d.candidate_name == 'Abercrombie, Neil'
     )
+    sorted = filtered_csv.sort( (a,b) -> d3.descending(parseFloat(a.amount), parseFloat(b.amount)) )
+    #sorted = sorted.slice(0, 800)
     reduced = _.reduce(filtered_csv, (acc, d) ->
       curr = acc[d.candidate_name]
       curr = [] unless curr?
       curr.push(d)
       curr = _.sortBy(curr, (d) ->
         # Why the 5 here?
-        return parseInt(d.amount.slice(5)))
+        return parseFloat(d.amount.slice(5)))
           .reverse()
       acc[d.candidate_name] = _.first(curr, 1)
       return acc
@@ -348,6 +330,7 @@ $ ->
     #  return acc.concat(d)
     #, [])
     filtered_csv
+    sorted
 
   render_vis = (error, expenditure_records, organizational_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
@@ -380,6 +363,10 @@ $ ->
       window.get_chart().split_candidates()
     if(func == 'party')
       window.get_chart().split_party()
+    if(func == 'expenditure')
+      window.get_chart().do_split (d) -> d.category
+    if(func == 'office')
+      window.get_chart().do_split (d) -> d.office
 
   queue()
     .defer(d3.csv, "data/campaign_spending_summary.csv")
