@@ -342,4 +342,10 @@ $ ->
     else
       root.display_all()
 
+  $('#viz_nav_container .viz_nav').on 'click', (e) ->
+    e.preventDefault()
+    func = $(e.target).data('name')
+    if(func == 'candidate')
+      window.get_chart().split_candidates()
+
   d3.csv "data/campaign_spending_summary.csv", render_vis

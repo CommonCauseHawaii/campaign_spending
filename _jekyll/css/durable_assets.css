@@ -43,3 +43,20 @@ svg {border: 1px solid gray;}
 .filter-buttons .selected { background-color: #126582; }
 /* TODO: make into general class */
 .y-axis-buttons .selected { background-color: #126582; }
+
+#candidate_spending_container { background-color: #ddd; }
+#candidate_spending_container #viz_nav_container {
+  display: table;
+  border-spacing: 20px;
+}
+#candidate_spending_container #viz_nav_inner_container { display: table-row; }
+#candidate_spending_container .viz_nav {
+  display: table-cell;
+  background-color: white;
+  padding: 20px;
+  text-transform: uppercase;
+  font-size: 25px;
+}
+#candidate_spending_container .viz_nav .sub_header {
+  font-size: 12px;
+}
