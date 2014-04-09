@@ -26,7 +26,6 @@ class BubbleChart
 
     # nice looking colors - no reason to buck the trend
     @fill_color = (d) ->
-      #debugger
       #console.log 'hash is ' + hash_code(d.name)
       d3.scale.linear()
         .domain([-1000, 1000])
@@ -53,6 +52,7 @@ class BubbleChart
         name: d.candidate_name
         org: 'org'
         group: 'group'
+        party: d.party
         category: d.expenditure_category
         office: d.office
         election_period: d.election_period
@@ -183,39 +183,45 @@ class BubbleChart
 
     this.display_years()
 
-  split_party: () =>
-    location_func = this.move_to_location_func @nodes, (d) -> d.party
-  split_candidates: () =>
-    location_func = this.move_to_location_func @nodes, (d) -> d.name
+  do_split: (accessor) =>
+    location_map = this.move_to_location_map @nodes, accessor
     @force.gravity(@layout_gravity)
       .charge(this.charge)
-      .chargeDistance(200)
+      .chargeDistance(300)
       .friction(0.9)
       .on "tick", (e) =>
-        @circles.each(this.move_towards_candidates(e.alpha, location_func))
+        @circles.each(this.move_towards_candidates(e.alpha, location_map, accessor))
           .attr('cx', (d) -> d.x)
           .attr('cy', (d) -> d.y)
     @force.start()
 
     # TODO: change .years to .titles or something (might need to modify the CSS)
-    titles = @vis.selectAll('.years')
-      .data(location_func.values())
+    #titles = d3.select("#vis svg")
+    titles = @vis.selectAll('text.titles')
+      .data(location_map.values(), (d) -> d.key)
 
     # TODO: figure out how to change text node to div and still have it displayed. Maybe need to set x and y differently
     titles.enter().append('text')
+      .attr("class", "titles")
       .text (d) ->
-        #(d.name + '<br/> sum')
-        d.name
-        #(d.name + ' <div id="jason">content</div>')
+        d.key
       .attr("text-anchor", "middle")
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y + 200)
 
+    titles.exit().remove()
+
+  split_party: () =>
+    this.do_split (d) -> d.party
+
+  split_candidates: () =>
+    this.do_split (d) -> d.name
+
   # move all circles to be grouped by candidate
   # Move by alpha amount each time called
-  move_towards_candidates: (alpha, location_func) =>
+  move_towards_candidates: (alpha, location_map, accessor) =>
     (d) =>
-      target = location_func.get(d.name)
+      target = location_map.get(accessor(d))
       d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha * 1.1
       d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha * 1.1
 
@@ -224,7 +230,7 @@ class BubbleChart
   # grouping will be determined by function
   # will need to compute the number of groupings
   # then based on the number of groupings it will determine the x and y location of each grouping
-  move_to_location_func: (nodes, grouping_func) =>
+  move_to_location_map: (nodes, grouping_func) =>
     min_grouping_width = 300
     groupings_per_row = Math.floor(@width / min_grouping_width) - 1
     min_grouping_height = 300
@@ -240,7 +246,7 @@ class BubbleChart
     i = 0
     groups.keys().sort(d3.ascending).forEach (key) ->
       entry = groups.get(key)
-      entry['name'] = key
+      entry['key'] = key
       entry['x'] = get_width(i)
       entry['y'] = get_height(i)
       groups.set(key, entry)
@@ -278,6 +284,7 @@ class BubbleChart
     content +="<span class=\"name\">Amount:</span><span class=\"value\"> $#{addCommas(data.value)}</span><br/>"
     content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.category}</span><br/>"
     content +="<span class=\"name\">Office:</span><span class=\"value\"> #{data.office}</span><br/>"
+    content +="<span class=\"name\">Party:</span><span class=\"value\"> #{data.party}</span><br/>"
     content +="<span class=\"name\">Election Period:</span><span class=\"value\"> #{data.election_period}</span>"
     @tooltip.showTooltip(content,d3.event)
 
@@ -319,7 +326,6 @@ $ ->
 
   # Filter data down to what we want
   filter_data = (records) ->
-    debugger
     filtered_csv = records.filter( (d) ->
       #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
       #d.election_period == '2012-2014'
@@ -346,12 +352,11 @@ $ ->
   render_vis = (error, expenditure_records, organizational_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
     filtered_records = filter_data(raw_records)
-    debugger
 
     chart = new BubbleChart filtered_records
     chart.start()
     root.display_all()
-    mygroups = chart.move_to_location_func(window.nodes, (d) => d.name)
+    mygroups = chart.move_to_location_map(window.nodes, (d) => d.name)
     _.each mygroups.values(), (d) ->
       console.log(JSON.stringify(d))
     console.log mygroups
@@ -373,7 +378,7 @@ $ ->
     func = $(e.target).data('name')
     if(func == 'candidate')
       window.get_chart().split_candidates()
-    if(func == 'candidate')
+    if(func == 'party')
       window.get_chart().split_party()
 
   queue()
