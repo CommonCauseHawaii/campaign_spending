@@ -183,6 +183,8 @@ class BubbleChart
 
     this.display_years()
 
+  split_party: () =>
+    location_func = this.move_to_location_func @nodes, (d) -> d.party
   split_candidates: () =>
     location_func = this.move_to_location_func @nodes, (d) -> d.name
     @force.gravity(@layout_gravity)
@@ -286,7 +288,6 @@ class BubbleChart
 
 root = exports ? this
 
-
 $ ->
   $('.filter-buttons .button').on('click', (e) ->
     e.preventDefault()
@@ -299,8 +300,27 @@ $ ->
   window.counter = 0
   chart = null
 
-  render_vis = (csv) ->
-    filtered_csv = csv.filter( (d) ->
+  # Join records on reg_no
+  join_data = (expend_recs, org_recs) ->
+    full_records = []
+    i=0; j=0
+    while (true)
+      expend_rec = expend_recs[i]
+      org_rec = org_recs[j]
+      if (!expend_rec? || !org_rec?)
+          break
+
+      if (expend_rec.reg_no == org_rec.reg_no)
+        full_records.push($.extend({}, expend_rec, org_rec))
+        i++
+      else if (expend_rec.reg_no != org_rec.reg_no)
+        j++
+    return full_records
+
+  # Filter data down to what we want
+  filter_data = (records) ->
+    debugger
+    filtered_csv = records.filter( (d) ->
       #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
       #d.election_period == '2012-2014'
       d.election_period == '2010-2012' && d.office == 'Governor'
@@ -321,8 +341,14 @@ $ ->
     #filtered_csv = _.reduce(_.values(reduced), (acc, d) ->
     #  return acc.concat(d)
     #, [])
+    filtered_csv
 
-    chart = new BubbleChart filtered_csv
+  render_vis = (error, expenditure_records, organizational_records) ->
+    raw_records = join_data(expenditure_records, organizational_records)
+    filtered_records = filter_data(raw_records)
+    debugger
+
+    chart = new BubbleChart filtered_records
     chart.start()
     root.display_all()
     mygroups = chart.move_to_location_func(window.nodes, (d) => d.name)
@@ -347,5 +373,10 @@ $ ->
     func = $(e.target).data('name')
     if(func == 'candidate')
       window.get_chart().split_candidates()
+    if(func == 'candidate')
+      window.get_chart().split_party()
 
-  d3.csv "data/campaign_spending_summary.csv", render_vis
+  queue()
+    .defer(d3.csv, "data/campaign_spending_summary.csv")
+    .defer(d3.csv, "data/organizational_report.csv")
+    .await(render_vis);
