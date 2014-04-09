@@ -34,13 +34,3 @@ CSV.open('organizational_reports_parsed.csv', 'w',
              output_csv << entry.values
            end
          end
-
-#CSV.foreach("_jekyll/data/campaign_spending_summary.csv.short") do |row|
-#  puts "on row #{row}"
-#  row['id'] = id if id != 0
-#  new_data.push(row)
-#  # use row here...
-#  id += 1
-#end
-
-#puts "new_data #{new_data}"
