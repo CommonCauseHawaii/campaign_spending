@@ -309,6 +309,7 @@ $ ->
     filtered_csv = records.filter( (d) ->
       #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
       d.election_period == '2012-2014'
+      #d.election_period == '2008-2010'
       #d.election_period == '2010-2012' && d.office == 'Governor'
       #d.election_period == '2012-2014' && d.candidate_name == 'Schatz, Brian'
       #d.candidate_name == 'Schatz, Brian' || d.candidate_name == 'Abercrombie, Neil'
