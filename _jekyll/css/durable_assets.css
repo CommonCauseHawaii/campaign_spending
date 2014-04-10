@@ -1,3 +1,8 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* Will be removed later */
 svg {border: 1px solid gray;}
 .row.full-width {
   width: 100%;
