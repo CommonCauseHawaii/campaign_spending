@@ -61,3 +61,23 @@ svg {border: 1px solid gray;}
 #candidate_spending_container .viz_nav .sub_header {
   font-size: 12px;
 }
+
+/* Viz Colors */
+svg circle.overhead {
+  fill: #689890;
+}
+svg circle.contributions {
+  fill: #3b6e71;
+}
+svg circle.communication {
+  fill: #73884f;
+}
+svg circle.staff {
+  fill: #73884f;
+}
+svg circle.fees {
+  fill: #9ab996;
+}
+svg circle.other {
+  fill: #6c6b6b;
+}

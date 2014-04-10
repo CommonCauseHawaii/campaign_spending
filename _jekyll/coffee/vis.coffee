@@ -11,7 +11,7 @@ class BubbleChart
     # locations the nodes will move towards
     # depending on which view is currently being
     # used
-    @center = {x: @width / 2, y: @height / 2}
+    @center = {x: @width / 2, y: Math.min(@height / 2, 400)}
 
     # used when setting up force and
     # moving around nodes
@@ -75,7 +75,6 @@ class BubbleChart
       #.attr("r", 0)
       .attr("fill", (d) => @fill_color(d))
       .attr("stroke-width", 2)
-      .attr("stroke", (d) => d3.rgb(@fill_color(d)).darker())
       .attr("id", (d) -> "bubble_#{d.id}")
       .on("mouseover", (d,i) -> that.show_details(d,i,this))
       .on("mouseout", (d,i) -> that.hide_details(d,i,this))
@@ -116,9 +115,8 @@ class BubbleChart
     # see transition below
     @circles.enter().append("circle")
       .attr("r", 0)
-      .attr("fill", (d) => @fill_color(d))
+      .attr('class', this.get_class)
       .attr("stroke-width", 2)
-      .attr("stroke", (d) => d3.rgb(@fill_color(d)).darker())
       .attr("id", (d) -> "bubble_#{d.id}")
       .on("mouseover", (d,i) -> that.show_details(d,i,this))
       .on("mouseout", (d,i) -> that.hide_details(d,i,this))
@@ -251,6 +249,21 @@ class BubbleChart
       i += 1
     groups
 
+  # Calculates class for data
+  get_class: (d) =>
+    if d.category in ['Durable Assets', 'Food & Beverages', 'Insurance', 'Lease/Rent', 'Office Supplies', 'Travel & Lodging', 'Utilities', 'Vehicle']
+      'overhead'
+    else if d.category in ['Contribution to Community Organization', 'Contribution to Political Party', 'Hawaii Election Campaign Fund']
+      'contributions'
+    else if d.category in ['Advertising', 'Candidate Fundraiser Tickets', 'Postage/Mailing', 'Printing', 'Surveys, Polls & Voter Lists']
+      'communication'
+    else if d.category in ['Employee Services', 'Professional Services']
+      'staff'
+    else if d.category in ['Bank Charges & Adjustments', 'Filing Fee', 'Taxes']
+      'fees'
+    else if d.category in ['Other']
+      'other'
+
   # move all circles to their associated @year_centers 
   move_towards_year: (alpha) =>
     (d) =>
@@ -270,7 +283,7 @@ class BubbleChart
 
 
   hide_details: (data, i, element) =>
-    d3.select(element).attr("stroke", (d) => d3.rgb(@fill_color(d)).darker())
+    d3.select(element).attr("stroke", '')
     @tooltip.hideTooltip()
 
 root = exports ? this
@@ -308,9 +321,9 @@ $ ->
   filter_data = (records) ->
     filtered_csv = records.filter( (d) ->
       #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
-      d.election_period == '2012-2014'
+      #d.election_period == '2012-2014'
       #d.election_period == '2008-2010'
-      #d.election_period == '2010-2012' && d.office == 'Governor'
+      d.election_period == '2010-2012' && d.office == 'Governor'
       #d.election_period == '2012-2014' && d.candidate_name == 'Schatz, Brian'
       #d.candidate_name == 'Schatz, Brian' || d.candidate_name == 'Abercrombie, Neil'
     )
