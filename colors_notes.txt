@@ -1,0 +1,25 @@
+Group 1:
+
+Overhead/overhead:
+    Light Teal: #689890
+    Durable Assets, Food & Beverage, Insurance, Lease/Rent, Office Supplies, Travel & Lodging, Utilities, Vehicle
+
+Contributions/contributions:
+    Dark Teal: #3b6e71
+    Contribution to Community Organization, Contribution to Political Party, Hawaii Election Campaign Fund
+
+Communication and outreach/communication:
+    Brown: 766f52
+    Advertising, Candidate Fundraiser Tickets, Postage/Maling, Printing, Surveys, Polls & Voter Lists
+
+Staff & Professional Services/staff:
+    Leaf Green: 73884f
+    Employee Services, Professional Services
+
+Taxes & Fees/fees:
+    Mint Green: 9ab996
+    Bank Charges & Adjustments, Filing Fee, Taxes
+
+Other/other:
+    Gray: 6c6b6b
+    Other
