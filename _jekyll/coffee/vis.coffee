@@ -54,6 +54,7 @@ class BubbleChart
         group: 'group'
         party: d.party
         category: d.expenditure_category
+        super_category: this.get_supercategory(d.expenditure_category)
         office: d.office
         election_period: d.election_period
         x: Math.random() * 900
@@ -115,7 +116,7 @@ class BubbleChart
     # see transition below
     @circles.enter().append("circle")
       .attr("r", 0)
-      .attr('class', this.get_class)
+      .attr('class', (d) => this.get_supercategory(d.category))
       .attr("stroke-width", 2)
       .attr("id", (d) -> "bubble_#{d.id}")
       .on("mouseover", (d,i) -> that.show_details(d,i,this))
@@ -207,12 +208,6 @@ class BubbleChart
 
     titles.exit().remove()
 
-  split_party: () =>
-    this.do_split (d) -> d.party
-
-  split_candidates: () =>
-    this.do_split (d) -> d.name
-
   # move all circles to be grouped by candidate
   # Move by alpha amount each time called
   move_towards_candidates: (alpha, location_map, accessor) =>
@@ -250,18 +245,18 @@ class BubbleChart
     groups
 
   # Calculates class for data
-  get_class: (d) =>
-    if d.category in ['Durable Assets', 'Food & Beverages', 'Insurance', 'Lease/Rent', 'Office Supplies', 'Travel & Lodging', 'Utilities', 'Vehicle']
+  get_supercategory: (category) =>
+    if category in ['Durable Assets', 'Food & Beverages', 'Insurance', 'Lease/Rent', 'Office Supplies', 'Travel & Lodging', 'Utilities', 'Vehicle']
       'overhead'
-    else if d.category in ['Contribution to Community Organization', 'Contribution to Political Party', 'Hawaii Election Campaign Fund']
+    else if category in ['Contribution to Community Organization', 'Contribution to Political Party', 'Hawaii Election Campaign Fund']
       'contributions'
-    else if d.category in ['Advertising', 'Candidate Fundraiser Tickets', 'Postage/Mailing', 'Printing', 'Surveys, Polls & Voter Lists']
+    else if category in ['Advertising', 'Candidate Fundraiser Tickets', 'Postage/Mailing', 'Printing', 'Surveys, Polls & Voter Lists']
       'communication'
-    else if d.category in ['Employee Services', 'Professional Services']
+    else if category in ['Employee Services', 'Professional Services']
       'staff'
-    else if d.category in ['Bank Charges & Adjustments', 'Filing Fee', 'Taxes']
+    else if category in ['Bank Charges & Adjustments', 'Filing Fee', 'Taxes']
       'fees'
-    else if d.category in ['Other']
+    else if category in ['Other']
       'other'
 
   # move all circles to their associated @year_centers 
@@ -276,6 +271,7 @@ class BubbleChart
     content = "<span class=\"name\">Candidate:</span><span class=\"value\"> #{data.name}</span><br/>"
     content +="<span class=\"name\">Amount:</span><span class=\"value\"> $#{addCommas(data.value)}</span><br/>"
     content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.category}</span><br/>"
+    content +="<span class=\"name\">Super Category:</span><span class=\"value\"> #{data.super_category}</span><br/>"
     content +="<span class=\"name\">Office:</span><span class=\"value\"> #{data.office}</span><br/>"
     content +="<span class=\"name\">Party:</span><span class=\"value\"> #{data.party}</span><br/>"
     content +="<span class=\"name\">Election Period:</span><span class=\"value\"> #{data.election_period}</span>"
@@ -373,12 +369,13 @@ $ ->
   $('#viz_nav_container .viz_nav').on 'click', (e) ->
     e.preventDefault()
     func = $(e.target).data('name')
+
     if(func == 'candidate')
-      window.get_chart().split_candidates()
+      window.get_chart().do_split (d) -> d.name
     if(func == 'party')
-      window.get_chart().split_party()
+      window.get_chart().do_split (d) -> d.party
     if(func == 'expenditure')
-      window.get_chart().do_split (d) -> d.category
+      window.get_chart().do_split (d) -> d.super_category
     if(func == 'office')
       window.get_chart().do_split (d) -> d.office
 
