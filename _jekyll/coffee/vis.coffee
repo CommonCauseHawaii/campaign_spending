@@ -334,15 +334,6 @@ class BubbleChart
 root = exports ? this
 
 $ ->
-  $('.filter-buttons .button').on('click', (e) ->
-    e.preventDefault()
-    console.log('clicked filter button!')
-    #display_year()
-    #window.get_chart().bind_data()
-    window.get_chart().split_candidates()
-  )
-  console.log('begin vis.coffee')
-  window.counter = 0
   chart = null
 
   # Join records on reg_no
@@ -413,7 +404,10 @@ $ ->
 
   $('#viz_nav_container .viz_nav').on 'click', (e) ->
     e.preventDefault()
-    func = $(e.target).data('name')
+    $target = $(e.target)
+    func = $target.data('name')
+    #$target.flash()
+    #debugger
 
     if(func == 'candidate')
       window.get_chart().do_split (d) -> d.name
