@@ -8,7 +8,7 @@
     <title>Foundation | Welcome</title>
     <link rel="stylesheet" href="css/foundation.css" />
     <!--<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>-->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,700,600' rel='stylesheet' type='text/css'>
     <script src="js/vendor/modernizr.js"></script>
     <!--<script src="//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>-->
     <script>
@@ -29,21 +29,21 @@
     <link rel="stylesheet" type="text/css" href="css/durable_assets.css">
   </head>
   <body id='candidate_spending_container'>
-    <a href="https://github.com/axelson/campaign_spending"><img style="position: absolute; top: 45px; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/axelson/campaign_spending"><img style="position: absolute; top: 65px; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
     {% include nav.html %}
 
     <div class="row">
       <div class="large-12 columns">
         <div id="viz_nav_container">
           <div id="viz_nav_inner_container">
-            <div class="viz_nav" data-name="2014"> 2014 </div>
+            <div class="viz_nav year" data-name="2014"> 2014 </div>
             <div class="viz_nav" data-name="office">
-              <div class="sub_header"> View by </div>
+              <div class="sub_header">View by</div>
               Office
             </div>
             <div class="viz_nav" data-name="expenditure">
-              <div class="sub_header"> View by </div>
-              Expenditure
+              <span class="sub_header">&nbsp;View by</span>
+              <span>Expenditure</span>
             </div>
             <div class="viz_nav" data-name="candidate">
               <div class="sub_header"> View by </div>
@@ -68,46 +68,6 @@
         <div id="vis"></div>
       </div>
     </div>
-    <div class="row full-width">
-      <div class="large-12 columns">
-        <ul class="button-group radius filter-buttons">
-          <li><a class="button" data-filter="< 500" href="#"> < 500 </a></li>
-          <li><a class="button selected" data-filter="all" href="#"> all </a></li>
-          <li><a class="button" data-filter="> 500" href="#"> > 500 </a></li>
-        </ul>
-      </div>
-    </div>
-    </div>
-    <div class="row full-width">
-      <div id="vis"></div>
-    </div>
-    <div class="row full-width">
-      <div class="large-8 columns">
-      </div>
-      <div class="large-4 columns">
-        <div class="row">
-        </div>
-        <div class="row">
-          <div id='candidate-container'></div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="large-12 columns">
-        <button onclick="export_svg();" />export</button>
-        <pre><div id="svgexport">export will go here</div></pre>
-      </div>
-    </div>
-
-    <div class="row full-width">
-      <div class="large-12 columns">
-        <div class='row'>
-          Filter by type
-        </div>
-        <div class='row'>
-          <div id='table-container'></div>
-        </div>
-      </div>
     </div>
 
 

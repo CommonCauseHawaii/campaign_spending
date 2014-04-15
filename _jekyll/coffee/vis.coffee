@@ -11,7 +11,7 @@ class BubbleChart
     # locations the nodes will move towards
     # depending on which view is currently being
     # used
-    @center = {x: @width / 2, y: Math.min(@height / 2, 400)}
+    @center = {x: @width / 2, y: Math.min(@height / 2, 500)}
 
     # used when setting up force and
     # moving around nodes
