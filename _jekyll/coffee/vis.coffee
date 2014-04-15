@@ -6,7 +6,7 @@ class BubbleChart
     @width = 1250
     @height = 1500
 
-    @tooltip = CustomTooltip("expenditure_tooltip", 240)
+    @tooltip = CustomTooltip("expenditure_tooltip", 300)
 
     # locations the nodes will move towards
     # depending on which view is currently being
@@ -139,7 +139,7 @@ class BubbleChart
   # Dividing by 8 scales down the charge to be
   # appropriate for the visualization dimensions.
   charge: (d) ->
-    -Math.pow(d.radius, 2.0) / 8
+    -(Math.pow(d.radius, 2.0) / 8) + -(d.radius * 0.1) + -(.3)
 
   # Starts up the force layout with
   # the default values
@@ -284,10 +284,11 @@ class BubbleChart
 
   show_details: (data, i, element) =>
     d3.select(element).attr("stroke", "black")
+    console.log("charge is #{this.charge(data)} radius is: " + data.radius)
     content = "<div class=\"inner_tooltip\">"
     content += "<span class=\"candidate\">#{data.name}</span><br/>"
     content += "#{data.election_year}, #{data.office}<br/>"
-    content +="<span class=\"amount\"> #{data.super_category} $#{addCommas(data.value)}</span><br/>"
+    content +="<span class=\"amount\"> #{data.category} $#{addCommas(data.value)}</span><br/>"
     #content +="<span class=\"name\">Amount:</span><span class=\"value\"> $#{addCommas(data.value)}</span><br/>"
     #content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.category}</span><br/>"
     #content +="<span class=\"name\">Super Category:</span><span class=\"value\"> #{data.super_category}</span><br/>"
@@ -296,8 +297,8 @@ class BubbleChart
     #content +="<span class=\"name\">Election Period:</span><span class=\"value\"> #{data.election_period}</span>"
     content +="</div>"
     @tooltip.showTooltip(content,d3.event)
-#    d3.select(element)
-#      .move_to_front()
+    d3.select(element)
+      .move_to_front()
 
 
   hide_details: (data, i, element) =>
@@ -368,6 +369,7 @@ $ ->
     raw_records = join_data(expenditure_records, organizational_records)
     filtered_records = filter_data(raw_records)
 
+    window.records = filtered_records
     chart = new BubbleChart filtered_records
     chart.start()
     root.display_all()

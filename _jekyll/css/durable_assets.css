@@ -60,6 +60,7 @@ svg {border: 1px solid gray;}
   background-color: white;
   padding: 20px;
   text-transform: uppercase;
+  vertical-align: middle;
   font-size: 25px;
   cursor: pointer;
 }
