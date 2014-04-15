@@ -211,6 +211,7 @@ class BubbleChart
     titles.enter().append('text')
       .attr("class", "titles header")
       .text (d) ->
+        #console.log("#{d.key}: (#{d.x}, #{d.y}) and #{d.y + 200}")
         d.key
       .attr("text-anchor", "middle")
       .attr('x', (d) -> d.x)
@@ -235,7 +236,6 @@ class BubbleChart
     titles.exit().remove()
 
   format_money_millions: (amount_in_dollars) =>
-    console.log('called to format ' + amount_in_dollars)
     d3.format('$,.2f')(amount_in_dollars/1e6) + ' million'
 
   # move all circles to be grouped by candidate

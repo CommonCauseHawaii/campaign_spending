@@ -96,5 +96,5 @@ svg circle.other {
 #expenditure_tooltip .amount { font-style:italic; font-weight: 600; }
 #expenditure_tooltip .inner_tooltip {
   background-color: white;
-  padding: 13px;
+  padding: 15px;
 }
