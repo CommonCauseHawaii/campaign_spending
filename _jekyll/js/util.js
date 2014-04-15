@@ -25,3 +25,9 @@ var get_attr = function(attribute) {
 function hash_code(s) {
     return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
 }
+
+d3.selection.prototype.move_to_front = function() {
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+  });
+};

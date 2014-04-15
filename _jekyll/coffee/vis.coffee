@@ -6,7 +6,7 @@ class BubbleChart
     @width = 1250
     @height = 1500
 
-    @tooltip = CustomTooltip("gates_tooltip", 240)
+    @tooltip = CustomTooltip("expenditure_tooltip", 240)
 
     # locations the nodes will move towards
     # depending on which view is currently being
@@ -57,6 +57,7 @@ class BubbleChart
         super_category: this.get_supercategory(d.expenditure_category)
         office: d.office
         election_period: d.election_period
+        election_year: d.election_period.split('-')[1]
         x: Math.random() * 900
         y: Math.random() * 800
       }
@@ -198,21 +199,30 @@ class BubbleChart
           .attr('cy', (d) -> d.y)
     @force.start()
 
-    # TODO: change .years to .titles or something (might need to modify the CSS)
-    #titles = d3.select("#vis svg")
     titles = @vis.selectAll('text.titles')
       .data(location_map.values(), (d) -> d.key)
 
     # TODO: figure out how to change text node to div and still have it displayed. Maybe need to set x and y differently
     titles.enter().append('text')
-      .attr("class", "titles")
+      .attr("class", "titles header")
       .text (d) ->
         d.key
       .attr("text-anchor", "middle")
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y + 200)
 
+    titles.enter().append('text')
+      .attr('class', 'titles amount')
+      .text (d) => this.format_money_millions(parseFloat(d.sum))
+      .attr('text-anchor', 'middle')
+      .attr('x', (d) -> d.x)
+      .attr('y', (d) -> d.y + 220)
+
     titles.exit().remove()
+
+  format_money_millions: (amount_in_dollars) =>
+    console.log('called to format ' + amount_in_dollars)
+    d3.format('$,.2f')(amount_in_dollars/1e6) + ' million'
 
   # move all circles to be grouped by candidate
   # Move by alpha amount each time called
@@ -274,14 +284,20 @@ class BubbleChart
 
   show_details: (data, i, element) =>
     d3.select(element).attr("stroke", "black")
-    content = "<span class=\"name\">Candidate:</span><span class=\"value\"> #{data.name}</span><br/>"
-    content +="<span class=\"name\">Amount:</span><span class=\"value\"> $#{addCommas(data.value)}</span><br/>"
-    content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.category}</span><br/>"
-    content +="<span class=\"name\">Super Category:</span><span class=\"value\"> #{data.super_category}</span><br/>"
-    content +="<span class=\"name\">Office:</span><span class=\"value\"> #{data.office}</span><br/>"
-    content +="<span class=\"name\">Party:</span><span class=\"value\"> #{data.party}</span><br/>"
-    content +="<span class=\"name\">Election Period:</span><span class=\"value\"> #{data.election_period}</span>"
+    content = "<div class=\"inner_tooltip\">"
+    content += "<span class=\"candidate\">#{data.name}</span><br/>"
+    content += "#{data.election_year}, #{data.office}<br/>"
+    content +="<span class=\"amount\"> #{data.super_category} $#{addCommas(data.value)}</span><br/>"
+    #content +="<span class=\"name\">Amount:</span><span class=\"value\"> $#{addCommas(data.value)}</span><br/>"
+    #content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.category}</span><br/>"
+    #content +="<span class=\"name\">Super Category:</span><span class=\"value\"> #{data.super_category}</span><br/>"
+    #content +="<span class=\"name\">Office:</span><span class=\"value\"> #{data.office}</span><br/>"
+    #content +="<span class=\"name\">Party:</span><span class=\"value\"> #{data.party}</span><br/>"
+    #content +="<span class=\"name\">Election Period:</span><span class=\"value\"> #{data.election_period}</span>"
+    content +="</div>"
     @tooltip.showTooltip(content,d3.event)
+#    d3.select(element)
+#      .move_to_front()
 
 
   hide_details: (data, i, element) =>

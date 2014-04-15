@@ -86,3 +86,14 @@ svg circle.fees {
 svg circle.other {
   fill: #6c6b6b;
 }
+
+.titles.header { text-transform: uppercase; font-weight: 700; }
+.titles.amount { font-style:italic; }
+#expenditure_tooltip { padding: 8px; color: black; background: #ccc; }
+#expenditure_tooltip .candidate { font-weight: 700; }
+#expenditure_tooltip .name { font-weight: 700; }
+#expenditure_tooltip .amount { font-style:italic; font-weight: 600; }
+#expenditure_tooltip .inner_tooltip {
+  background-color: white;
+  padding: 13px;
+}
