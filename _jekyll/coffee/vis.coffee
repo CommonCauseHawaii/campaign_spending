@@ -180,6 +180,12 @@ class BubbleChart
 
     this.display_years()
 
+  split_amount: () =>
+    # Need a way to tell it to move to what location
+    # Need a way to render it at that location
+    # Need a way to display the labels at the correct locations
+
+
   do_split: (accessor) =>
     location_map = this.move_to_location_map @nodes, accessor
     @force.gravity(@layout_gravity)
@@ -349,11 +355,6 @@ $ ->
     chart = new BubbleChart filtered_records
     chart.start()
     root.display_all()
-    mygroups = chart.move_to_location_map(window.nodes, (d) => d.name)
-    _.each mygroups.values(), (d) ->
-      console.log(JSON.stringify(d))
-    console.log mygroups
-    window.mygroups = mygroups
   root.display_all = () =>
     chart.display_group_all()
   root.get_chart = () =>
@@ -378,6 +379,8 @@ $ ->
       window.get_chart().do_split (d) -> d.super_category
     if(func == 'office')
       window.get_chart().do_split (d) -> d.office
+    if(func == 'amount')
+      window.get_chart().split_amount()
 
   queue()
     .defer(d3.csv, "data/campaign_spending_summary.csv")
