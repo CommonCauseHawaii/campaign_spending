@@ -4,7 +4,7 @@ class BubbleChart
   constructor: (data) ->
     @data = data
     @width = 1250
-    @height = 1500
+    @height = 3500
 
     @tooltip = CustomTooltip("expenditure_tooltip", 300)
 
@@ -189,7 +189,7 @@ class BubbleChart
 
   do_split: (accessor) =>
     location_map = this.move_to_location_map @nodes, accessor
-    @force.gravity(@layout_gravity)
+    @force.gravity(0)
       .charge(this.charge)
       .chargeDistance(300)
       .friction(0.87)
@@ -201,6 +201,12 @@ class BubbleChart
 
     titles = @vis.selectAll('text.titles')
       .data(location_map.values(), (d) -> d.key)
+
+    #titles.enter().append('text')
+    #  .text('CENTER')
+    #  .attr('text-anchor', 'middle')
+    #  .attr('x', (d) -> d.x)
+    #  .attr('y', (d) -> d.y)
 
     titles.enter().append('text')
       .attr("class", "titles header")
@@ -247,7 +253,7 @@ class BubbleChart
   move_to_location_map: (nodes, grouping_func) =>
     min_grouping_width = 300
     groupings_per_row = Math.floor(@width / min_grouping_width) - 1
-    min_grouping_height = 300
+    min_grouping_height = 350
     get_width = (i) =>
       ((i % groupings_per_row) + 1) * min_grouping_width
     get_height = (i) =>
