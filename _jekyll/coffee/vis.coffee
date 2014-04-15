@@ -139,7 +139,7 @@ class BubbleChart
   # Dividing by 8 scales down the charge to be
   # appropriate for the visualization dimensions.
   charge: (d) ->
-    -(Math.pow(d.radius, 2.0) / 8) + -(d.radius * 0.1) + -(.3)
+    -(Math.pow(d.radius, 2.0) / 7) + -(d.radius * 0.1) + -(.3)
 
   # Starts up the force layout with
   # the default values
@@ -192,7 +192,7 @@ class BubbleChart
     @force.gravity(@layout_gravity)
       .charge(this.charge)
       .chargeDistance(300)
-      .friction(0.9)
+      .friction(0.87)
       .on "tick", (e) =>
         @circles.each(this.move_towards_candidates(e.alpha, location_map, accessor))
           .attr('cx', (d) -> d.x)
@@ -202,7 +202,6 @@ class BubbleChart
     titles = @vis.selectAll('text.titles')
       .data(location_map.values(), (d) -> d.key)
 
-    # TODO: figure out how to change text node to div and still have it displayed. Maybe need to set x and y differently
     titles.enter().append('text')
       .attr("class", "titles header")
       .text (d) ->
@@ -217,6 +216,15 @@ class BubbleChart
       .attr('text-anchor', 'middle')
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y + 220)
+
+    #titles.enter().append('text')
+    #  .attr('class', 'titles candidate_names')
+    #  .text (d) =>
+    #    #d.candidates.slice(0, 3).join(', ')
+    #    d.candidates.length
+    #  .attr('text-anchor', 'middle')
+    #  .attr('x', (d) -> d.x)
+    #  .attr('y', (d) -> d.y + 260)
 
     titles.exit().remove()
 
@@ -233,10 +241,9 @@ class BubbleChart
       d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha * 1.1
 
 
-  # computes move to location based upon what is passed in
-  # grouping will be determined by function
-  # will need to compute the number of groupings
-  # then based on the number of groupings it will determine the x and y location of each grouping
+  # Creates grouping based on the grouping_func parameter and uses that to
+  # compute groups and lay them out in a grid-based manner
+  # AKA: Here lies black magic
   move_to_location_map: (nodes, grouping_func) =>
     min_grouping_width = 300
     groupings_per_row = Math.floor(@width / min_grouping_width) - 1
@@ -248,10 +255,19 @@ class BubbleChart
       num_row * min_grouping_height - 100
     groups = d3.nest()
       .key( grouping_func )
-      .rollup( (leaves) -> {sum: d3.sum(leaves, (d) -> parseFloat(d.value))} )
+      .rollup( (leaves) =>
+        {
+          sum: d3.sum(leaves, (d) -> parseFloat(d.value))
+          candidates: d3.set(leaves.map(this.get_candidate_short_name)).values()
+        })
       .map(nodes, d3.map)
     i = 0
-    groups.keys().sort(d3.ascending).forEach (key) ->
+    groups.keys().sort((a, b) ->
+      d3.descending(
+        parseFloat(groups.get(a).sum),
+        parseFloat(groups.get(b).sum)
+      )
+    ).forEach (key) ->
       entry = groups.get(key)
       entry['key'] = key
       entry['x'] = get_width(i)
@@ -275,6 +291,10 @@ class BubbleChart
     else if category in ['Other']
       'other'
 
+  # Turn "Abercrombie, Neil" to "Abercrombie (D)"
+  get_candidate_short_name: (d) =>
+    d.name.split(',')[0] + " (#{d.party[0]})"
+
   # move all circles to their associated @year_centers 
   move_towards_year: (alpha) =>
     (d) =>
@@ -284,7 +304,7 @@ class BubbleChart
 
   show_details: (data, i, element) =>
     d3.select(element).attr("stroke", "black")
-    console.log("charge is #{this.charge(data)} radius is: " + data.radius)
+    #console.log("charge is #{this.charge(data)} radius is: " + data.radius)
     content = "<div class=\"inner_tooltip\">"
     content += "<span class=\"candidate\">#{data.name}</span><br/>"
     content += "#{data.election_year}, #{data.office}<br/>"
