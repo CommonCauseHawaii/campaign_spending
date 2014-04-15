@@ -5,8 +5,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cp -r _site ../site-bak
+cp -r _site/ ../site-bak/
 git checkout gh-pages
-rm *
+rm -r *
 mv ../site-bak/* .
-git add .
+git add --all .
