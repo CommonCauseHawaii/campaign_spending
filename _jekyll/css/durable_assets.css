@@ -63,6 +63,25 @@ nav.top-bar .name a {
 nav.top-bar .title-area { top: 14px; }
 /* sub bar will be 30px high */
 
+#candidate_spending_container .time_nav {
+  cursor: pointer;
+  position: absolute;
+  top: 67px;
+}
+#candidate_spending_container .time_nav.left {
+  left: -35px;
+  text-align: right;
+}
+#candidate_spending_container .time_nav.right {
+  right: -35px;
+  text-align: left;
+}
+#candidate_spending_container .time_nav .time_arrow {
+  font-size: 20px;
+}
+#candidate_spending_container .time_nav .time_buttons {
+  font-size: 9pt;
+}
 #candidate_spending_container { background-color: #dfded6; }
 #candidate_spending_container #viz_nav_container {
   display: table;
@@ -85,10 +104,12 @@ nav.top-bar .title-area { top: 14px; }
   color: #bcbbb4;
   letter-spacing: 0.5px;
 }
+#candidate_spending_container .viz_nav.selected {
+  color: #454542;
+}
 #candidate_spending_container .viz_nav.year {
   font-size: 18pt;
   font-weight: 400;
-  color: #454542;
 }
 #candidate_spending_container .viz_nav .sub_header {
   font-size: 6pt;
@@ -96,6 +117,8 @@ nav.top-bar .title-area { top: 14px; }
   letter-spacing: 1.5px;
   /* tracking 100*/
 }
+/* HACK: viz nav doesn't want to line up */
+#candidate_spending_container .viz_nav .header { margin-left: -2px; }
 
 /* Viz Colors */
 svg circle.overhead {

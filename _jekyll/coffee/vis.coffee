@@ -333,8 +333,13 @@ class BubbleChart
 
 root = exports ? this
 
+campaignInit = () ->
+  $('.viz_nav.year').addClass('selected')
+
 $ ->
   chart = null
+
+  campaignInit()
 
   # Join records on reg_no
   join_data = (expend_recs, org_recs) ->
@@ -359,7 +364,7 @@ $ ->
       #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
       d.election_period == '2012-2014'
       #d.election_period == '2008-2010'
-      #d.election_period == '2010-2012' && d.office == 'Governor'
+      d.election_period == '2010-2012' && d.office == 'Governor'
       #d.election_period == '2012-2014' && d.candidate_name == 'Schatz, Brian'
       #d.candidate_name == 'Schatz, Brian' || d.candidate_name == 'Abercrombie, Neil'
     )
@@ -404,10 +409,13 @@ $ ->
 
   $('#viz_nav_container .viz_nav').on 'click', (e) ->
     e.preventDefault()
-    $target = $(e.target)
-    func = $target.data('name')
-    #$target.flash()
-    #debugger
+    $viz_nav = $(e.target).closest('.viz_nav')
+    func = $viz_nav.data('name')
+    $viz_nav.animate({backgroundColor: '#5F5'})
+    $viz_nav.animate({backgroundColor: '#FFF'})
+    $viz_nav.toggleClass('selected')
+    $viz_nav.siblings().removeClass('selected')
+    $viz_nav.addClass('selected')
 
     if(func == 'candidate')
       window.get_chart().do_split (d) -> d.name
@@ -419,6 +427,8 @@ $ ->
       window.get_chart().do_split (d) -> d.office
     if(func == 'amount')
       window.get_chart().split_amount()
+    if(func == 'year')
+      window.get_chart().display_group_all()
 
   queue()
     .defer(d3.csv, "data/campaign_spending_summary.csv")
