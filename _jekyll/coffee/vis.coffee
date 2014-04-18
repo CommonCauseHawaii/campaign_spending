@@ -23,14 +23,6 @@ class BubbleChart
     @forces = []
     @circles = null
 
-    # nice looking colors - no reason to buck the trend
-    @fill_color = (d) ->
-      #console.log 'hash is ' + hash_code(d.name)
-      d3.scale.linear()
-        .domain([-1000, 1000])
-#        .range(['red', 'green'])(hash_code(d.name) % 1000)
-        .range(['#fbb4ae', '#b3cde3', '#ccebc5', '#decbe4', '#fed9a6', '#ffffcc', '#e5d8bd'])(hash_code(d.name) % 1000)
-
     # use the max total_amount in the data as the max in the scale's domain
     max_amount = d3.max(@data, (d) -> parseInt(d.amount))
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
