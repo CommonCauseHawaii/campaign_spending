@@ -2,7 +2,9 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
-/*svg {border: 1px solid gray;}*/
+/*
+svg {border: 1px solid gray;}
+*/
 .row.full-width {
   width: 100%;
   max-width: 100%;
@@ -115,6 +117,8 @@ nav.top-bar .title-area { top: 14px; }
   font-size: 6pt;
   font-weight: 600;
   letter-spacing: 1.5px;
+  line-height: 1;
+  margin-bottom: 5px;
   /* tracking 100*/
 }
 /* HACK: viz nav doesn't want to line up */
@@ -140,18 +144,19 @@ svg circle.other {
   fill: #6c6b6b;
 }
 
-.titles.header { text-transform: uppercase; font-weight: 700; }
-.titles.amount { font-style:italic; }
+.titles.header { text-transform: uppercase; font-weight: 600; letter-spacing: 1px font-size: 14px; }
+.titles.amount { font-style:italic; font-weight: 300; }
 #expenditure_tooltip {
   padding: 8px;
   color: black;
   background: #ccc;
   background-color: rgba(255,255,255,0.5);
 }
-#expenditure_tooltip .candidate { font-weight: 700; }
-#expenditure_tooltip .name { font-weight: 700; }
-#expenditure_tooltip .amount { font-style:italic; font-weight: 600; }
+#expenditure_tooltip .candidate { font-size: 14px; letter-spacing: 0.5px; font-weight: 700; text-transform: uppercase; }
+#expenditure_tooltip .office { font-weight: 400; text-transform: uppercase; letter-spacing: 0.7px; font-size: 13px; }
+#expenditure_tooltip .amount { font-style:italic; font-weight: 400; }
 #expenditure_tooltip .inner_tooltip {
   background-color: rgba(255,255,255,0.7);
+  line-height: 1.5;
   padding: 15px;
 }

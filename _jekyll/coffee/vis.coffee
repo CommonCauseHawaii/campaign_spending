@@ -36,15 +36,16 @@ class BubbleChart
     max_amount = d3.max(@data, (d) -> parseInt(d.amount))
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
 
-    this.create_nodes()
+    this.create_nodes(@data)
     this.create_vis()
 
   # create node objects from original data
   # that will serve as the data behind each
   # bubble in the vis, then add each node
   # to @nodes to be used later
-  create_nodes: () =>
-    @data.forEach (d) =>
+  create_nodes: (data) =>
+    @nodes = []
+    data.forEach (d) =>
       node = {
         id: d.id
         radius: @radius_scale(parseInt(d.amount))
@@ -58,13 +59,29 @@ class BubbleChart
         office: d.office
         election_period: d.election_period
         election_year: d.election_period.split('-')[1]
-        x: Math.random() * 900
+        x: Math.random() * 1
         y: Math.random() * 800
       }
+      radius = @radius_scale(parseInt(d.amount))
+      if radius < 0
+        console.log("Radius less than 0 for node! " + JSON.stringify(node))
       @nodes.push node
 
     @nodes.sort (a,b) -> b.value - a.value
     window.nodes = @nodes
+
+  update_data: (records) =>
+    @force.stop()
+    this.create_nodes(records)
+    this.create_circles()
+    this.start()
+
+    func = $('.viz_nav.selected').data('name')
+    console.log("func is #{func}")
+    this.show_viz_type(func)
+    callback = () => @force.stop()
+    #setTimeout( callback, 1000)
+
 
   bind_data: () =>
     obj = {category: 'fun', election_period: '2010-2012', group: 'gr', id: 999, name: 'jason', office: 'gov', org: 'org', value: '$110322.21', radius: 100, x: 500, y:244}
@@ -105,9 +122,11 @@ class BubbleChart
       .attr("height", @height)
       .attr("id", "svg_vis")
 
+    this.create_circles()
+
+  create_circles: () =>
     @circles = @vis.selectAll("circle")
       .data(@nodes, (d) -> d.id)
-      #.data(@nodes, (d) -> 1)
 
     # used because we need 'this' in the 
     # mouse callbacks
@@ -119,13 +138,19 @@ class BubbleChart
       .attr("r", 0)
       .attr('class', (d) => this.get_supercategory(d.category))
       .attr("stroke-width", 2)
+      .attr('debug', (d) => console.log('why?'); 1)
+      .attr('x', 1000)
+      .attr('y', 1000)
+      #.attr('x', Math.random() * 900)
+      #.attr('y', Math.random() * 800)
       .attr("id", (d) -> "bubble_#{d.id}")
       .on("mouseover", (d,i) -> that.show_details(d,i,this))
       .on("mouseout", (d,i) -> that.hide_details(d,i,this))
+      # Fancy transition to make bubbles appear, ending with the
+      # correct radius
+      .transition().duration(3000).attr("r", (d) -> d.radius)
 
-    # Fancy transition to make bubbles appear, ending with the
-    # correct radius
-    @circles.transition().duration(2000).attr("r", (d) -> d.radius)
+    @circles.exit().remove()
 
 
   # Charge function that is called for each node.
@@ -151,14 +176,24 @@ class BubbleChart
   # Sets up force layout to display
   # all nodes in one circle.
   display_group_all: () =>
-    @force.gravity(@layout_gravity)
+    #@force.gravity(@layout_gravity)
+    @force.gravity(0)
+      .theta(1.1)
       .charge(this.charge)
+      .chargeDistance(Infinity)
       .friction(0.9)
       .on "tick", (e) =>
         @circles.each(this.move_towards_center(e.alpha))
           .attr("cx", (d) -> d.x)
           .attr("cy", (d) -> d.y)
     @force.start()
+
+    titles = @vis.selectAll('text.titles')
+      .data([])
+
+    #debugger
+
+    titles.exit().remove()
 
   # Moves all circles towards the @center
   # of the visualization
@@ -186,12 +221,36 @@ class BubbleChart
     # Need a way to render it at that location
     # Need a way to display the labels at the correct locations
 
+  show_viz_type: (func) =>
+    if(func == 'candidate')
+      this.do_split (d) -> d.name
+    if(func == 'party')
+      this.do_split (d) -> d.party
+    if(func == 'expenditure')
+      accessor = (d) -> d.super_category
+      this.do_split accessor, {charge: (d) => this.charge(d) * 1.3}
+    if(func == 'office')
+      this.do_split (d) -> d.office
+    if(func == 'amount')
+      #this.split_amount()
+      window.do_render(window.raw_records)
+    if(func == 'year')
+      this.display_group_all()
 
-  do_split: (accessor) =>
+  do_split: (accessor, options={}) =>
     location_map = this.move_to_location_map @nodes, accessor
+    console.log("location map is #{JSON.stringify(location_map.keys())}")
+    charge = if options.charge?
+      options.charge
+    else
+      this.charge
+
+    console.log('carcge distance')
     @force.gravity(0)
-      .charge(this.charge)
+      .theta(1.0)
+      .charge(charge)
       .chargeDistance(300)
+      #.chargeDistance(Infinity)
       .friction(0.87)
       .on "tick", (e) =>
         @circles.each(this.move_towards_candidates(e.alpha, location_map, accessor))
@@ -202,11 +261,11 @@ class BubbleChart
     titles = @vis.selectAll('text.titles')
       .data(location_map.values(), (d) -> d.key)
 
-    #titles.enter().append('text')
-    #  .text('CENTER')
-    #  .attr('text-anchor', 'middle')
-    #  .attr('x', (d) -> d.x)
-    #  .attr('y', (d) -> d.y)
+    titles.enter().append('text')
+      .text('CENTERS')
+      .attr('text-anchor', 'middle')
+      .attr('x', (d) -> d.x)
+      .attr('y', (d) -> d.y)
 
     titles.enter().append('text')
       .attr("class", "titles header")
@@ -242,7 +301,16 @@ class BubbleChart
   # Move by alpha amount each time called
   move_towards_candidates: (alpha, location_map, accessor) =>
     (d) =>
+      #if window.debug_now?
+        #console.log('TOPPPPPPPPP')
       target = location_map.get(accessor(d))
+      if not target?
+        console.log("got #{target} from #{accessor(d)}")
+        console.log location_map
+      if !d?
+        console.log('undefined')
+      if !target?
+        console.log('undefined target')
       d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha * 1.1
       d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha * 1.1
 
@@ -253,7 +321,7 @@ class BubbleChart
   move_to_location_map: (nodes, grouping_func) =>
     min_grouping_width = 300
     groupings_per_row = Math.floor(@width / min_grouping_width) - 1
-    min_grouping_height = 350
+    min_grouping_height = 450
     get_width = (i) =>
       ((i % groupings_per_row) + 1) * min_grouping_width
     get_height = (i) =>
@@ -310,11 +378,12 @@ class BubbleChart
 
   show_details: (data, i, element) =>
     d3.select(element).attr("stroke", "black")
-    #console.log("charge is #{this.charge(data)} radius is: " + data.radius)
+    console.log("charge is #{this.charge(data)} radius is: " + data.radius)
     content = "<div class=\"inner_tooltip\">"
     content += "<span class=\"candidate\">#{data.name}</span><br/>"
-    content += "#{data.election_year}, #{data.office}<br/>"
+    content += "<span class=\"office\">#{data.election_year}, #{data.office}</span><br/>"
     content +="<span class=\"amount\"> #{data.category} $#{addCommas(data.value)}</span><br/>"
+    #content +="<span class=\"amount\"> charge #{this.charge(data)} </span><br/>"
     #content +="<span class=\"name\">Amount:</span><span class=\"value\"> $#{addCommas(data.value)}</span><br/>"
     #content +="<span class=\"name\">Category:</span><span class=\"value\"> #{data.category}</span><br/>"
     #content +="<span class=\"name\">Super Category:</span><span class=\"value\"> #{data.super_category}</span><br/>"
@@ -359,14 +428,24 @@ $ ->
     return full_records
 
   # Filter data down to what we want
-  filter_data = (records) ->
+  filter_data = (records, year) ->
     filtered_csv = records.filter( (d) ->
       #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
-      d.election_period == '2012-2014'
-      #d.election_period == '2008-2010'
-      d.election_period == '2010-2012' && d.office == 'Governor'
-      #d.election_period == '2012-2014' && d.candidate_name == 'Schatz, Brian'
-      #d.candidate_name == 'Schatz, Brian' || d.candidate_name == 'Abercrombie, Neil'
+
+      # Only a handful of records have negative amounts
+      if parseInt(d.amount) < 0
+        false
+      else if year == '2014'
+        d.election_period == '2012-2014'
+      else if year == '2012'
+        d.election_period == '2010-2012'
+      else if year == 'gov'
+        d.election_period == '2010-2012' && d.office == 'Governor'
+      else if year == 'gov2'
+        d.election_period == '2010-2012' && d.office == 'House'
+
+      #d.election_period == '2010-2012' && d.office == 'Governor'
+      #d.election_period == '2010-2012' && d.office == 'Senate'
     )
     sorted = filtered_csv.sort( (a,b) -> d3.descending(parseFloat(a.amount), parseFloat(b.amount)) )
     #sorted = sorted.slice(0, 800)
@@ -387,25 +466,26 @@ $ ->
     filtered_csv
     sorted
 
+  root.do_render = (records) ->
+    console.log(records[0])
+    filtered_records = filter_data(records, 'gov2')
+    #debugger
+    window.debug_now = true
+
+    window.records = filtered_records
+    chart.update_data(filtered_records)
+
   render_vis = (error, expenditure_records, organizational_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
-    filtered_records = filter_data(raw_records)
+    window.raw_records = raw_records
+    filtered_records = filter_data(raw_records, '2014')
 
     window.records = filtered_records
     chart = new BubbleChart filtered_records
     chart.start()
-    root.display_all()
-  root.display_all = () =>
     chart.display_group_all()
   root.get_chart = () =>
     chart
-  root.display_year = () =>
-    chart.display_by_year()
-  root.toggle_view = (view_type) =>
-    if view_type == 'year'
-      root.display_year()
-    else
-      root.display_all()
 
   $('#viz_nav_container .viz_nav').on 'click', (e) ->
     e.preventDefault()
@@ -417,18 +497,10 @@ $ ->
     $viz_nav.siblings().removeClass('selected')
     $viz_nav.addClass('selected')
 
-    if(func == 'candidate')
-      window.get_chart().do_split (d) -> d.name
-    if(func == 'party')
-      window.get_chart().do_split (d) -> d.party
-    if(func == 'expenditure')
-      window.get_chart().do_split (d) -> d.super_category
-    if(func == 'office')
-      window.get_chart().do_split (d) -> d.office
-    if(func == 'amount')
-      window.get_chart().split_amount()
-    if(func == 'year')
-      window.get_chart().display_group_all()
+    window.get_chart().show_viz_type(func)
+
+  $('.time_nav').on 'click', (e) ->
+    window.do_render(window.raw_records)
 
   queue()
     .defer(d3.csv, "data/campaign_spending_summary.csv")
