@@ -83,38 +83,7 @@ class BubbleChart
     #setTimeout( callback, 1000)
 
 
-  bind_data: () =>
-    obj = {category: 'fun', election_period: '2010-2012', group: 'gr', id: 999, name: 'jason', office: 'gov', org: 'org', value: '$110322.21', radius: 100, x: 500, y:244}
-    @nodes.push(obj)
-    @circles = @vis.selectAll("circle")
-      .data(@nodes, (d) -> d.id)
-      #.data(@nodes, (d) -> 1)
-    that = this
-    @circles.enter().append("circle")
-      #.attr("r", 0)
-      .attr("fill", (d) => @fill_color(d))
-      .attr("stroke-width", 2)
-      .attr("id", (d) -> "bubble_#{d.id}")
-      .on("mouseover", (d,i) -> that.show_details(d,i,this))
-      .on("mouseout", (d,i) -> that.hide_details(d,i,this))
-
-    @circles.exit().remove()
-
-    # Fancy transition to make bubbles appear, ending with the
-    # correct radius
-    @circles.transition().duration(1000).attr("r", (d) -> d.radius)
-    this.display_group_all()
-
-  # Need a way to arbitrarily have many sets of bubbles displayed at once
-  # side-by-side with labels underneath. Should only have to pass in the data
-  # to be displayed, how to separate the data, and what the labels should be.
-  # Example: set of bubbles on the left are for Abercrombie and the right are
-  # for Schatz. Others are hidden.
-  #
-  # Need a way for entering nodes to fly in from the right and exiting nodes to
-  # fly out from the left.
-
-  # create svg at #vis and then 
+  # create svg at #vis and then
   # create circle representation for each node
   create_vis: () =>
     @vis = d3.select("#vis").append("svg")
