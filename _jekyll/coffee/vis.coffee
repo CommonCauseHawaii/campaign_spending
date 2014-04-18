@@ -15,13 +15,12 @@ class BubbleChart
 
     # used when setting up force and
     # moving around nodes
-    @layout_gravity = -0.01
     @damper = 0.1
 
     # these will be set in create_nodes and create_vis
     @vis = null
     @nodes = []
-    @force = null
+    @forces = []
     @circles = null
 
     # nice looking colors - no reason to buck the trend
@@ -70,16 +69,21 @@ class BubbleChart
     @nodes.sort (a,b) -> b.value - a.value
     window.nodes = @nodes
 
+  # Stop forces and remove nodes
+  kill_forces: () =>
+    @forces.forEach (force) =>
+      force.stop()
+      force.nodes([])
+
   update_data: (records) =>
-    @force.stop()
+    this.kill_forces()
     this.create_nodes(records)
     this.create_circles()
-    this.start()
 
     func = $('.viz_nav.btn.selected').data('name')
     console.log("func is #{func}")
     this.show_viz_type(func)
-    callback = () => @force.stop()
+    #callback = () => @force.stop()
     #setTimeout( callback, 1000)
 
 
@@ -107,7 +111,6 @@ class BubbleChart
       .attr("r", 0)
       .attr('class', (d) => this.get_supercategory(d.category))
       .attr("stroke-width", 2)
-      .attr('debug', (d) => console.log('why?'); 1)
       .attr('x', 1000)
       .attr('y', 1000)
       #.attr('x', Math.random() * 900)
@@ -135,18 +138,16 @@ class BubbleChart
   charge: (d) ->
     -(Math.pow(d.radius, 2.0) / 7) + -(d.radius * 0.1) + -(.3)
 
-  # Starts up the force layout with
-  # the default values
-  start: () =>
-    @force = d3.layout.force()
+  # Display all nodes in one circle.
+  display_group_all: () =>
+    this.kill_forces()
+
+    force = d3.layout.force()
       .nodes(@nodes)
       .size([@width, @height])
+    @forces = [force]
 
-  # Sets up force layout to display
-  # all nodes in one circle.
-  display_group_all: () =>
-    #@force.gravity(@layout_gravity)
-    @force.gravity(0)
+    force.gravity(0)
       .theta(1.1)
       .charge(this.charge)
       .chargeDistance(Infinity)
@@ -155,7 +156,7 @@ class BubbleChart
         @circles.each(this.move_towards_center(e.alpha))
           .attr("cx", (d) -> d.x)
           .attr("cy", (d) -> d.y)
-    @force.start()
+    force.start()
 
     total_amount = d3.sum(@nodes, (d) -> d.value)
     formatted_total = this.format_money_millions(total_amount)
@@ -184,20 +185,6 @@ class BubbleChart
       d.x = d.x + (@center.x - d.x) * (@damper + 0.02) * alpha
       d.y = d.y + (@center.y - d.y) * (@damper + 0.02) * alpha
 
-  # sets the display of bubbles to be separated
-  # into each year. Does this by calling move_towards_year
-  display_by_year: () =>
-    @force.gravity(@layout_gravity)
-      .charge(this.charge)
-      .friction(0.9)
-      .on "tick", (e) =>
-        @circles.each(this.move_towards_year(e.alpha))
-          .attr("cx", (d) -> d.x)
-          .attr("cy", (d) -> d.y)
-    @force.start()
-
-    this.display_years()
-
   split_amount: () =>
     # Need a way to tell it to move to what location
     # Need a way to render it at that location
@@ -214,8 +201,9 @@ class BubbleChart
     if(func == 'office')
       this.do_split (d) -> d.office
     if(func == 'amount')
+      console.log('do nothing')
       #this.split_amount()
-      window.do_render(window.raw_records)
+      #window.do_render(window.raw_records)
     if(func == 'year')
       this.display_group_all()
 
@@ -227,18 +215,29 @@ class BubbleChart
     else
       this.charge
 
-    console.log('carcge distance')
-    @force.gravity(0)
-      .theta(1.0)
-      .charge(charge)
-      .chargeDistance(300)
-      #.chargeDistance(Infinity)
-      .friction(0.87)
-      .on "tick", (e) =>
-        @circles.each(this.move_towards_candidates(e.alpha, location_map, accessor))
-          .attr('cx', (d) -> d.x)
-          .attr('cy', (d) -> d.y)
-    @force.start()
+    this.kill_forces()
+    @forces = []
+    force_map = location_map.keys().map (key) =>
+      nodes = @nodes.filter( (d) => key == accessor(d) )
+      force = d3.layout.force()
+        .nodes(nodes)
+        .size([@width, @height])
+      @forces.push force
+      { force: force, key: key, nodes: nodes }
+
+    force_map.forEach (force) =>
+      circles = @vis.selectAll("circle")
+        .filter( (d) => force.key == accessor(d) )
+      force.force.gravity(0)
+        .theta(1.0)
+        .charge(charge)
+        .chargeDistance(Infinity)
+        .friction(0.87)
+        .on "tick", (e) =>
+          circles.each(this.move_towards_candidates(e.alpha, location_map, accessor))
+            .attr('cx', (d) -> d.x)
+            .attr('cy', (d) -> d.y)
+      force.force.start()
 
     titles = @vis.selectAll('text.titles')
       .data(location_map.values(), (d) -> d.key)
@@ -251,9 +250,7 @@ class BubbleChart
 
     titles.enter().append('text')
       .attr("class", "titles header")
-      .text (d) ->
-        #console.log("#{d.key}: (#{d.x}, #{d.y}) and #{d.y + 200}")
-        d.key
+      .text (d) -> d.key
       .attr("text-anchor", "middle")
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y + 200)
@@ -283,16 +280,7 @@ class BubbleChart
   # Move by alpha amount each time called
   move_towards_candidates: (alpha, location_map, accessor) =>
     (d) =>
-      #if window.debug_now?
-        #console.log('TOPPPPPPPPP')
       target = location_map.get(accessor(d))
-      if not target?
-        console.log("got #{target} from #{accessor(d)}")
-        console.log location_map
-      if !d?
-        console.log('undefined')
-      if !target?
-        console.log('undefined target')
       d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha * 1.1
       d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha * 1.1
 
@@ -360,7 +348,7 @@ class BubbleChart
 
   show_details: (data, i, element) =>
     d3.select(element).attr("stroke", "black")
-    console.log("charge is #{this.charge(data)} radius is: " + data.radius)
+    #console.log("charge is #{this.charge(data)} radius is: " + data.radius)
     content = "<div class=\"inner_tooltip\">"
     content += "<span class=\"candidate\">#{data.name}</span><br/>"
     content += "<span class=\"office\">#{data.election_year}, #{data.office}</span><br/>"
@@ -385,7 +373,7 @@ class BubbleChart
 root = exports ? this
 
 campaignInit = () ->
-  $('.viz_nav.year').addClass('selected')
+  #$('.viz_nav.year').addClass('selected')
 
 $ ->
   chart = null
@@ -464,7 +452,6 @@ $ ->
 
     window.records = filtered_records
     chart = new BubbleChart filtered_records
-    chart.start()
     chart.display_group_all()
   root.get_chart = () =>
     chart
