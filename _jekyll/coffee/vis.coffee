@@ -3,7 +3,7 @@
 class BubbleChart
   constructor: (data) ->
     @data = data
-    @width = 1250
+    @width = 1350
     @height = 3500
 
     @tooltip = CustomTooltip("expenditure_tooltip", 300)
@@ -49,7 +49,7 @@ class BubbleChart
       node = {
         id: d.id
         radius: @radius_scale(parseInt(d.amount))
-        value: d.amount
+        value: parseFloat(d.amount)
         name: d.candidate_name
         org: 'org'
         group: 'group'
@@ -76,7 +76,7 @@ class BubbleChart
     this.create_circles()
     this.start()
 
-    func = $('.viz_nav.selected').data('name')
+    func = $('.viz_nav.btn.selected').data('name')
     console.log("func is #{func}")
     this.show_viz_type(func)
     callback = () => @force.stop()
@@ -157,10 +157,23 @@ class BubbleChart
           .attr("cy", (d) -> d.y)
     @force.start()
 
-    titles = @vis.selectAll('text.titles')
-      .data([])
+    total_amount = d3.sum(@nodes, (d) -> d.value)
+    formatted_total = this.format_money_millions(total_amount)
 
-    #debugger
+    center_label = [
+      {text: 'Total Campaign Spending', class: 'header', dx: 420, dy: 80}
+      {text: formatted_total, class: 'amount', dx: 420, dy: 100},
+    ]
+
+    titles = @vis.selectAll('text.titles')
+      .data(center_label, (d) -> d.text)
+
+    titles.enter().append('text')
+      .text( (d) -> d.text)
+      .attr('class', (d) => "titles year #{d.class}")
+      # TODO: maybe add a small fudge factor based on the sum
+      .attr('x', (d) => @center.x + d.dx)
+      .attr('y', (d) => @center.y + d.dy)
 
     titles.exit().remove()
 
@@ -460,13 +473,19 @@ $ ->
     e.preventDefault()
     $viz_nav = $(e.target).closest('.viz_nav')
     func = $viz_nav.data('name')
+    currentFunc = $('.viz_nav.btn.selected').data('name')
+
     $viz_nav.animate({backgroundColor: '#5F5'})
     $viz_nav.animate({backgroundColor: '#FFF'})
-    $viz_nav.toggleClass('selected')
-    $viz_nav.siblings().removeClass('selected')
-    $viz_nav.addClass('selected')
 
-    window.get_chart().show_viz_type(func)
+    if func != currentFunc
+      $viz_nav.siblings('.btn').removeClass('selected')
+      $viz_nav.addClass('selected')
+
+      window.get_chart().show_viz_type(func)
+    else
+      $viz_nav.removeClass('selected')
+      window.get_chart().show_viz_type('year')
 
   $('.time_nav').on 'click', (e) ->
     window.do_render(window.raw_records)

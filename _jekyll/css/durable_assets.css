@@ -144,6 +144,7 @@ svg circle.other {
   fill: #6c6b6b;
 }
 
+.titles.year.header { font-size: 13px; }
 .titles.header { text-transform: uppercase; font-weight: 600; letter-spacing: 1px font-size: 14px; }
 .titles.amount { font-style:italic; font-weight: 300; }
 #expenditure_tooltip {
