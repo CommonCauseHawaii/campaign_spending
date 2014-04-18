@@ -475,8 +475,8 @@ $ ->
     func = $viz_nav.data('name')
     currentFunc = $('.viz_nav.btn.selected').data('name')
 
-    $viz_nav.animate({backgroundColor: '#5F5'})
-    $viz_nav.animate({backgroundColor: '#FFF'})
+    $viz_nav.animate({backgroundColor: '#73884f'})
+    $viz_nav.animate({backgroundColor: '#FFFFFF'})
 
     if func != currentFunc
       $viz_nav.siblings('.btn').removeClass('selected')
