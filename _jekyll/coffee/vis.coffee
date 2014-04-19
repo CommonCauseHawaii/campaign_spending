@@ -266,7 +266,11 @@ class BubbleChart
     titles.exit().remove()
 
   format_money_millions: (amount_in_dollars) =>
-    d3.format('$,.2f')(amount_in_dollars/1e6) + ' million'
+    amount_in_millions = amount_in_dollars/1e6
+    if amount_in_millions <= 0.01
+      "< $0.01 million"
+    else
+      d3.format('$,.2f')(amount_in_millions) + ' million'
 
   # move all circles to be grouped by candidate
   # Move by alpha amount each time called
@@ -295,6 +299,7 @@ class BubbleChart
         {
           sum: d3.sum(leaves, (d) -> parseFloat(d.value))
           candidates: d3.set(leaves.map(this.get_candidate_short_name)).values()
+          radius: this.estimate_circle_radius(leaves)
         })
       .map(nodes, d3.map)
     i = 0
@@ -330,6 +335,12 @@ class BubbleChart
   # Turn "Abercrombie, Neil" to "Abercrombie (D)"
   get_candidate_short_name: (d) =>
     d.name.split(',')[0] + " (#{d.party[0]})"
+
+  estimate_circle_radius: (nodes) =>
+    area = d3.sum(nodes, (d) -> Math.PI * Math.pow(d.radius, 2))
+    diameter = 2 * Math.sqrt(area/Math.PI)
+    estimated_diameter = (Math.log(nodes.length)/140 + 1) * diameter
+    estimated_diameter
 
   # move all circles to their associated @year_centers 
   move_towards_year: (alpha) =>
@@ -397,10 +408,14 @@ $ ->
       # Only a handful of records have negative amounts
       if parseInt(d.amount) < 0
         false
-      else if year == '2014'
+      else if year == 2014
         d.election_period == '2012-2014'
-      else if year == '2012'
+      else if year == 2012
         d.election_period == '2010-2012'
+      else if year == 2010
+        d.election_period == '2008-2010'
+      else if year == 2008
+        d.election_period == '2006-2008'
       else if year == 'gov'
         d.election_period == '2010-2012' && d.office == 'Governor'
       else if year == 'gov2'
@@ -431,7 +446,6 @@ $ ->
   root.do_render = (records) ->
     console.log(records[0])
     filtered_records = filter_data(records, 'gov2')
-    #debugger
     window.debug_now = true
 
     window.records = filtered_records
@@ -440,7 +454,7 @@ $ ->
   render_vis = (error, expenditure_records, organizational_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
     window.raw_records = raw_records
-    filtered_records = filter_data(raw_records, '2014')
+    filtered_records = filter_data(raw_records, 2014)
 
     window.records = filtered_records
     chart = new BubbleChart filtered_records
