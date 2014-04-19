@@ -1,5 +1,23 @@
+/*
+ * Colors
+Dark Gray
+#454542
+
+Medium Gray
+#84847f
+
+Light gray
+#dfded6
+
+Button Light Gray Text
+#bcbbb4
+*/
+
 body {
   font-family: 'Open Sans', sans-serif;
+  color: #454542;
+  /* For svg text */
+  fill: #454542;
 }
 
 /*
@@ -67,8 +85,8 @@ nav.top-bar .name a {
 nav.top-bar .title-area { top: 14px; }
 /* sub bar will be 30px high */
 
+.clickable { cursor: pointer; }
 #candidate_spending_container .time_nav {
-  cursor: pointer;
   position: absolute;
   top: 67px;
 }
@@ -84,6 +102,7 @@ nav.top-bar .title-area { top: 14px; }
   font-size: 20px;
 }
 #candidate_spending_container .time_nav .time_buttons {
+  margin-top: 7px;
   font-size: 9pt;
 }
 #candidate_spending_container { background-color: #dfded6; }
@@ -147,7 +166,7 @@ svg circle.other {
 }
 
 .titles.year.header { font-size: 13px; }
-.titles.header { text-transform: uppercase; font-weight: 600; letter-spacing: 1px font-size: 14px; }
+.titles.header { text-transform: uppercase; font-weight: 600; letter-spacing: 1px; font-size: 14px; }
 .titles.amount { font-style:italic; font-weight: 300; }
 #expenditure_tooltip {
   padding: 8px;
@@ -162,4 +181,16 @@ svg circle.other {
   background-color: rgba(255,255,255,0.7);
   line-height: 1.5;
   padding: 15px;
+}
+*.unselectable {
+   -moz-user-select: none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+
+   /*
+     Introduced in IE 10.
+     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+   */
+   -ms-user-select: none;
+   user-select: none;
 }

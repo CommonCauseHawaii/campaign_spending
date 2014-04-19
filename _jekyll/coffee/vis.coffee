@@ -8,11 +8,6 @@ class BubbleChart
 
     @tooltip = CustomTooltip("expenditure_tooltip", 300)
 
-    # locations the nodes will move towards
-    # depending on which view is currently being
-    # used
-    @center = {x: @width / 2, y: Math.min(@height / 2, 500)}
-
     # used when setting up force and
     # moving around nodes
     @damper = 0.1
@@ -24,8 +19,11 @@ class BubbleChart
     @circles = null
 
     # use the max total_amount in the data as the max in the scale's domain
-    max_amount = d3.max(@data, (d) -> parseInt(d.amount))
+    #max_amount = d3.max(@data, (d) -> parseInt(d.amount))
+    max_amount = 1173620 * 1.21
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
+    console.log('max_amount ' + max_amount)
+    console.log(@radius_scale)
 
     this.create_nodes(@data)
     this.create_vis()
@@ -45,6 +43,7 @@ class BubbleChart
         org: 'org'
         group: 'group'
         party: d.party
+        reg_no: d.reg_no
         category: d.expenditure_category
         super_category: this.get_supercategory(d.expenditure_category)
         office: d.office
@@ -73,6 +72,7 @@ class BubbleChart
     this.create_circles()
 
     func = $('.viz_nav.btn.selected').data('name')
+    func = 'year' unless func?
     console.log("func is #{func}")
     this.show_viz_type(func)
     #callback = () => @force.stop()
@@ -101,15 +101,24 @@ class BubbleChart
     # see transition below
     @circles.enter().append("circle")
       .attr("r", 0)
-      .attr('class', (d) => this.get_supercategory(d.category))
+      .attr('class', (d) => "#{this.get_supercategory(d.category)} #{d.reg_no}")
       .attr("stroke-width", 2)
       .attr('x', 1000)
       .attr('y', 1000)
       #.attr('x', Math.random() * 900)
       #.attr('y', Math.random() * 800)
       .attr("id", (d) -> "bubble_#{d.id}")
-      .on("mouseover", (d,i) -> that.show_details(d,i,this))
-      .on("mouseout", (d,i) -> that.hide_details(d,i,this))
+      .on "mouseover", (d,i) ->
+        that.show_details(d,i,this)
+        that.circles
+          .filter( (circle) => circle.reg_no != d.reg_no )
+          .transition().duration(1000)
+          .style('opacity', 0.3)
+      .on "mouseout", (d,i) ->
+        that.hide_details(d,i,this)
+        that.circles
+          .transition().duration(1000)
+          .style('opacity', 1)
       # Fancy transition to make bubbles appear, ending with the
       # correct radius
       .transition().duration(3000).attr("r", (d) -> d.radius)
@@ -138,7 +147,8 @@ class BubbleChart
       .nodes(@nodes)
       .size([@width, @height])
     @forces = [force]
-    this.estimate_circle_diameter(@nodes)
+    radius = this.estimate_circle_diameter(@nodes)/2
+    @center = {x: @width / 2, y: radius + 80}
 
     force.gravity(0)
       .theta(1.1)
@@ -155,9 +165,12 @@ class BubbleChart
     formatted_total = this.format_money_millions(total_amount)
 
     center_label = [
-      {text: 'Total Campaign Spending', class: 'header', dx: 420, dy: 80}
-      {text: formatted_total, class: 'amount', dx: 420, dy: 100},
+      {text: 'Total Campaign Spending', class: 'header', dx: radius + 30, dy: 80}
+      {text: formatted_total, class: 'amount', dx: radius + 30, dy: 100},
     ]
+
+    # Remove old titles
+    titles = @vis.selectAll('text.titles').remove()
 
     titles = @vis.selectAll('text.titles')
       .data(center_label, (d) -> d.text)
@@ -165,7 +178,6 @@ class BubbleChart
     titles.enter().append('text')
       .text( (d) -> d.text)
       .attr('class', (d) => "titles year #{d.class}")
-      # TODO: maybe add a small fudge factor based on the sum
       .attr('x', (d) => @center.x + d.dx)
       .attr('y', (d) => @center.y + d.dy)
 
@@ -231,16 +243,19 @@ class BubbleChart
             .attr('cy', (d) -> d.y)
       force.force.start()
 
+    # Remove old titles
+    titles = @vis.selectAll('text.titles').remove()
+
     titles = @vis.selectAll('text.titles')
       .data(location_map.values(), (d) -> d.key)
 
-    titles.enter().append('text')
-      .text('CENTERS')
-      .attr('text-anchor', 'middle')
-      .attr('x', (d) -> d.x)
-      .attr('y', (d) -> d.y)
+    #titles.enter().append('text')
+    #  .text('CENTERS')
+    #  .attr('text-anchor', 'middle')
+    #  .attr('x', (d) -> d.x)
+    #  .attr('y', (d) -> d.y)
 
-    padding = 50
+    padding = 55
     line_height = 20
     line_offset = (d, line_num) -> d.y + d.radius + padding + line_height*line_num
     titles.enter().append('text')
@@ -257,13 +272,13 @@ class BubbleChart
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> line_offset(d,1))
 
-    # Debug info
-    titles.enter().append('text')
-      .attr('class', 'titles amount')
-      .text (d) => d.radius
-      .attr('text-anchor', 'middle')
-      .attr('x', (d) -> d.x)
-      .attr('y', (d) -> line_offset(d,2))
+    ## Debug info
+    #titles.enter().append('text')
+    #  .attr('class', 'titles amount')
+    #  .text (d) => d.radius
+    #  .attr('text-anchor', 'middle')
+    #  .attr('x', (d) -> d.x)
+    #  .attr('y', (d) -> line_offset(d,2))
 
     #titles.enter().append('text')
     #  .attr('class', 'titles candidate_names')
@@ -491,9 +506,44 @@ $ ->
     filtered_csv
     sorted
 
-  root.do_render = (records) ->
-    console.log(records[0])
-    filtered_records = filter_data(records, 'gov2')
+  root.update_year = (next) ->
+    records = window.raw_records
+
+    # get current year
+    $year_el = $('.viz_nav.year')
+    cur_year = $year_el.data('year')
+    direction = if next then 1 else -1
+    next_year = cur_year + 2*direction
+
+    if next_year == 2008
+      $('.time_nav.left').animate({color: '#bcbbb4'})
+        .removeClass('clickable')
+    else
+      $('.time_nav.left').animate({color: '#454542'})
+        .addClass('clickable')
+
+    if next_year == 2014
+      $('.time_nav.right').animate({color: '#bcbbb4'})
+        .removeClass('clickable')
+    else
+      $('.time_nav.right').animate({color: '#454542'})
+        .addClass('clickable')
+
+    range = d3.range(2008, 2014.1, 2)
+    unless next_year in range
+      return
+
+    # update year element
+    $year_el.animate({color: 'white'}, {complete: () ->
+      # Not black, dark grey
+      $year_el.text(next_year)
+      $year_el.data('year', next_year)
+      $year_el.animate({color: '#454542'})
+    })
+
+    return
+
+    filtered_records = filter_data(records, next_year)
     window.debug_now = true
 
     window.records = filtered_records
@@ -502,7 +552,8 @@ $ ->
   render_vis = (error, expenditure_records, organizational_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
     window.raw_records = raw_records
-    filtered_records = filter_data(raw_records, 2014)
+    filtered_records = filter_data(raw_records, 2012)
+    filtered_records = filter_data(raw_records, 'gov')
 
     window.records = filtered_records
     chart = new BubbleChart filtered_records
@@ -528,8 +579,15 @@ $ ->
       $viz_nav.removeClass('selected')
       window.get_chart().show_viz_type('year')
 
-  $('.time_nav').on 'click', (e) ->
-    window.do_render(window.raw_records)
+  $('.time_nav.right').on 'click', (e) ->
+    if $(this).hasClass('clickable')
+      window.update_year(true)
+  $('.time_nav.left').on 'click', (e) ->
+    #$this = $(this)
+    #$this.animate({backgroundColor: '#73884f'})
+    #$this.animate({backgroundColor: '#dfded6'})
+    if $(this).hasClass('clickable')
+      window.update_year(false)
 
   queue()
     .defer(d3.csv, "data/campaign_spending_summary.csv")
