@@ -357,7 +357,7 @@ class BubbleChart
         # Last row should be same num_in_row as the previous
         num_left_in_layout = groups.keys().length - index
         if num_in_row > num_left_in_layout
-          num_in_row = prev_num_in_row
+          num_in_row = prev_num_in_row unless num_left_in_layout > groups.keys().length - 1
 
         num_in_row = Math.min(max_num_in_row, num_in_row)
 
@@ -479,10 +479,12 @@ $ ->
         d.election_period == '2008-2010'
       else if year == 2008
         d.election_period == '2006-2008'
-      else if year == 'gov'
-        d.election_period == '2010-2012' && d.office == 'Governor'
-      else if year == 'gov2'
-        d.election_period == '2010-2012' && d.office == 'House'
+      else
+        return false
+      #else if year == 'gov'
+      #  d.election_period == '2010-2012' && d.office == 'Governor'
+      #else if year == 'gov2'
+      #  d.election_period == '2010-2012' && d.office == 'House'
 
       #d.election_period == '2010-2012' && d.office == 'Governor'
       #d.election_period == '2010-2012' && d.office == 'Senate'
@@ -541,7 +543,7 @@ $ ->
       $year_el.animate({color: '#454542'})
     })
 
-    return
+    #return
 
     filtered_records = filter_data(records, next_year)
     window.debug_now = true
@@ -552,8 +554,8 @@ $ ->
   render_vis = (error, expenditure_records, organizational_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
     window.raw_records = raw_records
-    filtered_records = filter_data(raw_records, 2012)
-    filtered_records = filter_data(raw_records, 'gov')
+    filtered_records = filter_data(raw_records, 2014)
+    #filtered_records = filter_data(raw_records, 'gov')
 
     window.records = filtered_records
     chart = new BubbleChart filtered_records
