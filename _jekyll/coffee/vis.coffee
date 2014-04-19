@@ -138,6 +138,7 @@ class BubbleChart
       .nodes(@nodes)
       .size([@width, @height])
     @forces = [force]
+    this.estimate_circle_diameter(@nodes)
 
     force.gravity(0)
       .theta(1.1)
@@ -201,7 +202,6 @@ class BubbleChart
 
   do_split: (accessor, options={}) =>
     location_map = this.move_to_location_map @nodes, accessor
-    console.log("location map is #{JSON.stringify(location_map.keys())}")
     charge = if options.charge?
       options.charge
     else
@@ -240,19 +240,30 @@ class BubbleChart
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> d.y)
 
+    padding = 50
+    line_height = 20
+    line_offset = (d, line_num) -> d.y + d.radius + padding + line_height*line_num
     titles.enter().append('text')
       .attr("class", "titles header")
       .text (d) -> d.key
       .attr("text-anchor", "middle")
       .attr('x', (d) -> d.x)
-      .attr('y', (d) -> d.y + 200)
+      .attr('y', (d) -> line_offset(d,0))
 
     titles.enter().append('text')
       .attr('class', 'titles amount')
       .text (d) => this.format_money_millions(parseFloat(d.sum))
       .attr('text-anchor', 'middle')
       .attr('x', (d) -> d.x)
-      .attr('y', (d) -> d.y + 220)
+      .attr('y', (d) -> line_offset(d,1))
+
+    # Debug info
+    titles.enter().append('text')
+      .attr('class', 'titles amount')
+      .text (d) => d.radius
+      .attr('text-anchor', 'middle')
+      .attr('x', (d) -> d.x)
+      .attr('y', (d) -> line_offset(d,2))
 
     #titles.enter().append('text')
     #  .attr('class', 'titles candidate_names')
@@ -299,22 +310,59 @@ class BubbleChart
         {
           sum: d3.sum(leaves, (d) -> parseFloat(d.value))
           candidates: d3.set(leaves.map(this.get_candidate_short_name)).values()
-          radius: this.estimate_circle_radius(leaves)
+          radius: this.estimate_circle_diameter(leaves)/2
         })
       .map(nodes, d3.map)
-    i = 0
+
+    max_num_rows = 5
+    padding = 30
+    label_padding = 90
+    col_num = prev_radius = 0
+    num_in_row = 1
+    max_num_in_row = 6
+    # Push first row up
+    prev_y = -60
+
     groups.keys().sort((a, b) ->
       d3.descending(
         parseFloat(groups.get(a).sum),
         parseFloat(groups.get(b).sum)
       )
-    ).forEach (key) ->
+    ).forEach (key, index) =>
       entry = groups.get(key)
       entry['key'] = key
-      entry['x'] = get_width(i)
-      entry['y'] = get_height(i)
+
+      col_num = 0 if col_num >= num_in_row
+      if col_num == 0
+        prev_num_in_row = num_in_row
+        while (@width/num_in_row) > entry.radius*2 + padding*3
+          num_in_row += 1
+        num_in_row -= 1
+
+        # Last row should be same num_in_row as the previous
+        num_left_in_layout = groups.keys().length - index
+        if num_in_row > num_left_in_layout
+          num_in_row = prev_num_in_row
+
+        num_in_row = Math.min(max_num_in_row, num_in_row)
+
+      min_width = (@width/num_in_row)
+      x = min_width * col_num + min_width/2
+
+      # Only calculate y for first column in row
+      if col_num == 0
+        y = prev_y + prev_radius + entry.radius + padding*2 + label_padding
+        prev_y = y
+        prev_radius = entry.radius
+
+      y = prev_y
+
+      entry['x'] = x
+      entry['y'] = y
+      entry['radius'] = prev_radius  #prev_radius is our radius for this row
       groups.set(key, entry)
-      i += 1
+
+      col_num += 1
     groups
 
   # Calculates class for data
@@ -336,7 +384,7 @@ class BubbleChart
   get_candidate_short_name: (d) =>
     d.name.split(',')[0] + " (#{d.party[0]})"
 
-  estimate_circle_radius: (nodes) =>
+  estimate_circle_diameter: (nodes) =>
     area = d3.sum(nodes, (d) -> Math.PI * Math.pow(d.radius, 2))
     diameter = 2 * Math.sqrt(area/Math.PI)
     estimated_diameter = (Math.log(nodes.length)/140 + 1) * diameter
