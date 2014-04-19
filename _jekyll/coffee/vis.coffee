@@ -209,11 +209,45 @@ class BubbleChart
       console.log('do nothing')
       #this.split_amount()
       #window.do_render(window.raw_records)
+      accessor = (d) ->
+        if d.value > 1e6
+          "Over a million"
+        else if d.value > 500000
+           "$500,000 to 1 million"
+        else if d.value > 250000
+           "$250,000 to 500,000"
+        else if d.value > 200000
+           "$200,000 to $250,000"
+        else if d.value > 150000
+           "$150,000 to 200,000"
+        else if d.value > 100000
+           "$100,000 to 150,000"
+        else if d.value > 50000
+           "$50,000 to 100,000"
+        else if d.value > 25000
+           "$25,000 to 50,000"
+        else if d.value > 20000
+           "$20,000 to 25,000"
+        else if d.value > 15000
+           "$15,000 to 20,000"
+        else if d.value > 10000
+           "$10,000 to 15,000"
+        else if d.value > 5000
+           "$5,000 to 10,000"
+        else if d.value > 1000
+           "$1,000 to 5,000"
+         else
+           "< $1,000"
+      sort_func = (d) ->
+        console.log('doing sort')
+        #debugger;
+        return -1
+      this.do_split(accessor, {sort: sort_func, view_by_amount: true})
     if(func == 'year')
       this.display_group_all()
 
   do_split: (accessor, options={}) =>
-    location_map = this.move_to_location_map @nodes, accessor
+    location_map = this.move_to_location_map @nodes, accessor, options
     charge = if options.charge?
       options.charge
     else
@@ -255,7 +289,11 @@ class BubbleChart
     #  .attr('x', (d) -> d.x)
     #  .attr('y', (d) -> d.y)
 
-    padding = 55
+    padding = if options.view_by_amount?
+      padding = 90
+    else
+      padding = 55
+
     line_height = 20
     line_offset = (d, line_num) -> d.y + d.radius + padding + line_height*line_num
     titles.enter().append('text')
@@ -310,7 +348,7 @@ class BubbleChart
   # Creates grouping based on the grouping_func parameter and uses that to
   # compute groups and lay them out in a grid-based manner
   # AKA: Here lies black magic
-  move_to_location_map: (nodes, grouping_func) =>
+  move_to_location_map: (nodes, grouping_func, options={}) =>
     min_grouping_width = 300
     groupings_per_row = Math.floor(@width / min_grouping_width) - 1
     min_grouping_height = 450
@@ -330,20 +368,27 @@ class BubbleChart
       .map(nodes, d3.map)
 
     max_num_rows = 5
-    padding = 30
+    padding = if options.view_by_amount?
+      80
+    else
+      30
     label_padding = 90
     col_num = prev_radius = 0
     num_in_row = 1
     max_num_in_row = 6
     # Push first row up
-    prev_y = -60
+    prev_y = if options.view_by_amount? then -90 else -60
 
-    groups.keys().sort((a, b) ->
-      d3.descending(
-        parseFloat(groups.get(a).sum),
-        parseFloat(groups.get(b).sum)
-      )
-    ).forEach (key, index) =>
+    sort = if options.sort?
+      options.sort
+    else
+      (a, b) ->
+        d3.descending(
+          parseFloat(groups.get(a).sum),
+          parseFloat(groups.get(b).sum)
+        )
+
+    groups.keys().sort(sort).forEach (key, index) =>
       entry = groups.get(key)
       entry['key'] = key
 
