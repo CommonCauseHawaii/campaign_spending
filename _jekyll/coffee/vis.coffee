@@ -509,6 +509,12 @@ root = exports ? this
 
 campaignInit = () ->
   #$('.viz_nav.year').addClass('selected')
+  $('.sliding_panel_hover_area').on 'mouseenter', () ->
+    console.log('over')
+    $('.sliding_panel').animate({right: 0})
+  $('.sliding_panel').on 'mouseleave', () ->
+    console.log('out')
+    $('.sliding_panel').animate({right: '-182px'})
 
 $ ->
   chart = null

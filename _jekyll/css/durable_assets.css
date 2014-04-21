@@ -146,6 +146,27 @@ nav.top-bar .title-area { top: 14px; }
 /* HACK: viz nav doesn't want to line up */
 #candidate_spending_container .viz_nav .header { margin-left: -2px; }
 
+/* Sliding panel for visualization legend */
+.sliding_panel_container {
+  overflow: hidden; position: absolute;
+  top: 300px;
+  right: 0px;
+  width: 225px;
+  height: 528px;
+}
+.sliding_panel_hover_area {
+  position: absolute;
+  height: 100%;
+  width: 40%;
+  top: 0;
+  right: 0;
+}
+.sliding_panel {
+  position: absolute;
+  top: 0;
+  right: -182px;
+}
+
 /* Viz Colors */
 svg circle.overhead {
   fill: #689890;
