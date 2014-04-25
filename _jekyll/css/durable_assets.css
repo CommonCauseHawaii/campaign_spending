@@ -147,45 +147,76 @@ nav.top-bar .title-area { top: 14px; }
 #candidate_spending_container .viz_nav .header { margin-left: -2px; }
 
 /* Sliding panel for visualization legend */
-.sliding_panel_container {
+/* TODO: this won't look nice on mobile */
+.legend_container {
   overflow: hidden; position: absolute;
-  top: 300px;
+  top: 260px;
   right: 0px;
-  width: 225px;
-  height: 528px;
+  width: 270px;
+  /*height: auto;*/
+  /* I don't like setting the height manually like this */
+  /*height: 480px;*/
 }
-.sliding_panel_hover_area {
+.legend_hover_area {
   position: absolute;
   height: 100%;
   width: 40%;
   top: 0;
   right: 0;
 }
-.sliding_panel {
-  position: absolute;
+.legend {
+  position: relative;
   top: 0;
-  right: -182px;
+  right: -225px;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  padding-bottom: 20px;
 }
+.legend .header {
+  margin-top: 13px;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.legend .subheader {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 10px;
+  /* override foundation subheader color */
+  color: #454542;
+  margin: 0;
+}
+.legend .subcategories {
+  font-size: 12px;
+  line-height: 130%;
+}
+.legend .section {
+  margin: 5px 0;
+  padding: 5px 0;
+}
+.legend .row.other { margin-bottom: 10px; }
+.legend .border {
+  border-top: 1px solid #dfded6;
+}
+.legend .key { width: 15px; height: 15px; }
+.legend .row { padding-left: 10px; padding-right: 10px; }
+.legend .columns { padding-left: 5px; padding-right: 5px; }
 
 /* Viz Colors */
-svg circle.overhead {
-  fill: #689890;
-}
-svg circle.contributions {
-  fill: #3b6e71;
-}
-svg circle.communication {
-  fill: #73884f;
-}
-svg circle.staff {
-  fill: #73884f;
-}
-svg circle.fees {
-  fill: #9ab996;
-}
-svg circle.other {
-  fill: #6c6b6b;
-}
+svg circle.overhead         { fill: #689890; }
+.legend .key.overhead       { background-color: #689890; }
+svg circle.contributions    { fill: #3b6e71; }
+.legend .key.contributions  { background-color: #3b6e71; }
+svg circle.communication    { fill: #766f52; }
+.legend .key.communication  { background-color: #766f52; }
+svg circle.staff            { fill: #73884f; }
+.legend .key.staff          { background-color: #73884f; }
+svg circle.fees             { fill: #9ab996; }
+.legend .key.fees           { background-color: #9ab996; }
+svg circle.other            { fill: #6c6b6b; }
+.legend .key.other          { background-color: #6c6b6b; }
 
 .titles.year.header { font-size: 13px; }
 .titles.header { text-transform: uppercase; font-weight: 600; letter-spacing: 1px; font-size: 14px; }

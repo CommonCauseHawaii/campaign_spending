@@ -504,17 +504,40 @@ class BubbleChart
   hide_details: (data, i, element) =>
     d3.select(element).attr("stroke", '')
     @tooltip.hideTooltip()
+  # End class BubbleChart
+
+# Show rich information about candidate
+# Maybe move to another file
+# This class will have its own set of data that it copies from the general records
+# Ideally it could all be passed in to the initializer
+# Maybe should create class for record or circle elements
+class CandidateModal
+  constructor: (data, i, element) ->
+    # Filter records based on the candidate reg_no
+    reg_no = data.reg_no
+    matched = window.records.filter( (d) -> d.reg_no == reg_no )
+    debugger
+    # Create a viz with just the candidates circles (balls)
+    # Create the force centered on the current node with the others hovering around it
+    # Maybe need to play with damper?
+    #
+    # Set modal using modal.html()
+    # Display modal
+
+  # maybe remove
+  render: () ->
+    modal = $('#candidate_modal')
+    modal.foundation('reveal', 'open')
+
 
 root = exports ? this
 
 campaignInit = () ->
   #$('.viz_nav.year').addClass('selected')
-  $('.sliding_panel_hover_area').on 'mouseenter', () ->
-    console.log('over')
-    $('.sliding_panel').animate({right: 0})
-  $('.sliding_panel').on 'mouseleave', () ->
-    console.log('out')
-    $('.sliding_panel').animate({right: '-182px'})
+  $('.legend_hover_area').on 'mouseenter', () ->
+    $('.legend').animate({right: 0})
+  $('.legend').on 'mouseleave', () ->
+    $('.legend').animate({right: '-225px'})
 
 $ ->
   chart = null
