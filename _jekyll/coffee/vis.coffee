@@ -539,6 +539,21 @@ campaignInit = () ->
   $('.legend').on 'mouseleave', () ->
     $('.legend').animate({right: '-225px'})
 
+  $('.legend .row[data-category]').on 'mouseenter', () ->
+    category = $(this).data('category')
+    console.log('mouseenter category ' + category);
+    circles = d3.selectAll('circle')
+    circles.filter( (circle) -> circle.super_category != category)
+      .transition().duration(1000)
+      .style('opacity', 0.3)
+  $('.legend .row[data-category]').on 'mouseleave', () ->
+    category = $(this).data('category')
+    console.log('mouseleave category ' + category);
+    circles = d3.selectAll('circle')
+    circles.transition().duration(1000)
+      .style('opacity', 1)
+
+
 $ ->
   chart = null
 
