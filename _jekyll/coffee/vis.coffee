@@ -238,6 +238,7 @@ class BubbleChart
            "$1,000 to 5,000"
          else
            "< $1,000"
+      # UGLY!
       sort_func = (a,b) ->
         get_amount = (d) ->
           $_pos = d.indexOf('$') + 1
@@ -252,20 +253,7 @@ class BubbleChart
           return 1
         if b == "< $1,000"
           return -1
-        console.log("a #{a}\tb #{b}")
-        console.log("a #{get_amount(a)}\tb #{get_amount(b)}")
-        console.log("")
         d3.descending(get_amount(a), get_amount(b))
-        #console.log('doing sort')
-        #"$5,000 to 10,000"
-        #"< $1,000"
-        #$_pos = d.indexOf('$') + 1
-        #end_pos = d.indexOf(' ', $_pos)
-        #amount_str = d.substring($_pos, end_pos)
-        #console.log(d)
-        #console.log(amount_str)
-        ##debugger;
-        #return -1
       this.do_split(accessor, {sort: sort_func, view_by_amount: true})
     if(func == 'year')
       this.display_group_all()
