@@ -201,8 +201,20 @@ class BubbleChart
     if(func == 'party')
       this.do_split (d) -> d.party
     if(func == 'expenditure')
+      category_titles = {
+        communication: 'Communication & Outreach'
+        overhead: 'Overhead'
+        staff: 'Staff & Professional Services'
+        contributions: 'Contributions'
+        fees: 'Taxes & Fees'
+        other: 'Other'
+      }
+
       accessor = (d) -> d.super_category
-      this.do_split accessor, {charge: (d) => this.charge(d) * 1.3}
+      this.do_split accessor, {
+        charge: (d) => this.charge(d) * 1.3
+        title_accessor: (category) -> category_titles[category]
+      }
     if(func == 'office')
       this.do_split (d) -> d.office
     if(func == 'amount')
@@ -292,6 +304,10 @@ class BubbleChart
     # Remove old titles
     titles = @vis.selectAll('text.titles').remove()
 
+    title_accessor = if options.title_accessor?
+      (d) -> options.title_accessor(d.key)
+    else
+      (d) -> d.key
     titles = @vis.selectAll('text.titles')
       .data(location_map.values(), (d) -> d.key)
 
@@ -310,7 +326,7 @@ class BubbleChart
     line_offset = (d, line_num) -> d.y + d.radius + padding + line_height*line_num
     titles.enter().append('text')
       .attr("class", "titles header")
-      .text (d) -> d.key
+      .text(title_accessor)
       .attr("text-anchor", "middle")
       .attr('x', (d) -> d.x)
       .attr('y', (d) -> line_offset(d,0))
