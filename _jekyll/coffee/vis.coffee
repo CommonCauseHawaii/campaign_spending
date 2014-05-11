@@ -5,6 +5,8 @@ class BubbleChart
     @data = data
     @width = 1350
     @height = 3500
+    window.width = @width
+    window.height = @height
 
     @tooltip = CustomTooltip("expenditure_tooltip", 300)
 
@@ -119,11 +121,22 @@ class BubbleChart
         that.circles
           .transition().duration(1000)
           .style('opacity', 1)
+      .on "click", (d,i) ->
+        modal = $('#candidate_modal')
+        element = this
+        $(document).off 'opened', '[data-reveal]'
+        $(document).on 'opened', '[data-reveal]', () ->
+          callback_modal = $(this)
+          # I don't understand why foundation doesn't have per-modal callbacks
+          if callback_modal.attr('id') == modal.attr('id')
+            that.render_modal(d,i,element)
+        $(element).data('center', true)
+        modal.foundation 'reveal', 'open'
       # Fancy transition to make bubbles appear, ending with the
       # correct radius
       .transition().duration(3000).attr("r", (d) -> d.radius)
 
-    @circles.exit().remove()
+    circles.exit().remove()
 
 
   # Charge function that is called for each node.
@@ -190,10 +203,10 @@ class BubbleChart
       d.x = d.x + (@center.x - d.x) * (@damper + 0.02) * alpha
       d.y = d.y + (@center.y - d.y) * (@damper + 0.02) * alpha
 
-  split_amount: () =>
-    # Need a way to tell it to move to what location
-    # Need a way to render it at that location
-    # Need a way to display the labels at the correct locations
+  move_towards_target: (alpha, target) =>
+    (d) =>
+      d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha
+      d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha
 
   show_viz_type: (func) =>
     if(func == 'candidate')
@@ -508,31 +521,100 @@ class BubbleChart
   hide_details: (data, i, element) =>
     d3.select(element).attr("stroke", '')
     @tooltip.hideTooltip()
+
+  # Show rich information about candidate
+  # Maybe move to another file
+  # This class will have its own set of data that it copies from the general records
+  # Ideally it could all be passed in to the initializer
+  # Maybe should create class for record or circle elements
+  render_modal: (circle_data, i, element) =>
+    console.log('render modal')
+    this.kill_forces()
+    # Filter records based on the candidate reg_no
+    reg_no = circle_data.reg_no
+    records = window.records.filter( (d) -> d.reg_no == reg_no )
+    nodes = window.viz.selectAll('circle')
+      .filter( (d) => d.reg_no == reg_no )
+      .data()
+    #force.force.gravity(0)
+    #  .theta(1.0)
+      # TODO: fill out rest of force
+      # Want one circle in the center with others hovering around it
+    # Reset
+    $('#candidate_vis').find('svg').remove()
+    $('#candidate_modal').find('#expenditure-record-table-container').empty()
+
+    viz = d3.select('#candidate_vis').append('svg')
+      .attr('width', '100%')
+      # TODO: might need to calculate height based on data
+      .attr('height', 300)
+    modal_width = $('#candidate_vis').width()
+    # TODO: compute y based on modal
+    modal_center = {x: modal_width/2, y: 120}
+
+    circles = viz.selectAll('circle')
+      .data(nodes, (d) -> d.id)
+    this.do_create_circles(circles)
+    # TODO: calcuate height and width offset relative to their old absolute
+    # position
+    circles
+      .attr('cx', (d) -> d.x)
+      .attr('cy', (d) -> d.y)
+
+    force = d3.layout.force()
+      # Is records same as nodes?
+      .nodes(nodes)
+      .size([window.width, window.height])
+      .gravity(0)
+      .theta(1.0)
+      .charge (d) =>
+        #this.modal_charge(d, circle_data.category)
+        return this.charge(d)
+        modifier = if circle_data.category == d.category
+          10
+        else
+          2.8
+
+        console.log('charge ' + this.charge(d) * modifier)
+        if circle_data.category == d.category
+          this.charge(d) * modifier
+        else
+      #.charge(this.modal_charge(d, circle_data.category)
+      .chargeDistance(100)
+      .friction(0.87)
+      .on 'tick', (e) =>
+        circles.each(this.move_towards_target(e.alpha, modal_center))
+          .attr('cx', (d) -> d.x)
+          .attr('cy', (d) -> d.y)
+    force.start()
+    this.update_modal(reg_no, circle_data.category)
+
+  # Updates records on modal
+  update_modal: (reg_no, category) =>
+    console.log('updating modal')
+    url = 'https://data.hawaii.gov/resource/3maa-4fgr.json'
+    # TODO: filter on the current category
+    encoded_category = encodeURIComponent(category);
+    url_params = "$limit=20&$where=reg_no='CC10529'and expenditure_category='#{encoded_category}'&$order=amount desc"
+    $.get "#{url}?#{url_params}", (data) ->
+      tabulate('#candidate_modal #expenditure-record-table-container', 'expenditure-record-table', data, ['date', 'expenditure_category', 'purpose_of_expenditure', 'amount'])
+    candidate_info = window.organizational_records.filter((d) -> d.reg_no == reg_no)[0]
+    candidate_name = candidate_info.candidate_name
+    candidate_office = candidate_info.office
+
+    modal = $('#candidate_modal')
+    modal.find('.candidate_name').text(candidate_name)
+    cur_year = new CandidateUtil().get_vis_year()
+    modal.find('.current_year').text(cur_year)
+    modal.find('.candidate_office').text(candidate_office)
+    modal.find('.expenditure_category_title').text(category)
   # End class BubbleChart
 
-# Show rich information about candidate
-# Maybe move to another file
-# This class will have its own set of data that it copies from the general records
-# Ideally it could all be passed in to the initializer
-# Maybe should create class for record or circle elements
-class CandidateModal
-  constructor: (data, i, element) ->
-    # Filter records based on the candidate reg_no
-    reg_no = data.reg_no
-    matched = window.records.filter( (d) -> d.reg_no == reg_no )
-    debugger
-    # Create a viz with just the candidates circles (balls)
-    # Create the force centered on the current node with the others hovering around it
-    # Maybe need to play with damper?
-    #
-    # Set modal using modal.html()
-    # Display modal
-
-  # maybe remove
-  render: () ->
-    modal = $('#candidate_modal')
-    modal.foundation('reveal', 'open')
-
+# Helper class for things that don't rely on BubbleChart data
+class CandidateUtil
+  get_vis_year: () =>
+    $year_el = $('.viz_nav.year')
+    cur_year = $year_el.data('year')
 
 root = exports ? this
 
@@ -628,9 +710,7 @@ $ ->
   root.update_year = (next) ->
     records = window.raw_records
 
-    # get current year
-    $year_el = $('.viz_nav.year')
-    cur_year = $year_el.data('year')
+    cur_year = new CandidateUtil().get_vis_year()
     direction = if next then 1 else -1
     next_year = cur_year + 2*direction
 
@@ -675,6 +755,7 @@ $ ->
     #filtered_records = filter_data(raw_records, 'gov')
 
     window.records = filtered_records
+    window.organizational_records = organizational_records
     chart = new BubbleChart filtered_records
     chart.display_group_all()
   root.get_chart = () =>

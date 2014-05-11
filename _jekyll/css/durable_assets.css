@@ -153,9 +153,6 @@ nav.top-bar .title-area { top: 14px; }
   top: 260px;
   right: 0px;
   width: 270px;
-  /*height: auto;*/
-  /* I don't like setting the height manually like this */
-  /*height: 480px;*/
 }
 .legend_hover_area {
   position: absolute;
@@ -235,6 +232,24 @@ svg circle.other            { fill: #6c6b6b; }
   line-height: 1.5;
   padding: 15px;
 }
+
+/* Modal (individual expenditures) */
+#candidate_modal .expenditure-record-table {
+  width: 100%;
+}
+#candidate_modal .candidate_name {
+  font-weight: 400; text-transform: uppercase; font-size: 18px; letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+#candidate_modal .candidate_subtitle {
+  font-weight: 300; text-transform: uppercase; font-size: 15px; letter-spacing: 0px;
+  margin-bottom: 10px;
+}
+#candidate_modal .expenditure_category_title {
+  font-weight: 300; text-transform: uppercase; font-size: 15px; letter-spacing: 0px;
+  font-style:italic;
+}
+
 *.unselectable {
    -moz-user-select: none;
    -khtml-user-select: none;
