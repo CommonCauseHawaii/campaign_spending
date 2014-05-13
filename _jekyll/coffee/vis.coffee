@@ -528,7 +528,6 @@ class BubbleChart
   # Ideally it could all be passed in to the initializer
   # Maybe should create class for record or circle elements
   render_modal: (circle_data, i, element) =>
-    console.log('render modal')
     this.kill_forces()
     # Filter records based on the candidate reg_no
     reg_no = circle_data.reg_no
@@ -575,7 +574,6 @@ class BubbleChart
         else
           2.8
 
-        console.log('charge ' + this.charge(d) * modifier)
         if circle_data.category == d.category
           this.charge(d) * modifier
         else
@@ -595,7 +593,8 @@ class BubbleChart
     url = 'https://data.hawaii.gov/resource/3maa-4fgr.json'
     # TODO: filter on the current category
     encoded_category = encodeURIComponent(category);
-    url_params = "$limit=20&$where=reg_no='CC10529'and expenditure_category='#{encoded_category}'&$order=amount desc"
+    year = candidate_utils.get_vis_year() - 2
+    url_params = "$limit=20&$where=reg_no='" + reg_no + "'and expenditure_category='#{encoded_category}' and date > '" + year + "-12-31T00:00:00'&$order=amount desc"
     $.get "#{url}?#{url_params}", (data) ->
       tabulate('#candidate_modal #expenditure-record-table-container', 'expenditure-record-table', data, ['date', 'expenditure_category', 'purpose_of_expenditure', 'amount'])
     candidate_info = window.organizational_records.filter((d) -> d.reg_no == reg_no)[0]
@@ -604,11 +603,13 @@ class BubbleChart
 
     modal = $('#candidate_modal')
     modal.find('.candidate_name').text(candidate_name)
-    cur_year = new CandidateUtil().get_vis_year()
+    cur_year = candidate_utils.get_vis_year()
     modal.find('.current_year').text(cur_year)
     modal.find('.candidate_office').text(candidate_office)
     modal.find('.expenditure_category_title').text(category)
   # End class BubbleChart
+
+root = exports ? this
 
 # Helper class for things that don't rely on BubbleChart data
 class CandidateUtil
@@ -616,7 +617,7 @@ class CandidateUtil
     $year_el = $('.viz_nav.year')
     cur_year = $year_el.data('year')
 
-root = exports ? this
+root.candidate_utils = new CandidateUtil
 
 campaignInit = () ->
   #$('.viz_nav.year').addClass('selected')
@@ -710,7 +711,7 @@ $ ->
   root.update_year = (next) ->
     records = window.raw_records
 
-    cur_year = new CandidateUtil().get_vis_year()
+    cur_year = candidat_utils.get_vis_year()
     direction = if next then 1 else -1
     next_year = cur_year + 2*direction
 
