@@ -711,7 +711,7 @@ $ ->
   root.update_year = (next) ->
     records = window.raw_records
 
-    cur_year = candidat_utils.get_vis_year()
+    cur_year = candidate_utils.get_vis_year()
     direction = if next then 1 else -1
     next_year = cur_year + 2*direction
 
@@ -734,6 +734,7 @@ $ ->
       return
 
     # update year element
+    $year_el = $('.viz_nav.year')
     $year_el.animate({color: 'white'}, {complete: () ->
       # Not black, dark grey
       $year_el.text(next_year)
