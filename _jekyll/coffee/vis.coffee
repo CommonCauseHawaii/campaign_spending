@@ -88,28 +88,29 @@ class BubbleChart
       .attr("width", @width)
       .attr("height", @height)
       .attr("id", "svg_vis")
+    window.viz = @vis
 
     this.create_circles()
 
   create_circles: () =>
     @circles = @vis.selectAll("circle")
       .data(@nodes, (d) -> d.id)
+    this.do_create_circles(@circles)
 
+  do_create_circles: (circles) =>
     # used because we need 'this' in the 
     # mouse callbacks
     that = this
 
     # radius will be set to 0 initially.
     # see transition below
-    @circles.enter().append("circle")
-      .attr("r", 0)
+    circles.enter().append("circle")
+      #.attr("r", 0)
       .attr('class', (d) => "#{this.get_supercategory(d.category)} #{d.reg_no}")
       .attr("stroke-width", 2)
-      .attr('x', 1000)
-      .attr('y', 1000)
-      #.attr('x', Math.random() * 900)
-      #.attr('y', Math.random() * 800)
       .attr("id", (d) -> "bubble_#{d.id}")
+      #.attr('cx', (d) -> d.x)
+      #.attr('cy', (d) -> d.y)
       .on "mouseover", (d,i) ->
         that.show_details(d,i,this)
         that.circles
@@ -591,17 +592,29 @@ class BubbleChart
   update_modal: (reg_no, category) =>
     console.log('updating modal')
     url = 'https://data.hawaii.gov/resource/3maa-4fgr.json'
-    # TODO: filter on the current category
     encoded_category = encodeURIComponent(category);
-    year = candidate_utils.get_vis_year() - 2
-    url_params = "$limit=20&$where=reg_no='" + reg_no + "'and expenditure_category='#{encoded_category}' and date > '" + year + "-12-31T00:00:00'&$order=amount desc"
+    year = candidate_utils.get_vis_year()
+    election_period = "#{year-2}-#{year}"
+    url_params = "$limit=20&$where=reg_no='" + reg_no + "'and expenditure_category='#{encoded_category}' and election_period = '" + election_period + "'&$order=amount desc"
+
+    modal = $('#candidate_modal')
+    modal.find('.expenditure-loading').show()
     $.get "#{url}?#{url_params}", (data) ->
-      tabulate('#candidate_modal #expenditure-record-table-container', 'expenditure-record-table', data, ['date', 'expenditure_category', 'purpose_of_expenditure', 'amount'])
+      columns = [
+        {name: 'date', display_name: 'Date', func: (d) -> d.substring(0,10) },
+        {name: 'expenditure_category', display_name: 'Expenditure Category'},
+        {name: 'vendor_name', display_name: 'Vendor Name'},
+        {name: 'purpose_of_expenditure', display_name: 'Purpose of Expenditure'},
+        {name: 'amount', display_name: 'Amount', func: (d) -> money(d)}
+      ]
+      tabulate('#candidate_modal #expenditure-record-table-container', 'expenditure-record-table', data, columns)
+    .always( () -> modal.find('.expenditure-loading').hide() )
+    .error( () -> modal.find('.expenditure-error').show() )
+
     candidate_info = window.organizational_records.filter((d) -> d.reg_no == reg_no)[0]
     candidate_name = candidate_info.candidate_name
     candidate_office = candidate_info.office
 
-    modal = $('#candidate_modal')
     modal.find('.candidate_name').text(candidate_name)
     cur_year = candidate_utils.get_vis_year()
     modal.find('.current_year').text(cur_year)

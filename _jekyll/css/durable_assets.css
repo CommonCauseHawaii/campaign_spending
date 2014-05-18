@@ -234,9 +234,14 @@ svg circle.other            { fill: #6c6b6b; }
 }
 
 /* Modal (individual expenditures) */
+#candidate_modal .expenditure-record-table-container {
+  color: black;
+}
 #candidate_modal .expenditure-record-table {
   width: 100%;
 }
+#candidate_modal .expenditure-record-table td.date { min-width: 100px; }
+
 #candidate_modal .candidate_name {
   font-weight: 400; text-transform: uppercase; font-size: 18px; letter-spacing: 1px;
   margin-bottom: 10px;
@@ -250,6 +255,7 @@ svg circle.other            { fill: #6c6b6b; }
   font-style:italic;
 }
 
+/* General properties */
 *.unselectable {
    -moz-user-select: none;
    -khtml-user-select: none;
@@ -262,3 +268,4 @@ svg circle.other            { fill: #6c6b6b; }
    -ms-user-select: none;
    user-select: none;
 }
+.hidden { display: none; }
