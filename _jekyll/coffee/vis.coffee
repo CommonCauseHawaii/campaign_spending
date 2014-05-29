@@ -204,11 +204,6 @@ class BubbleChart
       d.x = d.x + (@center.x - d.x) * (@damper + 0.02) * alpha
       d.y = d.y + (@center.y - d.y) * (@damper + 0.02) * alpha
 
-  move_towards_target: (alpha, target) =>
-    (d) =>
-      d.x = d.x + (target.x - d.x) * (@damper + 0.02) * alpha
-      d.y = d.y + (target.y - d.y) * (@damper + 0.02) * alpha
-
   show_viz_type: (func) =>
     if(func == 'candidate')
       this.do_split (d) -> d.name
@@ -523,6 +518,7 @@ class BubbleChart
     d3.select(element).attr("stroke", '')
     @tooltip.hideTooltip()
 
+
   # Show rich information about candidate
   # Maybe move to another file
   # This class will have its own set of data that it copies from the general records
@@ -530,62 +526,59 @@ class BubbleChart
   # Maybe should create class for record or circle elements
   render_modal: (circle_data, i, element) =>
     this.kill_forces()
-    # Filter records based on the candidate reg_no
+    $('#candidate_vis').find('svg').remove()
+    $('#candidate_modal').find('#expenditure-record-table-container').empty()
+
     reg_no = circle_data.reg_no
     records = window.records.filter( (d) -> d.reg_no == reg_no )
     nodes = window.viz.selectAll('circle')
       .filter( (d) => d.reg_no == reg_no )
       .data()
-    #force.force.gravity(0)
-    #  .theta(1.0)
-      # TODO: fill out rest of force
-      # Want one circle in the center with others hovering around it
-    # Reset
-    $('#candidate_vis').find('svg').remove()
-    $('#candidate_modal').find('#expenditure-record-table-container').empty()
+    # Find index of center node
+    center_node = nodes.filter( (d) -> circle_data.category == d.category )[0]
+
+    links = nodes.filter( (node) -> node != center_node )
+      .map( (node) -> {source: center_node, target: node} )
 
     viz = d3.select('#candidate_vis').append('svg')
       .attr('width', '100%')
       # TODO: might need to calculate height based on data
-      .attr('height', 300)
+      .attr('height', 350)
     modal_width = $('#candidate_vis').width()
     # TODO: compute y based on modal
-    modal_center = {x: modal_width/2, y: 120}
+    modal_center = {x: modal_width/2, y: 150}
 
     circles = viz.selectAll('circle')
       .data(nodes, (d) -> d.id)
     this.do_create_circles(circles)
+
+    # Fade circles except center circle
+    circles.filter( (node) -> node.category != circle_data.category )
+      .transition().duration(1000)
+      .style('opacity', 0.5)
+
     # TODO: calcuate height and width offset relative to their old absolute
     # position
     circles
       .attr('cx', (d) -> d.x)
       .attr('cy', (d) -> d.y)
 
-    force = d3.layout.force()
-      # Is records same as nodes?
-      .nodes(nodes)
-      .size([window.width, window.height])
-      .gravity(0)
-      .theta(1.0)
-      .charge (d) =>
-        #this.modal_charge(d, circle_data.category)
-        return this.charge(d)
-        modifier = if circle_data.category == d.category
-          10
-        else
-          2.8
+    tick = () ->
+      circles
+        .attr("cx", (d) -> return d.x )
+        .attr("cy", (d) -> return d.y )
 
-        if circle_data.category == d.category
-          this.charge(d) * modifier
-        else
-      #.charge(this.modal_charge(d, circle_data.category)
-      .chargeDistance(100)
-      .friction(0.87)
-      .on 'tick', (e) =>
-        circles.each(this.move_towards_target(e.alpha, modal_center))
-          .attr('cx', (d) -> d.x)
-          .attr('cy', (d) -> d.y)
-    force.start()
+    force = d3.layout.force()
+      .size([modal_width, 240])
+      .nodes(nodes)
+      .links(links)
+      .friction(0.7)
+      .theta(0.5)
+      .charge(-400)
+      .linkDistance( () -> Math.max(75, center_node.radius + 20))
+      .on('tick', tick)
+      .start()
+
     this.update_modal(reg_no, circle_data.category)
 
   # Updates records on modal

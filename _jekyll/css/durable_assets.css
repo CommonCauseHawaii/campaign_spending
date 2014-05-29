@@ -237,6 +237,7 @@ svg circle.other            { fill: #6c6b6b; }
 #candidate_modal .expenditure-record-table-container {
   color: black;
 }
+#candidate_modal .candidate_info { position: absolute; }
 #candidate_modal .expenditure-record-table {
   width: 100%;
 }
