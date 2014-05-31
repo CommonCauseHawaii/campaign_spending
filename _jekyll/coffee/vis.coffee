@@ -49,6 +49,7 @@ class BubbleChart
         category: d.expenditure_category
         super_category: this.get_supercategory(d.expenditure_category)
         office: d.office
+        district: d.district
         election_period: d.election_period
         election_year: d.election_period.split('-')[1]
         x: Math.random() * 1
@@ -135,6 +136,7 @@ class BubbleChart
         modal.foundation 'reveal', 'open'
       # Fancy transition to make bubbles appear, ending with the
       # correct radius
+      #.attr("r", (d) -> d.radius)
       .transition().duration(3000).attr("r", (d) -> d.radius)
 
     circles.exit().remove()
@@ -224,6 +226,9 @@ class BubbleChart
         charge: (d) => this.charge(d) * 1.3
         title_accessor: (category) -> category_titles[category]
       }
+    if(func == 'island')
+      this.do_split (d) ->
+        candidate_utils.get_island(d)
     if(func == 'office')
       this.do_split (d) -> d.office
     if(func == 'amount')
@@ -534,19 +539,22 @@ class BubbleChart
     nodes = window.viz.selectAll('circle')
       .filter( (d) => d.reg_no == reg_no )
       .data()
-    # Find index of center node
-    center_node = nodes.filter( (d) -> circle_data.category == d.category )[0]
 
-    links = nodes.filter( (node) -> node != center_node )
-      .map( (node) -> {source: center_node, target: node} )
+    center_node = nodes.filter( (d) -> circle_data.category == d.category )[0]
+    non_center_nodes = nodes.filter( (d) -> circle_data.category != d.category)
+    largest_radius = d3.max(non_center_nodes, (d) -> d.radius )
+
+    links = non_center_nodes.map( (node) -> {source: center_node, target: node} )
+
+    #TODO: compute dynamically
+    link_distance = Math.max(40, center_node.radius) + 55
+    modal_viz_padding = 5
+    modal_viz_height = link_distance*2.05 + largest_radius*4 + modal_viz_padding*2
+    modal_viz_width = $('#candidate_vis').width()
 
     viz = d3.select('#candidate_vis').append('svg')
       .attr('width', '100%')
-      # TODO: might need to calculate height based on data
-      .attr('height', 350)
-    modal_width = $('#candidate_vis').width()
-    # TODO: compute y based on modal
-    modal_center = {x: modal_width/2, y: 150}
+      .attr('height', modal_viz_height)
 
     circles = viz.selectAll('circle')
       .data(nodes, (d) -> d.id)
@@ -558,7 +566,7 @@ class BubbleChart
       .style('opacity', 0.5)
 
     # TODO: calcuate height and width offset relative to their old absolute
-    # position
+    # position (probably use d3 scales)
     circles
       .attr('cx', (d) -> d.x)
       .attr('cy', (d) -> d.y)
@@ -569,13 +577,14 @@ class BubbleChart
         .attr("cy", (d) -> return d.y )
 
     force = d3.layout.force()
-      .size([modal_width, 240])
+      .size([modal_viz_width, modal_viz_height])
       .nodes(nodes)
       .links(links)
       .friction(0.7)
       .theta(0.5)
-      .charge(-400)
-      .linkDistance( () -> Math.max(75, center_node.radius + 20))
+      .gravity(0.2)
+      .charge( (d) -> -300 + -100 * Math.log(d.radius))
+      .linkDistance(link_distance)
       .on('tick', tick)
       .start()
 
@@ -622,6 +631,54 @@ class CandidateUtil
   get_vis_year: () =>
     $year_el = $('.viz_nav.year')
     cur_year = $year_el.data('year')
+
+  get_island: (record) =>
+    #01-01 to 07-07  Hawaii
+    #08-01 to 13-03  Maui
+    #13-04               Lanai
+    #13-05 to 13-09  Molokai
+    #14-01 to 16-05  Kauai
+    #16-06               Niihau
+    #17-01 to 51-06  Oahu
+    maui = 'Maui, Lanai, Molokai'
+    kauai = 'Kauai, Niihau'
+    get_island_by_precinct = (precinct) ->
+      as_number = parseInt(precinct.substring(0,2) + precinct.substring(3,5))
+      island = if as_number <= 707
+        'Hawaii'
+      else if as_number <= 1303
+        maui
+      else if as_number <= 1304
+        maui # Lanai
+      else if as_number <= 1309
+        maui # Molokai
+      else if as_number <= 1605
+        kauai
+      else if as_number <= 1606
+        kauai # Niihau
+      else if as_number <= 5106
+        'Oahu'
+      else
+        'Error'
+
+    if record.office in ['Governor', 'Mayor', 'Lt. Governor', 'Prosecuting Attorney', 'OHA', 'BOE']
+      'All'
+    else if record.office in ['Honolulu Council']
+      'Oahu'
+    else if record.office in ['Maui Council']
+      maui
+    else if record.office in ['Kauai Council']
+      kauai
+    else if record.office in ['Hawaii Council']
+      'Hawaii'
+    else if record.office in ['Senate']
+      matches = window.precinct_records.filter (d) -> d.senate == record.district
+      get_island_by_precinct(matches[0].precinct)
+    else if record.office in ['House']
+      matches = window.precinct_records.filter (d) -> d.house == record.district
+      get_island_by_precinct(matches[0].precinct)
+    else
+      'Other'
 
 root.candidate_utils = new CandidateUtil
 
@@ -685,10 +742,12 @@ $ ->
         d.election_period == '2008-2010'
       else if year == 2008
         d.election_period == '2006-2008'
+      else if year == 'gov'
+        d.election_period == '2012-2014' && d.office == 'Governor'
+      else if year == 'senate'
+        d.election_period == '2012-2014' && d.office == 'Senate'
       else
         return false
-      #else if year == 'gov'
-      #  d.election_period == '2010-2012' && d.office == 'Governor'
       #else if year == 'gov2'
       #  d.election_period == '2010-2012' && d.office == 'House'
 
@@ -756,11 +815,14 @@ $ ->
     window.records = filtered_records
     chart.update_data(filtered_records)
 
-  render_vis = (error, expenditure_records, organizational_records) ->
+  render_vis = (error, expenditure_records, organizational_records, precinct_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
     window.raw_records = raw_records
     filtered_records = filter_data(raw_records, 2014)
     #filtered_records = filter_data(raw_records, 'gov')
+    #filtered_records = filter_data(raw_records, 'senate')
+
+    window.precinct_records = precinct_records
 
     window.records = filtered_records
     window.organizational_records = organizational_records
@@ -800,4 +862,5 @@ $ ->
   queue()
     .defer(d3.csv, "data/campaign_spending_summary.csv")
     .defer(d3.csv, "data/organizational_report.csv")
+    .defer(d3.csv, "data/precinct.csv")
     .await(render_vis);
