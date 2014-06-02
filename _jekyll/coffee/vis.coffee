@@ -136,8 +136,7 @@ class BubbleChart
         modal.foundation 'reveal', 'open'
       # Fancy transition to make bubbles appear, ending with the
       # correct radius
-      #.attr("r", (d) -> d.radius)
-      .transition().duration(3000).attr("r", (d) -> d.radius)
+      .attr("r", (d) -> d.radius)
 
     circles.exit().remove()
 
