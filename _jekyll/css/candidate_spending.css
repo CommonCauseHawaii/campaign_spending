@@ -1,0 +1,236 @@
+/*
+ * Colors
+Dark Gray
+#454542
+
+Medium Gray
+#84847f
+
+Light gray
+#dfded6
+
+Button Light Gray Text
+#bcbbb4
+*/
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  color: #454542;
+  /* For svg text */
+  fill: #454542;
+}
+
+/*
+svg {border: 1px solid gray;}
+*/
+/* #vis width needs to match width in code */
+#vis {width: 1350px; margin-left: auto; margin-right: auto; }
+.row.full-width {
+  width: 100%;
+  max-width: 100%;
+}
+
+.filter-buttons .selected { background-color: #126582; }
+/* TODO: make into general class */
+.y-axis-buttons .selected { background-color: #126582; }
+nav.top-bar { background: #454542 !important; height: 70px; }
+nav.top-bar .name {
+  text-transform: uppercase;
+  color: white;
+}
+/* TODO: line up with left-most button */
+nav.top-bar .name a {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 10pt;
+  font-weight: 400;
+  letter-spacing: 2px;
+}
+/* FIXME: don't hard code */
+nav.top-bar .title-area { top: 14px; }
+/* sub bar will be 30px high */
+
+.clickable { cursor: pointer; }
+#candidate_spending_container .time_nav {
+  position: absolute;
+  top: 67px;
+}
+#candidate_spending_container .time_nav.left {
+  left: -35px;
+  text-align: right;
+}
+#candidate_spending_container .time_nav.right {
+  right: -35px;
+  text-align: left;
+  color: #bcbbb4;
+}
+#candidate_spending_container .time_nav .time_arrow {
+  font-size: 20px;
+}
+#candidate_spending_container .time_nav .time_buttons {
+  margin-top: 7px;
+  font-size: 9pt;
+}
+#candidate_spending_container { background-color: #dfded6; }
+#candidate_spending_container #viz_nav_container {
+  display: table;
+  border-spacing: 7px;
+  margin-top: 30px;
+}
+#candidate_spending_container #viz_nav_inner_container { display: table-row; }
+#candidate_spending_container .viz_nav {
+  display: table-cell;
+  background-color: white;
+  padding-left: 30px;
+  padding-right: 30px;
+  line-height: 18px;
+  height: 82px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  font-size: 16pt;
+  font-weight: 400;
+  cursor: pointer;
+  color: #bcbbb4;
+  letter-spacing: 0.5px;
+}
+#candidate_spending_container .viz_nav.selected {
+  color: #454542;
+}
+#candidate_spending_container .viz_nav.year {
+  font-size: 18pt;
+  font-weight: 400;
+}
+#candidate_spending_container .viz_nav .sub_header {
+  font-size: 6pt;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  line-height: 1;
+  margin-bottom: 5px;
+  /* tracking 100*/
+}
+/* HACK: viz nav doesn't want to line up */
+#candidate_spending_container .viz_nav .header { margin-left: -2px; }
+
+/* Sliding panel for visualization legend */
+/* TODO: this won't look nice on mobile */
+.legend_container {
+  overflow: hidden; position: absolute;
+  top: 260px;
+  right: 0px;
+  width: 270px;
+}
+.legend_hover_area {
+  position: absolute;
+  height: 100%;
+  width: 40%;
+  top: 0;
+  right: 0;
+}
+.legend {
+  position: relative;
+  top: 0;
+  right: -225px;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  padding-bottom: 20px;
+}
+.legend .header {
+  margin-top: 13px;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.legend .subheader {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 10px;
+  /* override foundation subheader color */
+  color: #454542;
+  margin: 0;
+}
+.legend .subcategories {
+  font-size: 12px;
+  line-height: 130%;
+}
+.legend .section {
+  margin: 5px 0;
+  padding: 5px 0;
+}
+.legend .row.other { margin-bottom: 10px; }
+.legend .border {
+  border-top: 1px solid #dfded6;
+}
+.legend .key { width: 15px; height: 15px; }
+.legend .row { padding-left: 10px; padding-right: 10px; }
+.legend .columns { padding-left: 5px; padding-right: 5px; }
+
+/* Viz Colors */
+svg circle.overhead         { fill: #689890; }
+.legend .key.overhead       { background-color: #689890; }
+svg circle.contributions    { fill: #3b6e71; }
+.legend .key.contributions  { background-color: #3b6e71; }
+svg circle.communication    { fill: #766f52; }
+.legend .key.communication  { background-color: #766f52; }
+svg circle.staff            { fill: #73884f; }
+.legend .key.staff          { background-color: #73884f; }
+svg circle.fees             { fill: #9ab996; }
+.legend .key.fees           { background-color: #9ab996; }
+svg circle.other            { fill: #6c6b6b; }
+.legend .key.other          { background-color: #6c6b6b; }
+
+.titles.year.header { font-size: 13px; }
+.titles.header { text-transform: uppercase; font-weight: 600; letter-spacing: 1px; font-size: 14px; }
+.titles.amount { font-style:italic; font-weight: 300; }
+#expenditure_tooltip {
+  padding: 8px;
+  color: black;
+  background: #ccc;
+  background-color: rgba(255,255,255,0.5);
+}
+#expenditure_tooltip .candidate { font-size: 14px; letter-spacing: 0.5px; font-weight: 700; text-transform: uppercase; }
+#expenditure_tooltip .office { font-weight: 400; text-transform: uppercase; letter-spacing: 0.7px; font-size: 13px; }
+#expenditure_tooltip .amount { font-style:italic; font-weight: 400; }
+#expenditure_tooltip .inner_tooltip {
+  background-color: rgba(255,255,255,0.7);
+  line-height: 1.5;
+  padding: 15px;
+}
+
+/* Modal (individual expenditures) */
+#candidate_modal .expenditure-record-table-container {
+  color: black;
+}
+#candidate_modal .candidate_info { position: absolute; }
+#candidate_modal .expenditure-record-table {
+  width: 100%;
+}
+#candidate_modal .expenditure-record-table td.date { min-width: 100px; }
+
+#candidate_modal .candidate_name {
+  font-weight: 400; text-transform: uppercase; font-size: 18px; letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+#candidate_modal .candidate_subtitle {
+  font-weight: 300; text-transform: uppercase; font-size: 15px; letter-spacing: 0px;
+  margin-bottom: 10px;
+}
+#candidate_modal .expenditure_category_title {
+  font-weight: 300; text-transform: uppercase; font-size: 15px; letter-spacing: 0px;
+  font-style:italic;
+}
+
+/* General properties */
+*.unselectable {
+   -moz-user-select: none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+
+   /*
+     Introduced in IE 10.
+     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+   */
+   -ms-user-select: none;
+   user-select: none;
+}
+.hidden { display: none; }

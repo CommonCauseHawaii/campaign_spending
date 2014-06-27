@@ -24,7 +24,6 @@ class BubbleChart
     #max_amount = d3.max(@data, (d) -> parseInt(d.amount))
     max_amount = 1173620 * 1.21
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
-    console.log('max_amount ' + max_amount)
     console.log(@radius_scale)
 
     this.create_nodes(@data)
@@ -76,10 +75,7 @@ class BubbleChart
 
     func = $('.viz_nav.btn.selected').data('name')
     func = 'year' unless func?
-    console.log("func is #{func}")
     this.show_viz_type(func)
-    #callback = () => @force.stop()
-    #setTimeout( callback, 1000)
 
 
   # create svg at #vis and then
@@ -231,7 +227,6 @@ class BubbleChart
     if(func == 'office')
       this.do_split (d) -> d.office
     if(func == 'amount')
-      console.log('do nothing')
       #this.split_amount()
       #window.do_render(window.raw_records)
       accessor = (d) ->
