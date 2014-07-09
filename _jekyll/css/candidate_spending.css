@@ -110,6 +110,9 @@ nav.top-bar .title-area { top: 14px; }
 /* HACK: viz nav doesn't want to line up */
 #candidate_spending_container .viz_nav .header { margin-left: -2px; }
 
+/***********************************/
+/* Main Legend                     */
+/***********************************/
 #vis-full-key {
   position: absolute;
   /* Temp */
@@ -121,17 +124,29 @@ nav.top-bar .title-area { top: 14px; }
 #vis-full-key #vis-key-bottom > .columns {
   border-top: 1px solid grey;
 }
+#vis-full-key .explanation { margin-top: 20px; }
+#vis-full-key .columns { padding: 0px; }
 /* Legend */
 .legend {
   padding-bottom: 20px;
 }
-.legend .header {
-  margin-top: 13px;
-  text-transform: uppercase;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 1px;
+.legend table {
+  table-layout: fixed;
+  width: 100%;
+  background: none;
 }
+.legend tr {
+  margin-top: 5px;
+  background: none !important;
+}
+.legend td:first-child {
+  vertical-align: top;
+  width: 15px;
+}
+.legend td:nth-child(2) {
+  padding-left: 10px;
+}
+.legend td { padding: 5px 0px; }
 .legend .subheader {
   text-transform: uppercase;
   font-weight: 700;
@@ -144,17 +159,7 @@ nav.top-bar .title-area { top: 14px; }
   font-size: 13px;
   line-height: 130%;
 }
-.legend .section {
-  margin: 5px 0;
-  padding: 5px 0;
-}
-.legend .row.other { margin-bottom: 10px; }
-.legend .border {
-  border-top: 1px solid #dfded6;
-}
 .legend .key { width: 15px; height: 15px; }
-.legend .row { padding-left: 10px; padding-right: 10px; }
-.legend .columns { padding-left: 5px; padding-right: 5px; }
 
 /* Viz Colors */
 svg circle.overhead         { fill: #689890; }
@@ -188,7 +193,9 @@ svg circle.other            { fill: #6c6b6b; }
   padding: 15px;
 }
 
+/***********************************/
 /* Modal (individual expenditures) */
+/***********************************/
 #candidate_modal .expenditure-record-table-container {
   color: black;
 }
