@@ -1,3 +1,4 @@
 source:      _jekyll
 destination: _site
 gems: [jekyll-coffeescript]
+internet: true
