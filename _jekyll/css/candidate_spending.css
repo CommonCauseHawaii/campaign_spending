@@ -110,28 +110,19 @@ nav.top-bar .title-area { top: 14px; }
 /* HACK: viz nav doesn't want to line up */
 #candidate_spending_container .viz_nav .header { margin-left: -2px; }
 
-/* Sliding panel for visualization legend */
-/* TODO: this won't look nice on mobile */
-.legend_container {
-  overflow: hidden; position: absolute;
-  top: 260px;
-  right: 0px;
-  width: 270px;
-}
-.legend_hover_area {
+#vis-full-key {
   position: absolute;
-  height: 100%;
-  width: 40%;
-  top: 0;
-  right: 0;
+  /* Temp */
+  top: 0px;
+  width: 950px;
+  border-top: 1px solid grey;
 }
+
+#vis-full-key #vis-key-bottom > .columns {
+  border-top: 1px solid grey;
+}
+/* Legend */
 .legend {
-  position: relative;
-  top: 0;
-  right: -225px;
-  width: 100%;
-  height: 100%;
-  background-color: white;
   padding-bottom: 20px;
 }
 .legend .header {
@@ -143,14 +134,14 @@ nav.top-bar .title-area { top: 14px; }
 }
 .legend .subheader {
   text-transform: uppercase;
-  font-weight: 600;
-  font-size: 10px;
+  font-weight: 700;
+  font-size: 12px;
   /* override foundation subheader color */
   color: #454542;
   margin: 0;
 }
 .legend .subcategories {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 130%;
 }
 .legend .section {

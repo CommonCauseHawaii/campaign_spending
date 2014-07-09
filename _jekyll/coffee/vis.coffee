@@ -677,7 +677,7 @@ class CandidateUtil
 root.candidate_utils = new CandidateUtil
 
 campaignInit = () ->
-  #$('.viz_nav.year').addClass('selected')
+  # Main legend
   $('.legend_hover_area').on 'mouseenter', () ->
     $('.legend').animate({right: 0})
   $('.legend').on 'mouseleave', () ->
@@ -696,7 +696,6 @@ campaignInit = () ->
     circles = d3.selectAll('circle')
     circles.transition().duration(1000)
       .style('opacity', 1)
-
 
 $ ->
   chart = null

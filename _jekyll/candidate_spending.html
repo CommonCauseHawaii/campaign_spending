@@ -78,90 +78,112 @@
     </div>
 
     <br />
+
+    <!--**************  Legend  ***************-->
+    <div class="row">
+      <div class="large-12 columns">
+        <div id="vis-full-key">
+          <div class="row">
+            <div class="large-4 columns">
+              <p>
+                Circle <b>size</b> corresponds to the amount spent in US dollars.
+              </p>
+            </div>
+            <div class="large-7 large-offset-1 columns">
+              <p>Circle <b>color</b> corresponds to a general category of spending.</p>
+              <p>Within each general category there are more specific breakdowns (as labeled.)</p>
+            </div>
+          </div>
+          <div id="vis-key-bottom" class="row">
+            <div class="large-4 columns">
+              <div id="size-legend-container"></div>
+            </div>
+            <div class="large-7 large-offset-1 columns">
+              <div class='legend'>
+                <div class='row'>
+                  <div class='large-12 columns'>
+                    <div class='header'>Spending Categories</div>
+                  </div>
+                </div>
+                <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
+                <div class='row' data-category='communication'>
+                  <div class='large-2 columns'><div class='key communication'></div></div>
+                  <div class='large-10 columns'>
+                    <div class='subheader'>
+                      Communication & Outreach
+                    </div>
+                    <div class='subcategories'>
+                      Advertising, Candidate Fundraiser Tickers, Postage/Mailing, Printing, Surveys, Polls & Voter Lists
+                    </div>
+                  </div>
+                </div>
+                <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
+                <div class='row' data-category='overhead'>
+                  <div class='large-2 columns'><div class='key overhead'></div></div>
+                  <div class='large-10 columns'>
+                    <div class='subheader'>
+                      Overhead
+                    </div>
+                    <div class='subcategories'>
+                      Durable Assets, Food & Beverage, Insurance, Lease/Rent, Office Supplies, Travel & Lodging, Utilities, Vehicle
+                    </div>
+                  </div>
+                </div>
+                <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
+                <div class='row' data-category='staff'>
+                  <div class='large-2 columns'><div class='key staff'></div></div>
+                  <div class='large-10 columns'>
+                    <div class='subheader'>
+                      Staff & Professional Services
+                    </div>
+                    <div class='subcategories'>
+                      Employee Services, Professional Services
+                    </div>
+                  </div>
+                </div>
+                <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
+                <div class='row' data-category='contributions'>
+                  <div class='large-2 columns'><div class='key contributions'></div></div>
+                  <div class='large-10 columns'>
+                    <div class='subheader'>
+                      Contributions
+                    </div>
+                    <div class='subcategories'>
+                      Contribution to Community Organization, Contribution to Political Party, Hawaii Election Campaign Fund
+                    </div>
+                  </div>
+                </div>
+                <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
+                <div class='row' data-category='fees'>
+                  <div class='large-2 columns'><div class='key fees'></div></div>
+                  <div class='large-10 columns'>
+                    <div class='subheader'>
+                      Taxes & Fees
+                    </div>
+                    <div class='subcategories'>
+                      Bank Charges & Adjustments, Filing Fee, Taxes
+                    </div>
+                  </div>
+                </div>
+                <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
+                <div class='row' data-category='other'>
+                  <div class='large-2 columns'><div class='key other'></div></div>
+                  <div class='large-10 columns'>
+                    <div class='subheader'>
+                      Other
+                    </div>
+                  </div>
+                </div>
+                <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="row full-width">
       <div id="vis-container" class="large-12 columns">
         <div id="vis"></div>
-      </div>
-    </div>
-    <div class='legend_container'>
-      <!-- TODO: make extend above and below panel -->
-      <div class='legend_hover_area'></div>
-      <div class='legend'>
-        <div class='row'>
-          <div class='large-12 columns'>
-            <div class='header'>Spending Categories</div>
-          </div>
-        </div>
-        <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
-        <div class='row' data-category='communication'>
-          <div class='large-2 columns'><div class='key communication'></div></div>
-          <div class='large-10 columns'>
-            <div class='subheader'>
-              Communication & Outreach
-            </div>
-            <div class='subcategories'>
-              Advertising, Candidate Fundraiser Tickers, Postage/Mailing, Printing, Surveys, Polls & Voter Lists
-            </div>
-          </div>
-        </div>
-        <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
-        <div class='row' data-category='overhead'>
-          <div class='large-2 columns'><div class='key overhead'></div></div>
-          <div class='large-10 columns'>
-            <div class='subheader'>
-              Overhead
-            </div>
-            <div class='subcategories'>
-              Durable Assets, Food & Beverage, Insurance, Lease/Rent, Office Supplies, Travel & Lodging, Utilities, Vehicle
-            </div>
-          </div>
-        </div>
-        <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
-        <div class='row' data-category='staff'>
-          <div class='large-2 columns'><div class='key staff'></div></div>
-          <div class='large-10 columns'>
-            <div class='subheader'>
-              Staff & Professional Services
-            </div>
-            <div class='subcategories'>
-              Employee Services, Professional Services
-            </div>
-          </div>
-        </div>
-        <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
-        <div class='row' data-category='contributions'>
-          <div class='large-2 columns'><div class='key contributions'></div></div>
-          <div class='large-10 columns'>
-            <div class='subheader'>
-              Contributions
-            </div>
-            <div class='subcategories'>
-              Contribution to Community Organization, Contribution to Political Party, Hawaii Election Campaign Fund
-            </div>
-          </div>
-        </div>
-        <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
-        <div class='row' data-category='fees'>
-          <div class='large-2 columns'><div class='key fees'></div></div>
-          <div class='large-10 columns'>
-            <div class='subheader'>
-              Taxes & Fees
-            </div>
-            <div class='subcategories'>
-              Bank Charges & Adjustments, Filing Fee, Taxes
-            </div>
-          </div>
-        </div>
-        <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
-        <div class='row' data-category='other'>
-          <div class='large-2 columns'><div class='key other'></div></div>
-          <div class='large-10 columns'>
-            <div class='subheader'>
-              Other
-            </div>
-          </div>
-        </div>
-        <div class='row section'><div class='large-12 columns'><div class='border'></div></div></div>
       </div>
     </div>
 
