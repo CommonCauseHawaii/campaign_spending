@@ -22,6 +22,7 @@ class BubbleChart
 
     # use the max total_amount in the data as the max in the scale's domain
     #max_amount = d3.max(@data, (d) -> parseInt(d.amount))
+    # We hard-code the max amount so it's consistent across the years
     max_amount = 1173620 * 1.21
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
     console.log(@radius_scale)
@@ -130,8 +131,6 @@ class BubbleChart
             that.render_modal(d,i,element)
         $(element).data('center', true)
         modal.foundation 'reveal', 'open'
-      # Fancy transition to make bubbles appear, ending with the
-      # correct radius
       .attr("r", (d) -> d.radius)
 
     circles.exit().remove()
@@ -540,7 +539,6 @@ class BubbleChart
 
     links = non_center_nodes.map( (node) -> {source: center_node, target: node} )
 
-    #TODO: compute dynamically
     link_distance = Math.max(40, center_node.radius) + 55
     modal_viz_padding = 5
     modal_viz_height = link_distance*2.05 + largest_radius*4 + modal_viz_padding*2
@@ -616,6 +614,27 @@ class BubbleChart
     modal.find('.current_year').text(cur_year)
     modal.find('.candidate_office').text(candidate_office)
     modal.find('.expenditure_category_title').text(category)
+
+  size_legend_init: () =>
+    # Size Legend
+    # TODO: don't hard-code legend svg size
+    width = 200
+    height = 200
+    size_legend = d3.select("#size-legend-container").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+
+    legend_sizes = [100 * 1000, 500 * 1000, 1000000].map (d) => @radius_scale(d)
+    largest_radius = d3.max(legend_sizes)
+    circles = size_legend.selectAll("circle")
+      .data( legend_sizes )
+
+    circles.enter()
+      .append('circle')
+        .attr('r', (d) => d )
+        .attr('cx', width/2)
+        .attr('cy', (d) -> height/2 + largest_radius - d )
+
   # End class BubbleChart
 
 root = exports ? this

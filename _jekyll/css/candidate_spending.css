@@ -126,7 +126,14 @@ nav.top-bar .title-area { top: 14px; }
 }
 #vis-full-key .explanation { margin-top: 20px; }
 #vis-full-key .columns { padding: 0px; }
-/* Legend */
+/* Size Legend */
+#vis-full-key circle {
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+  stroke-dasharray: 3px;
+}
+/* Color Legend */
 .legend {
   padding-bottom: 20px;
 }
