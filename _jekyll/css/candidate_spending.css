@@ -133,6 +133,11 @@ nav.top-bar .title-area { top: 14px; }
   stroke-width: 1px;
   stroke-dasharray: 3px;
 }
+#vis-full-key polyline {
+  stroke: black;
+  stroke-width: 1px;
+  fill: none;
+}
 /* Color Legend */
 .legend {
   padding-bottom: 20px;

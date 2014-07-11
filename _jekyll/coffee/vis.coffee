@@ -618,22 +618,45 @@ class BubbleChart
   size_legend_init: () =>
     # Size Legend
     # TODO: don't hard-code legend svg size
-    width = 200
+    width = 350
     height = 200
-    size_legend = d3.select("#size-legend-container").append("svg")
-      .attr("width", width)
-      .attr("height", height)
 
-    legend_sizes = [100 * 1000, 500 * 1000, 1000000].map (d) => @radius_scale(d)
-    largest_radius = d3.max(legend_sizes)
+    legend_sizes = [
+      { label: '$ 100,000', r: @radius_scale(100 * 1000) },
+      { label: '$ 500,000', r: @radius_scale(500 * 1000) },
+      { label: '$ 1 million', r: @radius_scale(1000000) }
+    ]
+    largest_radius = d3.max(legend_sizes, (d) -> d.r )
+
+    size_legend = d3.select("#size-legend-container")
+      .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append('g')
+          .attr("transform", "translate(#{width / 2 - width / 6},#{height / 2 + largest_radius})");
+
     circles = size_legend.selectAll("circle")
       .data( legend_sizes )
 
     circles.enter()
       .append('circle')
-        .attr('r', (d) => d )
-        .attr('cx', width/2)
-        .attr('cy', (d) -> height/2 + largest_radius - d )
+        .attr('r', (d) => d.r )
+        .attr('cx', 0)
+        .attr('cy', (d) -> -d.r )
+
+    label_buffer = 40
+    label_text_buffer = 10
+    line_y_pos = (d) -> -d.r
+    circles.enter()
+      .append('polyline')
+        .attr('points', (d) -> y = line_y_pos(d); "#{d.r}, #{y}, #{largest_radius+label_buffer}, #{y}")
+
+    circles.enter()
+      .append('text')
+        .attr('class', 'size_label')
+        .attr('x', largest_radius + label_buffer + label_text_buffer )
+        .attr('y', (d) -> line_y_pos(d) )
+        .text( (d) -> d.label )
 
   # End class BubbleChart
 
