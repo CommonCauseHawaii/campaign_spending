@@ -192,6 +192,7 @@ class BubbleChart
       .attr('y', (d) => @center.y + d.dy)
 
     titles.exit().remove()
+    this.show_legend()
 
   # Moves all circles towards the @center
   # of the visualization
@@ -201,6 +202,8 @@ class BubbleChart
       d.y = d.y + (@center.y - d.y) * (@damper + 0.02) * alpha
 
   show_viz_type: (func) =>
+    this.hide_legend()
+
     if(func == 'candidate')
       this.do_split (d) -> d.name
     if(func == 'party')
@@ -668,6 +671,13 @@ class BubbleChart
         .attr('y', (d) -> y(d.r) )
         .text( (d) -> d.label )
 
+  show_legend: () ->
+    # TODO: this should fade and slide up
+    #http://stackoverflow.com/questions/5524612/how-to-run-jquery-fadein-and-slidedown-simultaneously
+    $('#vis-full-key').fadeIn()
+  hide_legend: () ->
+    # TODO this should fade and slide down
+    $('#vis-full-key').fadeOut()
   # End class BubbleChart
 
 root = exports ? this
@@ -873,6 +883,7 @@ $ ->
     window.organizational_records = organizational_records
     chart = new BubbleChart filtered_records
     chart.display_group_all()
+    chart.size_legend_init()
   root.get_chart = () =>
     chart
 
