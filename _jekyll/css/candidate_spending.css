@@ -138,6 +138,9 @@ nav.top-bar .title-area { top: 14px; }
   stroke-width: 1px;
   fill: none;
 }
+#vis-full-key text {
+  dominant-baseline: middle;
+}
 /* Color Legend */
 .legend {
   padding-bottom: 20px;

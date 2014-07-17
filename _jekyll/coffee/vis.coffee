@@ -617,28 +617,32 @@ class BubbleChart
 
   size_legend_init: () =>
     # Size Legend
-    # TODO: don't hard-code legend svg size
-    width = 350
     height = 200
 
     legend_sizes = [
-      { label: '$ 100,000',     y_ang: 0,       r: 100 * 1000 },
-      { label: '$ 500,000',     y_ang: 20,      r: 500 * 1000 },
-      { label: '$ 1 million',   y_ang: 40,      r: 1000000 }
+      { label: '$ 100,000',     r: 100 * 1000 },
+      { label: '$ 500,000',     r: 500 * 1000 },
+      { label: '$ 1 million',   r: 1000000 }
     ]
     $.each legend_sizes, (i,d) =>
-      # Convert to radians
-      d.y_ang = d.y_ang * Math.PI / 180
       d.r = @radius_scale(d.r)
 
+    largest_legend_offset = 40
     largest_radius = d3.max(legend_sizes, (d) -> d.r )
+    radius_range = d3.extent(legend_sizes, (d) -> d.r )
+    y = d3.scale.ordinal()
+        .domain( legend_sizes.map (d) -> d.r )
+        .range( [-radius_range[0], -(radius_range[1] + largest_legend_offset + radius_range[0]) / 2, -(radius_range[1] + largest_legend_offset)] )
+    # Constrain to whole numbers
+    y.range(y.range().map( (d) -> Math.round(d) ))
 
+    width = $("#size-legend-container").width()
     size_legend = d3.select("#size-legend-container")
       .append("svg")
         .attr("width", width)
         .attr("height", height)
         .append('g')
-          .attr("transform", "translate(#{width / 2 - width / 6},#{height / 2 + largest_radius})");
+          .attr("transform", (d) -> "translate(#{width / 2 - width / 6},#{height / 2 + largest_radius})");
 
     circles = size_legend.selectAll("circle")
       .data( legend_sizes )
@@ -652,16 +656,16 @@ class BubbleChart
     label_buffer = 40
     label_text_buffer = 10
     line_y_pos = (d) -> - d.r - d.r * Math.sin(d.y_ang)
+    line_x_pos = (d) -> val = Math.sqrt(Math.pow(d.r, 2) - Math.pow(y(d.r) + d.r, 2))
     circles.enter()
       .append('polyline')
-        .attr('points', (d) -> y = line_y_pos(d); debugger; "#{d.r - (y/Math.tan(d.y_ang))}, #{y}, #{largest_radius+label_buffer}, #{y}")
-        #.attr('points', (d) -> y = line_y_pos(d); "#{d.r}, #{y}, #{largest_radius+label_buffer}, #{y}")
+        .attr('points', (d) -> "#{line_x_pos(d)}, #{y(d.r)}, #{largest_radius+label_buffer}, #{y(d.r)}")
 
     circles.enter()
       .append('text')
         .attr('class', 'size_label')
         .attr('x', largest_radius + label_buffer + label_text_buffer )
-        .attr('y', (d) -> line_y_pos(d) )
+        .attr('y', (d) -> y(d.r) )
         .text( (d) -> d.label )
 
   # End class BubbleChart
