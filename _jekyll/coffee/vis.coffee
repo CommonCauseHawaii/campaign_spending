@@ -25,7 +25,6 @@ class BubbleChart
     # We hard-code the max amount so it's consistent across the years
     max_amount = 1173620 * 1.21
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
-    console.log(@radius_scale)
 
     this.create_nodes(@data)
     this.create_vis()
@@ -192,7 +191,7 @@ class BubbleChart
       .attr('y', (d) => @center.y + d.dy)
 
     titles.exit().remove()
-    this.show_legend()
+    this.show_legend(radius)
 
   # Moves all circles towards the @center
   # of the visualization
@@ -671,13 +670,16 @@ class BubbleChart
         .attr('y', (d) -> y(d.r) )
         .text( (d) -> d.label )
 
-  show_legend: () ->
-    # TODO: this should fade and slide up
-    #http://stackoverflow.com/questions/5524612/how-to-run-jquery-fadein-and-slidedown-simultaneously
-    $('#vis-full-key').fadeIn()
+  show_legend: (radius) ->
+    d3.select('#vis-full-key')
+      .transition().duration(1500)
+      .style('opacity', 1)
+      .style('top', (radius * 2 + 80 + 85) + 'px')
   hide_legend: () ->
-    # TODO this should fade and slide down
-    $('#vis-full-key').fadeOut()
+    d3.select('#vis-full-key')
+      .transition().duration(1500)
+      .style('opacity', 0)
+      .style('top', '2000px')
   # End class BubbleChart
 
 root = exports ? this

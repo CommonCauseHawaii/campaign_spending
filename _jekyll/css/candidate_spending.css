@@ -114,11 +114,10 @@ nav.top-bar .title-area { top: 14px; }
 /* Main Legend                     */
 /***********************************/
 #vis-full-key {
-  /* Temp */
   position: absolute;
-  top: 550px;
+  top: 2000px;
 
-  display: none;
+  opacity: 0;
   width: 950px;
 }
 #vis-full-key > .row:first-child {
