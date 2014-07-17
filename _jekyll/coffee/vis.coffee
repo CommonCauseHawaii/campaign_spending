@@ -622,10 +622,15 @@ class BubbleChart
     height = 200
 
     legend_sizes = [
-      { label: '$ 100,000', r: @radius_scale(100 * 1000) },
-      { label: '$ 500,000', r: @radius_scale(500 * 1000) },
-      { label: '$ 1 million', r: @radius_scale(1000000) }
+      { label: '$ 100,000',     y_ang: 0,       r: 100 * 1000 },
+      { label: '$ 500,000',     y_ang: 20,      r: 500 * 1000 },
+      { label: '$ 1 million',   y_ang: 40,      r: 1000000 }
     ]
+    $.each legend_sizes, (i,d) =>
+      # Convert to radians
+      d.y_ang = d.y_ang * Math.PI / 180
+      d.r = @radius_scale(d.r)
+
     largest_radius = d3.max(legend_sizes, (d) -> d.r )
 
     size_legend = d3.select("#size-legend-container")
@@ -646,10 +651,11 @@ class BubbleChart
 
     label_buffer = 40
     label_text_buffer = 10
-    line_y_pos = (d) -> -d.r
+    line_y_pos = (d) -> - d.r - d.r * Math.sin(d.y_ang)
     circles.enter()
       .append('polyline')
-        .attr('points', (d) -> y = line_y_pos(d); "#{d.r}, #{y}, #{largest_radius+label_buffer}, #{y}")
+        .attr('points', (d) -> y = line_y_pos(d); debugger; "#{d.r - (y/Math.tan(d.y_ang))}, #{y}, #{largest_radius+label_buffer}, #{y}")
+        #.attr('points', (d) -> y = line_y_pos(d); "#{d.r}, #{y}, #{largest_radius+label_buffer}, #{y}")
 
     circles.enter()
       .append('text')
