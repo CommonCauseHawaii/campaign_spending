@@ -118,6 +118,8 @@ nav.top-bar .title-area { top: 14px; }
   /* Temp */
   top: 0px;
   width: 950px;
+}
+#vis-full-key > .row:first-child {
   border-top: 1px solid grey;
 }
 
