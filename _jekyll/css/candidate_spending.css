@@ -135,6 +135,7 @@ svg {border: 1px solid gray;}
 
   opacity: 0;
   width: 950px;
+  z-index: 99;
 }
 #vis-full-key > .row:first-child {
   border-top: 1px solid grey;

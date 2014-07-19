@@ -102,12 +102,9 @@ class BubbleChart
     # radius will be set to 0 initially.
     # see transition below
     circles.enter().append("circle")
-      #.attr("r", 0)
       .attr('class', (d) => "#{this.get_supercategory(d.category)} #{d.reg_no}")
       .attr("stroke-width", 2)
       .attr("id", (d) -> "bubble_#{d.id}")
-      #.attr('cx', (d) -> d.x)
-      #.attr('cy', (d) -> d.y)
       .on "mouseover", (d,i) ->
         that.show_details(d,i,this)
         that.circles
@@ -741,22 +738,14 @@ class CandidateUtil
 root.candidate_utils = new CandidateUtil
 
 campaignInit = () ->
-  # Main legend
-  $('.legend_hover_area').on 'mouseenter', () ->
-    $('.legend').animate({right: 0})
-  $('.legend').on 'mouseleave', () ->
-    $('.legend').animate({right: '-225px'})
-
-  $('.legend .row[data-category]').on 'mouseenter', () ->
+  $('.legend tr').on 'mouseenter', () ->
     category = $(this).data('category')
-    console.log('mouseenter category ' + category);
     circles = d3.selectAll('circle')
     circles.filter( (circle) -> circle.super_category != category)
       .transition().duration(1000)
       .style('opacity', 0.3)
-  $('.legend .row[data-category]').on 'mouseleave', () ->
+  $('.legend tr[data-category]').on 'mouseleave', () ->
     category = $(this).data('category')
-    console.log('mouseleave category ' + category);
     circles = d3.selectAll('circle')
     circles.transition().duration(1000)
       .style('opacity', 1)
