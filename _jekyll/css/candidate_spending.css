@@ -33,21 +33,36 @@ svg {border: 1px solid gray;}
 .filter-buttons .selected { background-color: #126582; }
 /* TODO: make into general class */
 .y-axis-buttons .selected { background-color: #126582; }
-nav.top-bar { background: #454542 !important; height: 70px; }
-nav.top-bar .name {
+/* Note: border spacing amount needs to match the button nav */
+#nav .nav-container { display: table; border-spacing: 7px; margin-top: 10px; width: 100%; }
+#nav { background: #454542; height: 50px; }
+#nav .name {
   text-transform: uppercase;
   color: white;
-}
-/* TODO: line up with left-most button */
-nav.top-bar .name a {
-  font-family: 'Open Sans', sans-serif;
   font-size: 10pt;
   font-weight: 400;
   letter-spacing: 2px;
 }
-/* FIXME: don't hard code */
-nav.top-bar .title-area { top: 14px; }
-/* sub bar will be 30px high */
+#nav #mini-legend {
+  text-transform: uppercase;
+  color: white;
+  font-size: 9pt;
+  font-weight: 400;
+  float: right;
+  text-align: right;
+  cursor: pointer;
+}
+#nav #mini-legend-body {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 50;
+  display: none;
+  background-color: white;
+  width: 220px;
+}
+
+/**** Utility ****/
 
 .clickable { cursor: pointer; }
 #candidate_spending_container .time_nav {
@@ -73,6 +88,7 @@ nav.top-bar .title-area { top: 14px; }
 #candidate_spending_container { background-color: #dfded6; }
 #candidate_spending_container #viz_nav_container {
   display: table;
+  width: 100%;
   border-spacing: 7px;
   margin-top: 30px;
 }
@@ -145,13 +161,11 @@ nav.top-bar .title-area { top: 14px; }
   dominant-baseline: middle;
 }
 /* Color Legend */
-.legend {
-  padding-bottom: 20px;
-}
 .legend table {
   table-layout: fixed;
   width: 100%;
   background: none;
+  margin: 0;
 }
 .legend tr {
   margin-top: 5px;
@@ -164,16 +178,16 @@ nav.top-bar .title-area { top: 14px; }
 .legend td:nth-child(2) {
   padding-left: 10px;
 }
-.legend td { padding: 5px 0px; }
+.legend.explanation td { padding: 5px 0px; }
 .legend .subheader {
   text-transform: uppercase;
-  font-weight: 700;
-  font-size: 12px;
   /* override foundation subheader color */
   color: #454542;
   margin: 0;
 }
-.legend .subcategories {
+.legend.explanation .subheader { font-weight: 700; font-size: 12px; }
+.legend.mini .subheader { font-weight: 400; font-size: 10px; }
+.legend.explanation .subcategories {
   font-size: 13px;
   line-height: 130%;
 }

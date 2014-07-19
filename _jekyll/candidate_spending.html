@@ -19,36 +19,55 @@
 //        }
 //      });
     </script>
-    <script type="text/javascript">
-      function export_svg() {
-        $('svg').svg();
-        var xml = $('svg').svg('get').toSVG();
-        $('#svgexport').html(xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-      }
-    </script>
-    <!-- Styles don't flow into exported SVG, so only use for web -->
     <link rel="stylesheet" type="text/css" href="css/candidate_spending.css">
   </head>
   <body id='candidate_spending_container'>
     {% if site.internet %}
-    <a href="https://github.com/axelson/campaign_spending"><img style="position: absolute; top: 65px; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/axelson/campaign_spending"><img style="position: absolute; top: 50px; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
     {% endif %}
-    {% include nav.html %}
+    <!-- Top Nav -->
+    <div id="nav">
+      <div class="row">
+        <div class="large-12 columns">
+          <div class="nav-container">
+            <a href="/" class="name">Hawaii Campaign Spending Data</a>
+            <span id="mini-legend" class="unselectable">key</span>
+            <div id="mini-legend-body" class="legend mini">
+              <table>
+                <tr data-category='communication'>
+                  <td><div class="key communication"></div></td>
+                  <td><div class='subheader'>Communication & Outreach</div></td>
+                </tr>
+                <tr data-category='overhead'>
+                  <td><div class='key overhead'></div></td>
+                  <td><div class='subheader'>Overhead</div></td>
+                </tr>
+                <tr data-category='staff'>
+                  <td><div class='key staff'></div></td>
+                  <td><div class='subheader'>Staff & Professional Services</div</td>
+                </tr>
+                <tr data-category='contributions'>
+                  <td><div class='key contributions'></div></td>
+                  <td><div class='subheader'>Contributions</div></td>
+                </tr>
+                <tr data-category='fees'>
+                  <td><div class='key fees'></div></td>
+                  <td><div class='subheader'>Taxes & Fees</div>
+                  </td>
+                </tr>
+                <tr data-category='contributions'>
+                  <td><div class='key contributions'></div></td>
+                  <td><div class='subheader'>Other</div></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="row">
       <div class="large-12 columns">
-          <div class="time_nav left clickable unselectable">
-            <div class="time_arrow"> &lt; </div>
-            <div class="time_buttons">
-              <div>prev<br/>year</div>
-            </div>
-          </div>
-          <div class="time_nav right unselectable">
-            <div class="time_arrow"> &gt; </div>
-            <div class="time_buttons">
-              <div>next<br/>year</div>
-            </div>
-          </div>
         <div id="viz_nav_container">
           <div id="viz_nav_inner_container">
             <div class="viz_nav year selected" data-name="year" data-year='2014'> 2014 </div>

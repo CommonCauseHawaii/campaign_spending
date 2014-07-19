@@ -917,6 +917,16 @@ $ ->
     if $(this).hasClass('clickable')
       window.update_year(false)
 
+  $('#nav #mini-legend').on 'click', (e) ->
+    e.preventDefault()
+    console.log "clicked mini-legend"
+    # Position the hidden legend
+    pos = $(this).offset()
+    pos.top = 50
+    #$this.position.left
+    #$this.position.top
+    $('#mini-legend-body').slideToggle().offset(pos)
+
   queue()
     .defer(d3.csv, "data/campaign_spending_summary.csv")
     .defer(d3.csv, "data/organizational_report.csv")
