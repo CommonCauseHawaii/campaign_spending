@@ -591,6 +591,7 @@ class BubbleChart
     url_params = "$limit=20&$where=reg_no='" + reg_no + "'and expenditure_category='#{encoded_category}' and election_period = '" + election_period + "'&$order=amount desc"
 
     modal = $('#candidate_modal')
+    modal.find('.expenditure-error').hide()
     modal.find('.expenditure-loading').show()
     $.get "#{url}?#{url_params}", (data) ->
       columns = [
