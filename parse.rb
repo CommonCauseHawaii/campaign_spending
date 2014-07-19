@@ -5,12 +5,12 @@ CSV.open('expenditures_parsed.csv', 'w',
          :write_headers => true,
          :headers => %w(expenditure_category election_period amount reg_no id)) do |output_csv|
            CSV.foreach("expenditures.csv", :headers => true) do |row|
-             puts "on row #{row.inspect}"
+             #puts "on row #{row.inspect}"
              entry = {
-               expenditure_category: row['Expenditure Category'],
-               election_period: row['Election Period'],
+               expenditure_category: row['Expenditure Category'].strip,
+               election_period: row['Election Period'].strip,
                amount: row['Amount'][1..-1],
-               reg_no: row['Reg No'],
+               reg_no: row['Reg No'].strip,
                id: id,
              }
              output_csv << entry.values
@@ -22,14 +22,15 @@ CSV.open('organizational_reports_parsed.csv', 'w',
          :write_headers => true,
          :headers => %w(reg_no candidate_name office district county party)) do |output_csv|
            CSV.foreach("organizational_reports.csv", :headers => true) do |row|
-             puts "on row #{row.inspect}"
+             # Skip Ronald, Strode since his data is bad
+             next if row['Reg No'] == 'CC11033'
              entry = {
-               reg_no: row['Reg No'],
-               candidate_name: row['Candidate Name'],
-               office: row['Office'],
-               district: row['District'],
-               county: row['County'],
-               party: row['Party']
+               reg_no: row['Reg No'].strip,
+               candidate_name: row['Candidate Name'].strip,
+               office: row['Office'].strip,
+               district: row['District'] && row['District'].strip,
+               county: row['County'] && row['County'].strip,
+               party: row['Party'].strip
              }
              output_csv << entry.values
            end
