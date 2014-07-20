@@ -225,8 +225,6 @@ class BubbleChart
     if(func == 'office')
       this.do_split (d) -> d.office
     if(func == 'amount')
-      #this.split_amount()
-      #window.do_render(window.raw_records)
       accessor = (d) ->
         if d.value > 1e6
           "Over a million"
