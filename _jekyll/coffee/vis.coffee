@@ -825,20 +825,22 @@ $ ->
     direction = if next then 1 else -1
     next_year = cur_year + 2*direction
 
+    # old disabled color: #bcbbb4, old enabled color: #454542
     if next_year == 2008
-      $('.time_nav.left').animate({color: '#bcbbb4'})
+      $('.viz_nav.year .left-arrow').attr('src', 'images/year_arrow_disabled.png')
         .removeClass('clickable')
     else
-      $('.time_nav.left').animate({color: '#454542'})
+      $('.viz_nav.year .left-arrow').attr('src', 'images/year_arrow_transparent.png')
         .addClass('clickable')
 
     if next_year == 2014
-      $('.time_nav.right').animate({color: '#bcbbb4'})
+      $('.viz_nav.year .right-arrow').attr('src', 'images/year_arrow_disabled.png')
         .removeClass('clickable')
     else
-      $('.time_nav.right').animate({color: '#454542'})
+      $('.viz_nav.year .right-arrow').attr('src', 'images/year_arrow_transparent.png')
         .addClass('clickable')
 
+    # TODO: What is the .1 for?
     range = d3.range(2008, 2014.1, 2)
     unless next_year in range
       return
@@ -847,7 +849,7 @@ $ ->
     $year_el = $('.viz_nav.year')
     $year_el.animate({color: 'white'}, {complete: () ->
       # Not black, dark grey
-      $year_el.text(next_year)
+      $year_el.find('.year-text').text(next_year)
       $year_el.data('year', next_year)
       $year_el.animate({color: '#454542'})
     })
@@ -895,13 +897,12 @@ $ ->
       $viz_nav.removeClass('selected')
       window.get_chart().show_viz_type('year')
 
-  $('.time_nav.right').on 'click', (e) ->
+  $('.viz_nav .right-arrow').on 'click', (e) ->
+    e.stopPropagation()
     if $(this).hasClass('clickable')
       window.update_year(true)
-  $('.time_nav.left').on 'click', (e) ->
-    #$this = $(this)
-    #$this.animate({backgroundColor: '#73884f'})
-    #$this.animate({backgroundColor: '#dfded6'})
+  $('.viz_nav .left-arrow').on 'click', (e) ->
+    e.stopPropagation()
     if $(this).hasClass('clickable')
       window.update_year(false)
 
