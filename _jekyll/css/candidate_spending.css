@@ -21,8 +21,8 @@ body {
 }
 
 /*
-svg {border: 1px solid gray;}
 */
+svg {border: 1px solid gray;}
 /* #vis width needs to match width in code */
 #vis {width: 1350px; margin-left: auto; margin-right: auto; }
 .row.full-width {

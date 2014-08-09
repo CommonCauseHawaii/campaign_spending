@@ -23,7 +23,7 @@ class BubbleChart
     # use the max total_amount in the data as the max in the scale's domain
     #max_amount = d3.max(@data, (d) -> parseInt(d.amount))
     # We hard-code the max amount so it's consistent across the years
-    max_amount = 1173620 * 1.21
+    max_amount = 1173620 * 2.21
     @radius_scale = d3.scale.pow().exponent(0.5).domain([0, max_amount]).range([2, 85])
 
     this.create_nodes(@data)
@@ -117,16 +117,21 @@ class BubbleChart
           .transition().duration(1000)
           .style('opacity', 1)
       .on "click", (d,i) ->
+        console.log('clicked circle')
         modal = $('#candidate_modal')
         element = this
-        $(document).off 'opened', '[data-reveal]'
-        $(document).on 'opened', '[data-reveal]', () ->
-          callback_modal = $(this)
-          # I don't understand why foundation doesn't have per-modal callbacks
-          if callback_modal.attr('id') == modal.attr('id')
-            that.render_modal(d,i,element)
-        $(element).data('center', true)
-        modal.foundation 'reveal', 'open'
+        if modal.is(':visible')
+          that.update_modal_center(d,i,element)
+        else
+          $(document).off 'opened', '[data-reveal]'
+          $(document).on 'opened', '[data-reveal]', () ->
+            console.log('modal callback')
+            callback_modal = $(this)
+            # I don't understand why foundation doesn't have per-modal callbacks
+            if callback_modal.attr('id') == modal.attr('id')
+              that.render_modal(d,i,element)
+          $(element).data('center', true)
+          modal.foundation 'reveal', 'open'
       .attr("r", (d) -> d.radius)
 
     circles.exit().remove()
@@ -505,8 +510,8 @@ class BubbleChart
     #content +="<span class=\"name\">Election Period:</span><span class=\"value\"> #{data.election_period}</span>"
     content +="</div>"
     @tooltip.showTooltip(content,d3.event)
-    d3.select(element)
-      .move_to_front()
+    #d3.select(element)
+    #  .move_to_front()
 
 
   hide_details: (data, i, element) =>
@@ -528,17 +533,23 @@ class BubbleChart
     records = window.records.filter( (d) -> d.reg_no == reg_no )
     nodes = window.viz.selectAll('circle')
       .filter( (d) => d.reg_no == reg_no )
+      .sort( (a,b) -> d3.descending(a.radius, b.radius) )
       .data()
 
     center_node = nodes.filter( (d) -> circle_data.category == d.category )[0]
     non_center_nodes = nodes.filter( (d) -> circle_data.category != d.category)
     largest_radius = d3.max(non_center_nodes, (d) -> d.radius )
+    console.log("largest radius is #{largest_radius}, similar to 61?")
+    link_padding = if largest_radius > 40
+      90
+    else
+      55
 
     links = non_center_nodes.map( (node) -> {source: center_node, target: node} )
 
-    link_distance = Math.max(40, center_node.radius) + 55
+    link_distance = Math.max(40, center_node.radius) + link_padding
     modal_viz_padding = 5
-    modal_viz_height = link_distance*2.05 + largest_radius*4 + modal_viz_padding*2
+    modal_viz_height = link_distance*2 + largest_radius*2 + modal_viz_padding*2
     modal_viz_width = $('#candidate_vis').width()
 
     viz = d3.select('#candidate_vis').append('svg')
@@ -560,22 +571,37 @@ class BubbleChart
       .attr('cx', (d) -> d.x)
       .attr('cy', (d) -> d.y)
 
-    tick = () ->
-      circles
+    center_loc = {x: modal_viz_width/2, y: modal_viz_height/2}
+    console.log("Center loc is " + JSON.stringify(center_loc));
+    move_center_towards_center = (alpha) =>
+      (d) =>
+        if (d.id == center_node.id)
+          d.x = d.x + (center_loc.x - d.x) * (@damper + 0.02) * alpha
+          d.y = d.y + (center_loc.y - d.y) * (@damper + 0.02) * alpha
+
+    tick = (e) =>
+      circles.each(move_center_towards_center(e.alpha))
         .attr("cx", (d) -> return d.x )
         .attr("cy", (d) -> return d.y )
 
+    console.log "force layout with width #{modal_viz_width} height: #{modal_viz_height}"
     force = d3.layout.force()
       .size([modal_viz_width, modal_viz_height])
       .nodes(nodes)
       .links(links)
       .friction(0.7)
       .theta(0.5)
-      .gravity(0.2)
-      .charge( (d) -> -300 + -100 * Math.log(d.radius))
+      .gravity(0.4)
+      .charge( (d) =>
+        charge = -300 + -200 * Math.log(d.radius)
+        this.charge(d) * 50
+        charge
+      )
       .linkDistance(link_distance)
       .on('tick', tick)
       .start()
+
+    window.force = force
 
     this.update_modal(reg_no, circle_data.category)
 
@@ -612,6 +638,11 @@ class BubbleChart
     modal.find('.current_year').text(cur_year)
     modal.find('.candidate_office').text(candidate_office)
     modal.find('.expenditure_category_title').text(category)
+
+  # Update the center node of the modal
+  update_modal_center: (circle_data, i, element) =>
+    console.log("going to update the center node!")
+    this.render_modal(circle_data, i, element)
 
   size_legend_init: () =>
     # Size Legend
@@ -866,7 +897,7 @@ $ ->
     raw_records = join_data(expenditure_records, organizational_records)
     window.raw_records = raw_records
     filtered_records = filter_data(raw_records, 2014)
-    #filtered_records = filter_data(raw_records, 'gov')
+    filtered_records = filter_data(raw_records, 'gov')
     #filtered_records = filter_data(raw_records, 'senate')
 
     window.precinct_records = precinct_records
