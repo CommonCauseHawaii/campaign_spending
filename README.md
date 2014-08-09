@@ -1,5 +1,5 @@
-![Vizualization Screenshot](_jekyll/images/viz-screenshot.png "Vizualization Screenshot")
-![Vizualization Gif](_jekyll/images/screenshot.gif "Vizualization Gif")
+[![Vizualization Screenshot](_jekyll/images/viz-screenshot.png "Vizualization Screenshot")](http://viz.hawaiicampaignspending.com)
+[![Vizualization Gif](_jekyll/images/screenshot.gif "Vizualization Gif")](http://viz.hawaiicampaignspending.com)
 
 # Intro
 This project is a vizualization of Hawaii Campaign Spending data for Candidates. It was created for [Civic*Celerator 2013](http://civic.celerator.org/).
