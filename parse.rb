@@ -1,7 +1,7 @@
 require 'csv'
 new_data = []
 id = 1
-CSV.open('expenditures_parsed.csv', 'w',
+CSV.open('_jekyll/data/campaign_spending_summary.csv', 'w',
          :write_headers => true,
          :headers => %w(expenditure_category election_period amount reg_no id)) do |output_csv|
            CSV.foreach("expenditures.csv", :headers => true) do |row|
@@ -18,7 +18,7 @@ CSV.open('expenditures_parsed.csv', 'w',
            end
          end
 
-CSV.open('organizational_reports_parsed.csv', 'w',
+CSV.open('_jekyll/data/organizational_report.csv', 'w',
          :write_headers => true,
          :headers => %w(reg_no candidate_name office district county party)) do |output_csv|
            CSV.foreach("organizational_reports.csv", :headers => true) do |row|
