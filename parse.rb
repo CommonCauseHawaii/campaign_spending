@@ -24,6 +24,10 @@ CSV.open('_jekyll/data/organizational_report.csv', 'w',
            CSV.foreach("organizational_reports.csv", :headers => true) do |row|
              # Skip Ronald, Strode since his data is bad
              next if row['Reg No'] == 'CC11033'
+             if row['Party'].nil?
+               puts "Skipping candidate with Reg No #{row['Reg No']} and name #{row['Candidate Name']} because missing party"
+               next
+             end
              entry = {
                reg_no: row['Reg No'].strip,
                candidate_name: row['Candidate Name'].strip,
