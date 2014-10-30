@@ -23,5 +23,15 @@ module Jekyll
         `terminal-notifier -title "#{config['title'] ? config['title'] : 'Jekyll Site'}" -message "Jekyll generate complete."`
       end
     end
+
+    alias old_render render
+    def render
+      old_render
+    rescue => e
+      if `uname`.strip == "Darwin"
+        `terminal-notifier -title "Jekyll Site ERROR" -message "ERROR rendering site: #{e.message}"`
+      end
+      raise
+    end
   end
 end
