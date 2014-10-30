@@ -18,7 +18,7 @@ module Jekyll
     def write
       old_write
       if `uname`.strip == "Darwin"
-        `terminal-notifier-success -title "#{config['title'] ? config['title'] : 'Jekyll Site'}" -message "Jekyll generate complete."`
+        `terminal-notifier -title "#{config['title'] ? config['title'] : 'Jekyll Site'}" -message "Jekyll generate complete."`
       end
     end
   end
