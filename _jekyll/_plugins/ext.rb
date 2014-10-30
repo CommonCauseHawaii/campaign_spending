@@ -1,3 +1,5 @@
+require "jekyll-assets"
+
 # This monkey patch triggers a Mac OS X Notification Center notification using
 # the terminal-notifier gem.
 #

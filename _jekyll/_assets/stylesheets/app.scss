@@ -1,19 +1,10 @@
----
----
 /*
  * Colors
-Dark Gray
-#454542
-
-Medium Gray
-#84847f
-
-Light gray
-#dfded6
-
-Button Light Gray Text
-#bcbbb4
 */
+$dark-gray: #454542;
+$medium-gray: #84847f;
+$light-gray: #dfded6;
+$button-light-gray: #bcbbb4;
 
 body {
   font-family: 'Open Sans', sans-serif;
@@ -67,11 +58,13 @@ svg {border: 1px solid gray;}
 /**** Utility ****/
 
 .clickable { cursor: pointer; }
+// TODO: This doesn't belong in the utility section
 #candidate_spending_container { background-color: #dfded6; }
+$nav-spacing: 7px;
 #candidate_spending_container #viz_nav_container {
   display: table;
   width: 100%;
-  border-spacing: 7px;
+  border-spacing: $nav-spacing;
   margin-top: 30px;
 }
 #candidate_spending_container #viz_nav_inner_container { display: table-row; }
@@ -243,6 +236,13 @@ svg circle.other            { fill: #6c6b6b; }
 }
 #candidate_modal #expenditures-table-explanation {
   margin-top: 10px;
+}
+.candidate_search_container {
+  padding: $nav-spacing;
+  font-size: 1.5rem;
+  input.autocomplete { width: 100%; font-size: inherit; }
+  .autocomplete-suggestion { background: white; }
+  .autocomplete-selected { background: $medium-gray; }
 }
 
 /* General properties */
