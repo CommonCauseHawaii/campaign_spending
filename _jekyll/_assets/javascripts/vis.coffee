@@ -396,11 +396,9 @@ class BubbleChart
     groups = d3.nest()
       .key( grouping_func )
       .rollup( (leaves) =>
-        {
-          sum: d3.sum(leaves, (d) -> parseFloat(d.value))
-          candidates: d3.set(leaves.map(this.get_candidate_short_name)).values()
-          radius: this.estimate_circle_diameter(leaves)/2
-        })
+        sum: d3.sum(leaves, (d) -> parseFloat(d.value))
+        candidates: d3.set(leaves.map(@get_candidate_short_name)).values()
+        radius: @estimate_circle_diameter(leaves)/2
       .map(nodes, d3.map)
 
     max_num_rows = 5
