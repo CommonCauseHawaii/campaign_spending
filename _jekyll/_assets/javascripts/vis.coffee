@@ -918,7 +918,7 @@ $ ->
     raw_records = join_data(expenditure_records, organizational_records)
     window.raw_records = raw_records
     filtered_records = filter_data(raw_records, 2014)
-    filtered_records = filter_data(raw_records, 'gov')
+    #filtered_records = filter_data(raw_records, 'gov')
     #filtered_records = filter_data(raw_records, 'senate')
 
     window.precinct_records = precinct_records
