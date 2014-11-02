@@ -116,7 +116,6 @@ class BubbleChart
           .transition().duration(1000)
           .style('opacity', 1)
       .on "click", (d,i) ->
-        console.log('clicked circle')
         modal = $('#candidate_modal')
         element = this
         if modal.is(':visible')
@@ -493,6 +492,7 @@ class BubbleChart
     $('#candidate_modal').find('#expenditure-record-table-container').empty()
 
     reg_no = circle_data.reg_no
+    ga('send', 'event', 'modal', 'show', circle_data.name, 1)
     records = window.records.filter( (d) -> d.reg_no == reg_no )
     nodes = window.viz.selectAll('circle')
       .filter( (d) => d.reg_no == reg_no )
@@ -604,7 +604,6 @@ class BubbleChart
 
   # Update the center node of the modal
   update_modal_center: (circle_data, i, element) =>
-    console.log("going to update the center node!")
     this.render_modal(circle_data, i, element)
 
   size_legend_init: () =>
@@ -698,6 +697,7 @@ class BubbleChart
         query_words.every (query) -> suggestion.value.toLowerCase().indexOf(query) != -1
       autoSelectFirst: true
       onSelect: (suggestion) =>
+        ga('send', 'event', 'candidate_search', 'select', suggestion.value, 1)
         @show_by_candidate modify_location_map: (location_map) =>
           location_map.keys().forEach (candidate_name) =>
             if candidate_name != suggestion.value
@@ -717,6 +717,7 @@ class BubbleChart
           formatted = formatted.replace(new RegExp(pattern, 'gi'), '<strong>$1<\/strong>')
         formatted
       onSearchComplete: (query, suggestions) =>
+        ga('send', 'event', 'candidate_search', 'search', query, 1)
         candidates_to_show = suggestions.map (d) -> d.data
         if suggestions.length <= 0
           reset_candidate_search()
@@ -936,6 +937,7 @@ $ ->
     $viz_nav = $(e.target).closest('.viz_nav')
     func = $viz_nav.data('name')
     currentFunc = $('.viz_nav.btn.selected').data('name')
+    ga('send', 'event', 'click', 'navigation', func, 1)
 
     $viz_nav.animate({backgroundColor: '#73884f'})
     $viz_nav.animate({backgroundColor: '#FFFFFF'})
@@ -951,15 +953,18 @@ $ ->
 
   $('.viz_nav .right-arrow').on 'click', (e) ->
     e.stopPropagation()
+    ga('send', 'event', 'click', 'navigation', 'next_year', 1)
     if $(this).hasClass('clickable')
       window.update_year(true)
   $('.viz_nav .left-arrow').on 'click', (e) ->
     e.stopPropagation()
+    ga('send', 'event', 'click', 'navigation', 'previous_year', 1)
     if $(this).hasClass('clickable')
       window.update_year(false)
 
   $('#nav #mini-legend').on 'click', (e) ->
     e.preventDefault()
+    ga('send', 'event', 'click', 'navigation', 'toggle_mini_legend', 1)
     # Position the hidden legend
     pos = $(this).offset()
     pos.top = 50
