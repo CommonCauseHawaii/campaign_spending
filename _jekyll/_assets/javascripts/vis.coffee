@@ -325,10 +325,7 @@ class BubbleChart
     #  .attr('x', (d) -> d.x)
     #  .attr('y', (d) -> d.y)
 
-    padding = if options.view_by_amount?
-      padding = 90
-    else
-      padding = 55
+    padding = if options.view_by_amount? padding = 90 else padding = 55
 
     line_height = 20
     line_offset = (d, line_num) -> d.y + d.radius + padding + line_height*line_num
@@ -402,10 +399,7 @@ class BubbleChart
       .map(nodes, d3.map)
 
     max_num_rows = 5
-    padding = if options.view_by_amount?
-      80
-    else
-      30
+    padding = if options.view_by_amount? 80 else 30
     label_padding = 90
     col_num = prev_radius = 0
     num_in_row = 1
@@ -772,10 +766,10 @@ class CandidateUtil
   get_island: (record) =>
     #01-01 to 07-07  Hawaii
     #08-01 to 13-03  Maui
-    #13-04               Lanai
+    #13-04           Lanai
     #13-05 to 13-09  Molokai
     #14-01 to 16-05  Kauai
-    #16-06               Niihau
+    #16-06           Niihau
     #17-01 to 51-06  Oahu
     maui = 'Maui, Lanai, Molokai'
     kauai = 'Kauai, Niihau'
@@ -937,8 +931,6 @@ $ ->
       $year_el.animate({color: '#454542'})
     })
 
-    #return
-
     filtered_records = filter_data(records, next_year)
     window.debug_now = true
 
@@ -991,12 +983,9 @@ $ ->
 
   $('#nav #mini-legend').on 'click', (e) ->
     e.preventDefault()
-    console.log "clicked mini-legend"
     # Position the hidden legend
     pos = $(this).offset()
     pos.top = 50
-    #$this.position.left
-    #$this.position.top
     $('#mini-legend-body').slideToggle().offset(pos)
 
   queue()
