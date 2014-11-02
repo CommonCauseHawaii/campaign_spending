@@ -1,0 +1,7 @@
+source:      _jekyll
+destination: _site
+internet: true
+
+assets:
+  js_compressor:  uglifier
+  css_compressor: sass

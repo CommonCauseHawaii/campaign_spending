@@ -5,6 +5,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+rm -r _site/
+bundle exec jekyll build --config _deploy_config.yml
 cp -r _site/ ../site-bak/
 git checkout gh-pages
 rm -r *
