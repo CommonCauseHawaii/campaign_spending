@@ -12,6 +12,7 @@
 // My code
 //= require util
 //= require common
+//= require script
 
 // Remove the equals below for local development
 // require vendor/google.fonts
