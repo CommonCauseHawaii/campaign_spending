@@ -1,5 +1,3 @@
----
----
 class BubbleChart
   constructor: (data) ->
     @data = data
@@ -28,6 +26,7 @@ class BubbleChart
 
     this.create_nodes(@data)
     this.create_vis()
+    this.initialize_candidate_autocomplete()
 
   # create node objects from original data
   # that will serve as the data behind each
@@ -707,6 +706,61 @@ class BubbleChart
       .transition().duration(1500)
       .style('opacity', 0)
       .style('top', '2000px')
+
+  initialize_candidate_autocomplete: () ->
+    candidate_lookup = window.organizational_records.map (d) ->
+      value: d.candidate_name
+      data: d.reg_no
+    $container = $('.candidate_search_container')
+    $input = $container.find('input.autocomplete')
+
+    show_all_candidates = () =>
+      @circles
+        .transition().duration(1000)
+        .style('opacity', 1)
+
+    $input.bind 'input', () ->
+      if $(this).val().length <= 0
+        show_all_candidates()
+
+    $input.autocomplete
+      lookup: candidate_lookup
+      lookupLimit: 6
+      lookupFilter: (suggestion, originalQuery, queryLowerCase) ->
+        # Allow first and last name reversal
+        # A search of "David Ige" should match "Ige, David"
+        # "ige" should also match "Ige, David"
+        query_words = queryLowerCase.match(/[^ ]+/g)
+        # Every query word needs to match the suggestion
+        query_words.every (query) -> suggestion.value.toLowerCase().indexOf(query) != -1
+      autoSelectFirst: true
+      onSelect: (suggestion) ->
+        # TODO: Do something with the selection... pop-up the modal?
+        # clear input
+        $input.val('')
+      appendTo: $container
+      showNoSuggestionNotice: true
+      noSuggestionNotice: 'No candidates match your query'
+      formatResult: (suggestion, currentValue) ->
+        formatted = suggestion.value
+        currentValue.match(/[^ ]+/g).forEach (value) ->
+          pattern = '(' + $.Autocomplete.utils.escapeRegExChars(value) + ')'
+          formatted = formatted.replace(new RegExp(pattern, 'gi'), '<strong>$1<\/strong>')
+        formatted
+      onSearchComplete: (query, suggestions) =>
+        candidates_to_show = suggestions.map (d) -> d.data
+        if suggestions.length <= 0
+          show_all_candidates()
+        else if suggestions.length <= 6 and suggestions.length > 0
+          # Show selected candidates
+          @circles.filter( (circle) -> circle.reg_no in candidates_to_show )
+            .transition().duration(1000)
+            .style('opacity', 1)
+          # Hide other candidates
+          @circles.filter( (circle) -> circle.reg_no not in candidates_to_show )
+            .transition().duration(1000)
+            .style('opacity', 0.3)
+
   # End class BubbleChart
 
 root = exports ? this
