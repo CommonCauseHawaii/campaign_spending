@@ -228,53 +228,6 @@ class BubbleChart
         candidate_utils.get_island(d)
     if(func == 'office')
       this.do_split (d) -> d.office
-    if(func == 'amount')
-      accessor = (d) ->
-        if d.value > 1e6
-          "Over a million"
-        else if d.value > 500000
-           "$500,000 to 1 million"
-        else if d.value > 250000
-           "$250,000 to 500,000"
-        else if d.value > 200000
-           "$200,000 to $250,000"
-        else if d.value > 150000
-           "$150,000 to 200,000"
-        else if d.value > 100000
-           "$100,000 to 150,000"
-        else if d.value > 50000
-           "$50,000 to 100,000"
-        else if d.value > 25000
-           "$25,000 to 50,000"
-        else if d.value > 20000
-           "$20,000 to 25,000"
-        else if d.value > 15000
-           "$15,000 to 20,000"
-        else if d.value > 10000
-           "$10,000 to 15,000"
-        else if d.value > 5000
-           "$5,000 to 10,000"
-        else if d.value > 1000
-           "$1,000 to 5,000"
-         else
-           "< $1,000"
-      # UGLY!
-      sort_func = (a,b) ->
-        get_amount = (d) ->
-          $_pos = d.indexOf('$') + 1
-          end_pos = d.indexOf(' ', $_pos)
-          amount_str = d.substring($_pos, end_pos)
-          parseInt(amount_str.replace(/,/g, ''))
-        if a == "Over a million"
-          return -1
-        if b == "Over a million"
-          return 1
-        if a == "< $1,000"
-          return 1
-        if b == "< $1,000"
-          return -1
-        d3.descending(get_amount(a), get_amount(b))
-      this.do_split(accessor, {sort: sort_func, view_by_amount: true})
     if(func == 'year')
       this.display_group_all()
 
@@ -325,7 +278,7 @@ class BubbleChart
     #  .attr('x', (d) -> d.x)
     #  .attr('y', (d) -> d.y)
 
-    padding = if options.view_by_amount? padding = 90 else padding = 55
+    padding = 55
 
     line_height = 20
     line_offset = (d, line_num) -> d.y + d.radius + padding + line_height*line_num
@@ -396,16 +349,17 @@ class BubbleChart
         sum: d3.sum(leaves, (d) -> parseFloat(d.value))
         candidates: d3.set(leaves.map(@get_candidate_short_name)).values()
         radius: @estimate_circle_diameter(leaves)/2
+      )
       .map(nodes, d3.map)
 
     max_num_rows = 5
-    padding = if options.view_by_amount? 80 else 30
+    padding = 30
     label_padding = 90
     col_num = prev_radius = 0
     num_in_row = 1
     max_num_in_row = 6
     # Push first row up
-    prev_y = if options.view_by_amount? then -90 else -60
+    prev_y = -60
 
     sort = if options.sort?
       options.sort
