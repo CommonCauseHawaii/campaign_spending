@@ -243,6 +243,8 @@ svg circle.other            { fill: #6c6b6b; }
   input.autocomplete { width: 100%; font-size: inherit; }
   .autocomplete-suggestion { background: white; }
   .autocomplete-selected { background: $medium-gray; }
+  // Hardcode height so vis doesn't move up and down as search is hidden and shown
+  height: 35px;
 }
 
 /* General properties */

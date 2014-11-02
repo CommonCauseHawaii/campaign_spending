@@ -202,10 +202,12 @@ class BubbleChart
       d.y = d.y + (@center.y - d.y) * (@damper + 0.02) * alpha
 
   show_viz_type: (func) =>
+    @candidate_search_input().slideUp()
+    @show_all_candidates()
     this.hide_legend()
 
     if(func == 'candidate')
-      this.do_split (d) -> d.name
+      @show_by_candidate()
     if(func == 'party')
       this.do_split (d) -> d.party
     if(func == 'expenditure')
@@ -231,8 +233,24 @@ class BubbleChart
     if(func == 'year')
       this.display_group_all()
 
+  candidate_search_input: () ->
+    @_candidate_search_input || $('.candidate_search_container input.autocomplete')
+
+  show_all_candidates: () ->
+    @circles
+      .transition().duration(1000)
+      .style('opacity', 1)
+    @candidate_search_input().val('')
+
+  show_by_candidate: (options={}) ->
+    accessor = (d) -> d.name
+    @candidate_search_input().slideDown()
+    @do_split(accessor, options)
+
   do_split: (accessor, options={}) =>
     location_map = this.move_to_location_map @nodes, accessor, options
+    if options.modify_location_map?
+      location_map = options.modify_location_map(location_map)
     charge = if options.charge?
       options.charge
     else
@@ -658,16 +676,15 @@ class BubbleChart
       value: d.candidate_name
       data: d.reg_no
     $container = $('.candidate_search_container')
-    $input = $container.find('input.autocomplete')
+    $input = @candidate_search_input()
 
-    show_all_candidates = () =>
-      @circles
-        .transition().duration(1000)
-        .style('opacity', 1)
+    reset_candidate_search = () =>
+      @show_all_candidates()
+      @show_by_candidate()
 
     $input.bind 'input', () ->
       if $(this).val().length <= 0
-        show_all_candidates()
+        reset_candidate_search()
 
     $input.autocomplete
       lookup: candidate_lookup
@@ -680,10 +697,16 @@ class BubbleChart
         # Every query word needs to match the suggestion
         query_words.every (query) -> suggestion.value.toLowerCase().indexOf(query) != -1
       autoSelectFirst: true
-      onSelect: (suggestion) ->
-        # TODO: Do something with the selection... pop-up the modal?
-        # clear input
-        $input.val('')
+      onSelect: (suggestion) =>
+        @show_by_candidate modify_location_map: (location_map) =>
+          location_map.keys().forEach (candidate_name) =>
+            if candidate_name != suggestion.value
+              # Move off screen
+              location_map.get(candidate_name).x = -200
+            else
+              location_map.get(candidate_name).x = @width/2
+              location_map.get(candidate_name).y = 200
+          location_map
       appendTo: $container
       showNoSuggestionNotice: true
       noSuggestionNotice: 'No candidates match your query'
@@ -696,7 +719,7 @@ class BubbleChart
       onSearchComplete: (query, suggestions) =>
         candidates_to_show = suggestions.map (d) -> d.data
         if suggestions.length <= 0
-          show_all_candidates()
+          reset_candidate_search()
         else if suggestions.length <= 6 and suggestions.length > 0
           # Show selected candidates
           @circles.filter( (circle) -> circle.reg_no in candidates_to_show )
