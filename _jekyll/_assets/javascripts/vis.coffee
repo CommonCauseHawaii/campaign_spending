@@ -601,6 +601,7 @@ class BubbleChart
     modal.find('.current_year').text(cur_year)
     modal.find('.candidate_office').text(candidate_office)
     modal.find('.expenditure_category_title').text(category)
+    show_powerballot_link(modal.find('a.powerballot').hide(), reg_no)
 
   # Update the center node of the modal
   update_modal_center: (circle_data, i, element) =>
@@ -804,6 +805,21 @@ class CandidateUtil
       'Other'
 
 root.candidate_utils = new CandidateUtil
+
+show_powerballot_link = ($el, candidate_reg_no) ->
+  powerballot_url = "http://codeforhawaii.github.io/hawaii-power-ballot/allgeneral.htm"
+  url = "http://services2.arcgis.com/tuFQUQg1xd48W6M5/arcgis/rest/services/HI_2014_general_candidates/FeatureServer/1/query";
+  params =
+    where: "CC_Reg_No='#{candidate_reg_no}'"
+    f: 'pjson'
+    outFields: 'Candidate_ID'
+  $.get url, params, (data) ->
+    features = JSON.parse(data).features[0]
+    if features?
+      candidate_id = features.attributes.Candidate_ID
+      $el.show().attr('href', powerballot_url + '#' + candidate_id)
+    else
+      console.warn "Unable to find candidate id for reg no #{candidate_reg_no}"
 
 campaignInit = () ->
   $('.legend tr').on 'mouseenter', () ->
