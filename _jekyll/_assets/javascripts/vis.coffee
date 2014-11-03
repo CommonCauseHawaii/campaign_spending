@@ -808,7 +808,7 @@ root.candidate_utils = new CandidateUtil
 
 show_powerballot_link = ($el, candidate_reg_no) ->
   powerballot_url = "http://codeforhawaii.github.io/hawaii-power-ballot/allgeneral.htm"
-  url = "http://services2.arcgis.com/tuFQUQg1xd48W6M5/arcgis/rest/services/HI_2014_general_candidates/FeatureServer/1/query";
+  url = "http://services2.arcgis.com/tuFQUQg1xd48W6M5/arcgis/rest/services/HI_2014_primary_candidates/FeatureServer/1/query"
   params =
     where: "CC_Reg_No='#{candidate_reg_no}'"
     f: 'pjson'
