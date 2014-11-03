@@ -670,6 +670,28 @@ class BubbleChart
       .style('opacity', 0)
       .style('top', '2000px')
 
+  handle_anchor_link: () ->
+    # Detect if anchor is set and click on that candidate
+    if (window.location.hash.length > 0)
+      reg_no = window.location.hash.substr(1)
+      $('#viz_nav_container .viz_nav[data-name="candidate"]').click()
+      candidate = window.organizational_records.filter( (d) -> d.reg_no == reg_no )[0]
+      if candidate?
+        @highlightSingleCandidate(candidate.candidate_name)
+      else
+        console.warn("Unable to find candidate_name from reg_no #{reg_no}")
+
+  highlightSingleCandidate: (candidate_name_to_find) ->
+    @show_by_candidate modify_location_map: (location_map) =>
+      location_map.keys().forEach (candidate_name) =>
+        if candidate_name != candidate_name_to_find
+          # Move off screen
+          location_map.get(candidate_name).x = -200
+        else
+          location_map.get(candidate_name).x = @width/2
+          location_map.get(candidate_name).y = 200
+      location_map
+
   initialize_candidate_autocomplete: () ->
     candidate_lookup = window.organizational_records.map (d) ->
       value: d.candidate_name
@@ -698,15 +720,7 @@ class BubbleChart
       autoSelectFirst: true
       onSelect: (suggestion) =>
         ga('send', 'event', 'candidate_search', 'select', suggestion.value, 1)
-        @show_by_candidate modify_location_map: (location_map) =>
-          location_map.keys().forEach (candidate_name) =>
-            if candidate_name != suggestion.value
-              # Move off screen
-              location_map.get(candidate_name).x = -200
-            else
-              location_map.get(candidate_name).x = @width/2
-              location_map.get(candidate_name).y = 200
-          location_map
+        @highlightSingleCandidate(suggestion.value)
       appendTo: $container
       showNoSuggestionNotice: true
       noSuggestionNotice: 'No candidates match your query'
@@ -803,6 +817,7 @@ campaignInit = () ->
     circles = d3.selectAll('circle')
     circles.transition().duration(1000)
       .style('opacity', 1)
+
 
 $ ->
   chart = null
@@ -929,6 +944,7 @@ $ ->
     chart = new BubbleChart filtered_records
     chart.display_group_all()
     chart.size_legend_init()
+    chart.handle_anchor_link()
   root.get_chart = () =>
     chart
 
