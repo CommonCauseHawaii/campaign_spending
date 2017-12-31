@@ -55,7 +55,7 @@ class BubbleChart
         y: Math.random() * 800
       }
       radius = @radius_scale(value)
-      if radius < 0 || isNan(radius)
+      if radius < 0 || isNaN(radius)
         console.log("Problem with radius for node:" + JSON.stringify(node))
       @nodes.push node
 
