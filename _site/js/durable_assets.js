@@ -1,29 +1,5 @@
 var gui = new dat.GUI();
 
-// General Util
-var money = d3.format('$,.2f');
-var sort_by_either = function(ascending, float_function) {
-  var comparator = function(a, b) {
-    if(float_function(a) > float_function(b)) {
-      return ascending ? 1 : -1;
-    } else if(float_function(a) < float_function(b)) {
-      return ascending ? -1 : 1;
-    } else {
-      return 0;
-    }
-  }
-  return comparator;
-}
-var sort_by_asc = function(float_function) { return sort_by_either(true, float_function); }
-var sort_by_desc = function(float_function) { return sort_by_either(false, float_function); }
-
-var get_attr = function(attribute) {
-  var getter_function = function(data) {
-    return data[attribute];
-  }
-  return getter_function;
-}
-
 var dat_gui_ranges = {
   scale                 : [0.01, 3],
   w                     : [0, 1200],
@@ -106,8 +82,17 @@ function draw(data) {
 
   var getX = get_attr('days_held');
   //var getY = get_attr('percentage_lost');
-  var getY = get_attr('depreciation_per_day');
-  //var getY = get_attr('days_till_zero_value');
+  var y_filter = $('.y-axis-buttons .button.selected').data('filter')
+  var getYBuilder = function(filter_name) {
+    if(y_filter === 'depreciation_per_day') {
+      return get_attr('depreciation_per_day');
+    } else if(y_filter === 'days_till_zero_value') {
+      return get_attr('days_till_zero_value');
+    } else {
+      console.log('Unknown y filter ' + y_filter);
+    }
+  }
+  var getY = getYBuilder(y_filter);
   var getR = get_attr('acquisition_amount');
   var getColor = function(d) {
     if(d.party === 'Republican') {
@@ -236,6 +221,8 @@ function draw(data) {
 }
 
 var create_candidate_list = function(data) {
+  data = filter_assets_list(data);
+  $('#candidate-container').empty();
   var candidates = d3.nest()
     .key(get_attr('candidate_name'))
     .rollup(function(leaves)
@@ -412,6 +399,16 @@ d3.entries(dat_gui_ranges).forEach(function(elem) {
 } );
 
 $('.dg.ac').find('ul').toggleClass('closed');
+$('.dg.ac').hide();
+
+$('.y-axis-buttons').on('click', '.button', function(e) {
+  e.preventDefault();
+  var $this = $(this);
+  $this.closest('.button-group').find('.button').removeClass('selected');
+  $this.addClass('selected');
+
+  redraw();
+});
 
 $('.filter-buttons').on('click', '.button', function(e) {
   e.preventDefault();
@@ -419,8 +416,13 @@ $('.filter-buttons').on('click', '.button', function(e) {
   $this.closest('.button-group').find('.button').removeClass('selected');
   $this.addClass('selected');
 
-  draw(window.full_records);
+  redraw();
 });
+
+function redraw() {
+  draw(window.full_records);
+  create_candidate_list(window.full_records);
+}
 
 // Show data as table on the page
 function tabulate(data, columns, container) {

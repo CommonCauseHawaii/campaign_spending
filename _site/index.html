@@ -1,123 +1,266 @@
-<!doctype html>
-<html class="no-js" lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Foundation | Welcome</title>
-    <link rel="stylesheet" href="css/foundation.css" />
+<!DOCTYPE html>
+<html class="no-js" lang="en"> <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hawaii Campaign Spending Data</title>
+    <link rel="stylesheet" href="css/foundation.css">
+    <!--<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>-->
+    
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,300,400,700,600" rel="stylesheet" type="text/css">
+    
     <script src="js/vendor/modernizr.js"></script>
-    <script type="text/javascript">
-      function export_svg() {
-        $('svg').svg();
-        var xml = $('svg').svg('get').toSVG();
-        $('#svgexport').html(xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-      }
+    <!--<script src="//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>-->
+    <script>
+//      WebFont.load({
+//        google: {
+//          families: ['Open Sans']
+//        }
+//      });
     </script>
-    <!-- Styles don't flow into exported SVG, so only use for web -->
-    <style>
-      svg {border: 1px solid gray;}
-      .row.full-width {
-        width: 100%;
-        max-width: 100%;
-      }
-      #chart_div { margin-left: 100px; }
-      .asset:hover { opacity: 1; }
-      .asset {
-        cursor: pointer;
-        opacity: 0.75;
-      }
-      .d3-tip {
-        line-height: 1;
-        font-weight: bold;
-        padding: 12px;
-        background: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        border-radius: 2px;
-      }
-
-      /* Creates a small triangle extender for the tooltip */
-      .d3-tip:after {
-        box-sizing: border-box;
-        display: inline;
-        font-size: 10px;
-        width: 100%;
-        line-height: 1;
-        color: rgba(0, 0, 0, 0.8);
-        content: "\25BC";
-        position: absolute;
-        text-align: center;
-      }
-
-      /* Style northward tooltips differently */
-      .d3-tip.n:after {
-        margin: -1px 0 0 0;
-        top: 100%;
-        left: 0;
-      }
-
-      .filter-buttons .selected { background-color: #126582; }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/assets/app-c7e301f84bb7eb8598a80ff8f658b4ae8da7bb84d73aecae7cae50144353062a.css">
   </head>
-  <body>
-    <a href="https://github.com/axelson/campaign_spending"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+  <body id="candidate_spending_container">
+    
+    <a href="https://github.com/axelson/campaign_spending"><img style="position: absolute; top: 50px; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    
+    <!-- Top Nav -->
+    <div id="nav">
+      <div class="row">
+        <div class="large-12 columns">
+          <div class="nav-container">
+            <a href="/" class="name">Hawaii Campaign Spending Data</a>
+            <span id="mini-legend" class="unselectable">key</span>
+            <div id="mini-legend-body" class="legend mini">
+              <table>
+                <tr data-category="communication">
+                  <td><div class="key communication"></div></td>
+                  <td><div class="subheader">Communication &amp; Outreach</div></td>
+                </tr>
+                <tr data-category="overhead">
+                  <td><div class="key overhead"></div></td>
+                  <td><div class="subheader">Overhead</div></td>
+                </tr>
+                <tr data-category="staff">
+                  <td><div class="key staff"></div></td>
+                  <td><div class="subheader">Staff &amp; Professional Services</div></td>
+                </tr>
+                <tr data-category="contributions">
+                  <td><div class="key contributions"></div></td>
+                  <td><div class="subheader">Contributions</div></td>
+                </tr>
+                <tr data-category="fees">
+                  <td><div class="key fees"></div></td>
+                  <td>
+<div class="subheader">Taxes &amp; Fees</div>
+                  </td>
+                </tr>
+                <tr data-category="contributions">
+                  <td><div class="key contributions"></div></td>
+                  <td><div class="subheader">Other</div></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="row">
       <div class="large-12 columns">
-        <h1>Durable Asset Visualization</h1>
-      </div>
-    </div>
-
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <div class="row full-width">
-      <div class="large-8 columns">
-        <div id="chart_div">
-          <svg id='chart-container'></svg>
-          <div><div id='reset_colors_btn' class='button'>Reset Colors</div></div>
-        </div>
-      </div>
-      <div class="large-4 columns">
-        <div class="row">
-          <ul class="button-group radius filter-buttons">
-            <li><a class="button" data-filter="< 500" href="#"> < 500 </a></li>
-            <li><a class="button selected" data-filter="all" href="#"> all </a></li>
-            <li><a class="button" data-filter="> 500" href="#"> > 500 </a></li>
-          </ul>
-        </div>
-        <div class="row">
-          <div id='candidate-container'></div>
+        <div id="viz_nav_container">
+          <div id="viz_nav_inner_container">
+            <div class="viz_nav year selected" data-name="year" data-year="2014">
+              <div class="spacer">
+                <img class="left-arrow clickable flip-horizontal" src="images/year_arrow_transparent.png">
+                <span class="year-text">2014</span>
+                <img class="right-arrow" src="images/year_arrow_disabled.png">
+              </div>
+            </div>
+            <div class="viz_nav btn" data-name="office">
+              <div class="sub_header">View by</div>
+              <div class="header">Office</div>
+            </div>
+            <div class="viz_nav btn" data-name="expenditure">
+              <div class="sub_header">View by</div>
+              <div class="header">Expenditure</div>
+            </div>
+            <div class="viz_nav btn" data-name="candidate">
+              <div class="sub_header">View by</div>
+              <div class="header">Candidate</div>
+            </div>
+            <div class="viz_nav btn" data-name="party">
+              <div class="sub_header">View by</div>
+              <div class="header">Party</div>
+            </div>
+            <div class="viz_nav btn" data-name="island">
+              <div class="sub_header">View by</div>
+              <div class="header">Island</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="large-12 columns">
-        <button onclick="export_svg();" />export</button>
-        <pre><div id="svgexport">export will go here</div></pre>
+        <div class="candidate_search_container">
+          <input class="autocomplete" placeholder="Search for a candidate" style="display: none;">
+        </div>
       </div>
     </div>
 
-    <div class="row full-width">
+    <br>
+
+    <!--**************  Legend  ***************-->
+    <div class="row">
       <div class="large-12 columns">
-        <div id='table-container'></div>
+        <div id="vis-full-key">
+          <div class="row">
+            <div class="large-4 columns explanation">
+              <p>
+                Circle <b>size</b> corresponds to the amount spent in US dollars.
+              </p>
+            </div>
+            <div class="large-7 large-offset-1 columns explanation">
+              <p>Circle <b>color</b> corresponds to a general category of spending.</p>
+              <p>Within each general category there are more specific breakdowns (as labeled.)</p>
+            </div>
+          </div>
+          <div id="vis-key-bottom" class="row">
+            <div class="large-4 columns">
+              <!-- Key for circle size -->
+              <div id="size-legend-container"></div>
+            </div>
+            <div class="large-7 large-offset-1 columns">
+              <!-- Key for circle color -->
+              <!-- TODO: Change legend class to legend-color or something -->
+              <div class="legend explanation">
+                <table>
+                  <tr data-category="communication">
+                    <td><div class="key communication"></div></td>
+                    <td>
+                      <div class="subheader">
+                        Communication &amp; Outreach
+                      </div>
+                      <div class="subcategories">
+                        Advertising, Candidate Fundraiser Tickers, Postage/Mailing, Printing, Surveys, Polls &amp; Voter Lists
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-category="overhead">
+                    <td><div class="key overhead"></div></td>
+                    <td>
+                      <div class="subheader">
+                        Overhead
+                      </div>
+                      <div class="subcategories">
+                        Durable Assets, Food &amp; Beverage, Insurance, Lease/Rent, Office Supplies, Travel &amp; Lodging, Utilities, Vehicle
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-category="staff">
+                    <td><div class="key staff"></div></td>
+                    <td>
+                      <div class="subheader">
+                        Staff &amp; Professional Services
+                      </div>
+                      <div class="subcategories">
+                        Employee Services, Professional Services
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-category="contributions">
+                    <td><div class="key contributions"></div></td>
+                    <td>
+                      <div class="subheader">
+                        Contributions
+                      </div>
+                      <div class="subcategories">
+                        Contribution to Community Organization, Contribution to Political Party, Hawaii Election Campaign Fund
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-category="fees">
+                    <td><div class="key fees"></div></td>
+                    <td>
+                      <div class="subheader">
+                        Taxes &amp; Fees
+                      </div>
+                      <div class="subcategories">
+                        Bank Charges &amp; Adjustments, Filing Fee, Taxes
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-category="contributions">
+                    <td><div class="key contributions"></div></td>
+                    <td>
+                      <div class="subheader">
+                        Other
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!--************  Vizualization Container  ***************-->
+    <div class="row full-width">
+      <div id="vis-container" class="large-12 columns">
+        <div id="vis"></div>
+      </div>
+    </div>
 
-    <script type="text/javascript" src="js/vendor/jquery.js"></script>
-    <script type="text/javascript" src="js/jquery.svg.js"></script>
-    <script type="text/javascript" src="js/foundation.min.js"></script>
-    <script type="text/javascript" src="js/dat.gui.min.js"></script>
-    <script type="text/javascript" src="js/d3.v3.min.js"></script>
-    <script type="text/javascript" src="js/durable_assets.js"></script>
-    <script type="text/javascript" src="js/d3.tip.v0.6.3.js"></script>
+    <script type="text/javascript" src="/assets/application-2154ce33a7889f909cd6919c6f9fc548c2bad81e367e14f02831a0ded3093971.js"></script>
+    <script type="text/javascript" src="/assets/vis-97b47a8cc9cb68c073fc109d27da7af1c543b254499009c66474175862785566.js"></script>
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-50186636-1', 'axelson.github.io');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    <div id="candidate_modal" class="reveal-modal" data-reveal>
+      <div class="candidate_info">
+        <div class="candidate_name"></div>
+        <div class="candidate_subtitle">
+          <span class="current_year"></span>, <span class="candidate_office"></span>
+        </div>
+        <div class="expenditure_category_title"></div>
+        <div class="powerballot_link_container">
+          <a class="powerballot" target="_blank" style="display: none;">More Info</a>
+        </div>
+      </div>
+      <div id="candidate_vis"></div>
+
+      <hr>
+      <a class="close-reveal-modal">×</a>
+      <div class="expenditure-loading">
+        <img src="images/spinner.gif">
+        Expenditure Records Loading
+      </div>
+      <div class="hidden expenditure-error">
+        Error loading expenditures from Socrata
+      </div>
+      <div id="expenditure-record-table-container"></div>
+      <div id="expenditures-table-explanation">
+        Displays the top 20 records sorted by amount for this category
+      </div>
+    </div>
     <script>
       $(document).foundation();
     </script>
+    <div class="hidden" id="app-info" data-page="campaign-spending"></div>
   </body>
 </html>

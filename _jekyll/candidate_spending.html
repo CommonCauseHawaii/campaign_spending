@@ -19,7 +19,7 @@
 //        }
 //      });
     </script>
-    {% stylesheet app %}
+    {% asset app.scss %}
   </head>
   <body id='candidate_spending_container'>
     {% if site.internet %}
@@ -215,8 +215,8 @@
       </div>
     </div>
 
-    {% javascript application %}
-    {% javascript vis %}
+    {% asset application.js %}
+    {% asset vis.js %}
 
     {% if site.internet %}
     <script>
