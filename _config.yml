@@ -7,6 +7,3 @@ assets:
   cache: true
   cachebust: none
   gzip: false
-  sources:
-    - _assets/javascripts
-    - _assets/stylesheets
