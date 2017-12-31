@@ -10,6 +10,11 @@ Please note that this visualization is based on the official Hawaii Campaign
 Spending data which you can find on data.hawaii.gov:
 https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-Candi/3maa-4fgr
 
+But the data is actually pulled from a filtered/rolled-up view:
+https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-Candi/gvuk-nbsz/data
+
+![Socrata Filter Settings](_jekyll/images/socrata_filter_settings.png "Socrata Filter Settings")
+
 # Development/Contributing
 
 ## Installation/Running
