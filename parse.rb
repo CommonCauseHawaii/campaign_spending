@@ -1,5 +1,4 @@
 require 'csv'
-new_data = []
 id = 1
 CSV.open('_jekyll/data/campaign_spending_summary.csv', 'w',
          :write_headers => true,
@@ -9,7 +8,7 @@ CSV.open('_jekyll/data/campaign_spending_summary.csv', 'w',
              entry = {
                expenditure_category: row['Expenditure Category'].strip,
                election_period: row['Election Period'].strip,
-               amount: row['Amount'][1..-1],
+               amount: row['sum_amount'].strip,
                reg_no: row['Reg No'].strip,
                id: id,
              }

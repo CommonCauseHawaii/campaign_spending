@@ -35,10 +35,11 @@ class BubbleChart
   create_nodes: (data) =>
     @nodes = []
     data.forEach (d) =>
+      value = parseFloat(d.amount)
       node = {
         id: d.id
-        radius: @radius_scale(parseInt(d.amount))
-        value: parseFloat(d.amount)
+        radius: @radius_scale(value)
+        value: value
         name: d.candidate_name
         org: 'org'
         group: 'group'
@@ -53,9 +54,9 @@ class BubbleChart
         x: Math.random() * 1
         y: Math.random() * 800
       }
-      radius = @radius_scale(parseInt(d.amount))
-      if radius < 0
-        console.log("Radius less than 0 for node! " + JSON.stringify(node))
+      radius = @radius_scale(value)
+      if radius < 0 || isNan(radius)
+        console.log("Problem with radius for node:" + JSON.stringify(node))
       @nodes.push node
 
     @nodes.sort (a,b) -> b.value - a.value
