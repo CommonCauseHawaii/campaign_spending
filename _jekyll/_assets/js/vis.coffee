@@ -439,6 +439,8 @@ class BubbleChart
       'fees'
     else if category in ['Other']
       'other'
+    else
+      'other'
 
   # Turn "Abercrombie, Neil" to "Abercrombie (D)"
   get_candidate_short_name: (d) =>
