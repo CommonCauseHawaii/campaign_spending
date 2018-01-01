@@ -29,6 +29,10 @@ Visit http://localhost:4000 in a web browser
 
 In this project the data is updated manually rather than automatically fetched (this may change in the future).
 
+    ./update_data.sh
+
+Then commit the changes to the data (if any) and then deploy.
+
 ## Contributing
 
 If you'd like to contribute, simply fork the repo, push your commits, and submit your pull request.
