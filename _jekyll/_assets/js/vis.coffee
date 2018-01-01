@@ -861,11 +861,13 @@ $ ->
   # Filter data down to what we want
   filter_data = (records, year) ->
     filtered_csv = records.filter( (d) ->
-      #d.election_period == '2008-2010' || d.election_period == '2010-2012' || d.election_period == '2012-2014'
-
-      # Only a handful of records have negative amounts
+      # Only a handful of records have negative amounts so it is safe to ignore them
       if parseInt(d.amount) < 0
         false
+      else if year == 2018
+        d.election_period == '2016-2018'
+      else if year == 2016
+        d.election_period == '2014-2016'
       else if year == 2014
         d.election_period == '2012-2014'
       else if year == 2012
@@ -920,7 +922,7 @@ $ ->
       $('.viz_nav.year .left-arrow').attr('src', 'images/year_arrow_transparent.png')
         .addClass('clickable')
 
-    if next_year == 2014
+    if next_year == 2018
       $('.viz_nav.year .right-arrow').attr('src', 'images/year_arrow_disabled.png')
         .removeClass('clickable')
     else
@@ -928,7 +930,7 @@ $ ->
         .addClass('clickable')
 
     # TODO: What is the .1 for?
-    range = d3.range(2008, 2014.1, 2)
+    range = d3.range(2008, 2018.1, 2)
     unless next_year in range
       return
 
@@ -950,7 +952,7 @@ $ ->
   render_vis = (error, expenditure_records, organizational_records, precinct_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
     window.raw_records = raw_records
-    filtered_records = filter_data(raw_records, 2014)
+    filtered_records = filter_data(raw_records, 2018)
     #filtered_records = filter_data(raw_records, 'gov')
     #filtered_records = filter_data(raw_records, 'senate')
 
