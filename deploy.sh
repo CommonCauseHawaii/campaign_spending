@@ -5,10 +5,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-rm -r _site/
+rm -rf _site/ doc/
 bundle exec jekyll build --config _deploy_config.yml
-cp -r _site/ ../site-bak/
-git checkout gh-pages
-rm -r *
-mv ../site-bak/* .
-git add --all .
+cp -r _site/ doc/
+git add --all doc/
