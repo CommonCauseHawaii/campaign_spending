@@ -33,6 +33,14 @@ In this project the data is updated manually rather than automatically fetched (
 
 Then commit the changes to the data (if any) and then deploy.
 
+## Deploying
+
+Run deploys script
+
+    ./deploy.sh
+
+Then commit the changes. The site is served from the master branch of the common cause repo: https://github.com/CommonCauseHawaii/campaign_spending
+
 ## Contributing
 
 If you'd like to contribute, simply fork the repo, push your commits, and submit your pull request.
