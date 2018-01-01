@@ -3,7 +3,7 @@ id = 1
 CSV.open('_jekyll/data/campaign_spending_summary.csv', 'w',
          :write_headers => true,
          :headers => %w(expenditure_category election_period amount reg_no id)) do |output_csv|
-           CSV.foreach("expenditures.csv", :headers => true) do |row|
+           CSV.foreach("raw_data/expenditures.csv", :headers => true) do |row|
              #puts "on row #{row.inspect}"
              entry = {
                expenditure_category: row['Expenditure Category'].strip,
@@ -20,7 +20,7 @@ CSV.open('_jekyll/data/campaign_spending_summary.csv', 'w',
 CSV.open('_jekyll/data/organizational_report.csv', 'w',
          :write_headers => true,
          :headers => %w(reg_no candidate_name office district county party)) do |output_csv|
-           CSV.foreach("organizational_reports.csv", :headers => true) do |row|
+           CSV.foreach("raw_data/organizational_reports.csv", :headers => true) do |row|
              # Skip Ronald, Strode since his data is bad
              next if row['Reg No'] == 'CC11033'
              if row['Party'].nil?
