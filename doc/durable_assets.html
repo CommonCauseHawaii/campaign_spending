@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foundation | Welcome</title>
+    <link rel="stylesheet" href="css/foundation.css">
+    <script src="js/vendor/modernizr.js"></script>
+    <script type="text/javascript">
+      function export_svg() {
+        $('svg').svg();
+        var xml = $('svg').svg('get').toSVG();
+        $('#svgexport').html(xml.replace(/&/g, '&amp;').replace(/, '&lt;').replace(/>/g, '&gt;'));
+      }
+    </script>
+    <!-- Styles don't flow into exported SVG, so only use for web -->
+    <link rel="stylesheet" type="text/css" href="css/durable_assets.css">
+  </head>
+  <body>
+    <a href="https://github.com/axelson/campaign_spending"><img style="position: absolute; top: 45px; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <nav class="top-bar" data-topbar>
+  <ul class="title-area">
+    <li class="name">
+      <h1><a href="/">Hawaii Campaign Spending Data</a></h1>
+    </li>
+    <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+  </ul>
+
+  <section class="top-bar-section">
+    <!-- Right Nav Section -->
+    <ul class="right">
+      <!--
+      <li data-page='durable-assets' class="active"><a href="/">Durable Assets</a></li>
+      <li data-page='campaign-spending'><a href="/candidate_spending.html">Candidate Spending</a></li>
+      <li class="has-dropdown">
+        <a href="#">Resources</a>
+        <ul class="dropdown">
+          <li><a href="https://docs.google.com/document/d/1VC0of6-rLtFrLmpBS8xWDLjLvtoPOr9LBfDJLYy_4fw/edit?usp=sharing">Campaign Spending Data Primer</a></li>
+          <li><a href="http://civic.celerator.org/">Civic*Celerator</a></li>
+          <li><a href="http://ags.hawaii.gov/campaign/">Campaign Spending Official Website</a></li>
+        </ul>
+      </li>
+      -->
+    </ul>
+
+    <!-- Left Nav Section -->
+    <ul class="left">
+    </ul>
+  </section>
+</nav>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <h1>Durable Asset Visualization</h1>
+      </div>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="row full-width">
+      <div class="large-8 columns">
+        <div id="chart_div">
+          <svg id="chart-container"></svg>
+          <div><div id="reset_colors_btn" class="button">Reset Colors</div></div>
+        </div>
+      </div>
+      <div class="large-4 columns">
+        <div class="row">
+          <ul class="button-group radius y-axis-buttons">
+            <li><a class="button" data-filter="depreciation_per_day" href="#"> depreciation/day </a></li>
+            <li><a class="button selected" data-filter="days_till_zero_value" href="#"> days till $0 </a></li>
+          </ul>
+        </div>
+        <div class="row">
+          <ul class="button-group radius filter-buttons">
+            <li><a class="button" data-filter="&lt; 500" href="#"> </a></li>
+            <li><a class="button selected" data-filter="all" href="#"> all </a></li>
+            <li><a class="button" data-filter="&gt; 500" href="#"> &gt; 500 </a></li>
+          </ul>
+        </div>
+        <div class="row">
+          <div id="candidate-container"></div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <button onclick="export_svg();"></button>export
+        <pre><div id="svgexport">export will go here</div></pre>
+      </div>
+    </div>
+
+    <div class="row full-width">
+      <div class="large-12 columns">
+        <div id="table-container"></div>
+      </div>
+    </div>
+
+
+    <!-- TODO: Make this a common template -->
+    <script type="text/javascript" src="js/vendor/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.svg.js"></script>
+    <script type="text/javascript" src="js/foundation.min.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="js/d3.v3.min.js"></script>
+    <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/common.js"></script>
+    <script type="text/javascript" src="js/durable_assets.js"></script>
+    <script type="text/javascript" src="js/d3.tip.v0.6.3.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
+    <div class="hidden" id="app-info" data-page="durable-assets"></div>
+  </body>
+</html>

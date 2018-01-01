@@ -1,0 +1,357 @@
+/*
+ * Colors
+*/
+body {
+  font-family: 'Open Sans', sans-serif;
+  color: #454542;
+  /* For svg text */
+  fill: #454542; }
+
+/*
+svg {border: 1px solid gray;}
+*/
+/* #vis width needs to match width in code */
+#vis {
+  width: 1350px;
+  margin-left: auto;
+  margin-right: auto; }
+
+.row.full-width {
+  width: 100%;
+  max-width: 100%; }
+
+.filter-buttons .selected {
+  background-color: #126582; }
+
+/* TODO: make into general class */
+.y-axis-buttons .selected {
+  background-color: #126582; }
+
+/* Note: border spacing amount needs to match the button nav */
+#nav .nav-container {
+  display: table;
+  border-spacing: 7px;
+  margin-top: 10px;
+  width: 100%; }
+
+#nav {
+  background: #454542;
+  height: 50px; }
+
+#nav .name {
+  text-transform: uppercase;
+  color: white;
+  font-size: 10pt;
+  font-weight: 400;
+  letter-spacing: 2px; }
+
+#nav #mini-legend {
+  text-transform: uppercase;
+  color: white;
+  font-size: 9pt;
+  font-weight: 400;
+  float: right;
+  text-align: right;
+  cursor: pointer; }
+
+#nav #mini-legend-body {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 50;
+  display: none;
+  background-color: white;
+  width: 220px; }
+
+/**** Utility ****/
+.clickable {
+  cursor: pointer; }
+
+#candidate_spending_container {
+  background-color: #dfded6; }
+
+#candidate_spending_container #viz_nav_container {
+  display: table;
+  width: 100%;
+  border-spacing: 7px;
+  margin-top: 30px; }
+
+#candidate_spending_container #viz_nav_inner_container {
+  display: table-row; }
+
+#candidate_spending_container .viz_nav {
+  display: table-cell;
+  background-color: white;
+  padding-left: 30px;
+  padding-right: 30px;
+  line-height: 18px;
+  height: 82px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  font-size: 16pt;
+  font-weight: 400;
+  cursor: pointer;
+  color: #bcbbb4;
+  letter-spacing: 0.5px; }
+
+#candidate_spending_container .viz_nav.selected {
+  color: #454542; }
+
+#candidate_spending_container .viz_nav.year {
+  font-size: 18pt;
+  font-weight: 400;
+  width: 350px;
+  white-space: nowrap; }
+
+#candidate_spending_container .viz_nav.year .spacer {
+  margin-left: auto;
+  margin-right: auto;
+  width: 110px; }
+
+#candidate_spending_container .viz_nav.year img {
+  height: 18px;
+  vertical-align: baseline;
+  margin-left: 5px;
+  margin-right: 5px; }
+
+#candidate_spending_container .viz_nav .sub_header {
+  font-size: 6pt;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  line-height: 1;
+  margin-bottom: 5px;
+  /* tracking 100*/ }
+
+/* HACK: viz nav doesn't want to line up */
+#candidate_spending_container .viz_nav .header {
+  margin-left: -2px; }
+
+/***********************************/
+/* Main Legend                     */
+/***********************************/
+#vis-full-key {
+  position: absolute;
+  top: 2000px;
+  opacity: 0;
+  width: 950px;
+  z-index: 99; }
+
+#vis-full-key > .row:first-child {
+  border-top: 1px solid grey; }
+
+#vis-full-key #vis-key-bottom > .columns {
+  border-top: 1px solid grey; }
+
+#vis-full-key .explanation {
+  margin-top: 20px; }
+
+#vis-full-key .columns {
+  padding: 0px; }
+
+/* Size Legend */
+#vis-full-key circle {
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+  stroke-dasharray: 3px; }
+
+#vis-full-key polyline {
+  stroke: black;
+  stroke-width: 1px;
+  fill: none; }
+
+#vis-full-key text {
+  dominant-baseline: middle; }
+
+/* Color Legend */
+.legend table {
+  table-layout: fixed;
+  width: 100%;
+  background: none;
+  margin: 0; }
+
+.legend tr {
+  margin-top: 5px;
+  background: none !important; }
+
+.legend td:first-child {
+  vertical-align: top;
+  width: 15px; }
+
+.legend td:nth-child(2) {
+  padding-left: 10px; }
+
+.legend.explanation td {
+  padding: 5px 0px; }
+
+.legend .subheader {
+  text-transform: uppercase;
+  /* override foundation subheader color */
+  color: #454542;
+  margin: 0; }
+
+.legend.explanation .subheader {
+  font-weight: 700;
+  font-size: 12px; }
+
+.legend.mini .subheader {
+  font-weight: 400;
+  font-size: 10px; }
+
+.legend.explanation .subcategories {
+  font-size: 13px;
+  line-height: 130%; }
+
+.legend .key {
+  width: 15px;
+  height: 15px; }
+
+/* Viz Colors */
+svg circle.overhead {
+  fill: #689890; }
+
+.legend .key.overhead {
+  background-color: #689890; }
+
+svg circle.contributions {
+  fill: #3b6e71; }
+
+.legend .key.contributions {
+  background-color: #3b6e71; }
+
+svg circle.communication {
+  fill: #766f52; }
+
+.legend .key.communication {
+  background-color: #766f52; }
+
+svg circle.staff {
+  fill: #73884f; }
+
+.legend .key.staff {
+  background-color: #73884f; }
+
+svg circle.fees {
+  fill: #9ab996; }
+
+.legend .key.fees {
+  background-color: #9ab996; }
+
+svg circle.other {
+  fill: #6c6b6b; }
+
+.legend .key.other {
+  background-color: #6c6b6b; }
+
+.titles.year.header {
+  font-size: 13px; }
+
+.titles.header {
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-size: 14px; }
+
+.titles.amount {
+  font-style: italic;
+  font-weight: 300; }
+
+#expenditure_tooltip {
+  padding: 8px;
+  color: black;
+  background: #ccc;
+  background-color: rgba(255, 255, 255, 0.5); }
+
+#expenditure_tooltip .candidate {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  text-transform: uppercase; }
+
+#expenditure_tooltip .office {
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  font-size: 13px; }
+
+#expenditure_tooltip .amount {
+  font-style: italic;
+  font-weight: 400; }
+
+#expenditure_tooltip .inner_tooltip {
+  background-color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  padding: 15px; }
+
+/***********************************/
+/* Modal (individual expenditures) */
+/***********************************/
+#candidate_modal .expenditure-record-table-container {
+  color: black; }
+
+#candidate_modal .candidate_info {
+  position: absolute; }
+
+#candidate_modal .expenditure-record-table {
+  width: 100%; }
+
+#candidate_modal .candidate_info > div {
+  margin-bottom: 10px; }
+#candidate_modal .expenditure-record-table td.date {
+  min-width: 100px; }
+#candidate_modal .candidate_name {
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 18px;
+  letter-spacing: 1px; }
+#candidate_modal .candidate_subtitle {
+  font-weight: 300;
+  text-transform: uppercase;
+  font-size: 15px;
+  letter-spacing: 0px; }
+#candidate_modal .expenditure_category_title {
+  font-weight: 300;
+  text-transform: uppercase;
+  font-size: 15px;
+  letter-spacing: 0px;
+  font-style: italic; }
+
+#candidate_modal #expenditures-table-explanation {
+  margin-top: 10px; }
+
+.candidate_search_container {
+  padding: 7px;
+  font-size: 1.5rem;
+  height: 35px; }
+  .candidate_search_container input.autocomplete {
+    width: 100%;
+    font-size: inherit; }
+  .candidate_search_container .autocomplete-suggestion {
+    background: white; }
+  .candidate_search_container .autocomplete-selected {
+    background: #84847f; }
+
+/* General properties */
+*.unselectable {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  /*
+    Introduced in IE 10.
+    See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+  */
+  -ms-user-select: none;
+  user-select: none; }
+
+.hidden {
+  display: none; }
+
+.flip-horizontal {
+  -moz-transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+  -o-transform: scaleX(-1);
+  transform: scaleX(-1);
+  -ms-filter: fliph;
+  /*IE*/
+  filter: fliph;
+  /*IE*/ }
