@@ -15,6 +15,8 @@ https://data.hawaii.gov/Community/Expenditures-Made-By-Hawaii-State-and-County-C
 
 ![Socrata Filter Settings](_jekyll/images/socrata_filter_settings.png "Socrata Filter Settings")
 
+To better understand the data you should take a look at the [Campaign Finance Data Primer](https://docs.google.com/document/d/1VC0of6-rLtFrLmpBS8xWDLjLvtoPOr9LBfDJLYy_4fw/edit)
+
 # Development/Contributing
 
 ## Installation/Running
