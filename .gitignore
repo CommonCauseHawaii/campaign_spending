@@ -1,5 +1,6 @@
 .DS_Store
 *.swp
+.env
 
 _site
 bower_components

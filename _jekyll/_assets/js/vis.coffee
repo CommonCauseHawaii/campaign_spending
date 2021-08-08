@@ -431,15 +431,16 @@ class BubbleChart
       'overhead'
     else if category in ['Contribution to Community Organization', 'Contribution to Political Party', 'Hawaii Election Campaign Fund']
       'contributions'
-    else if category in ['Advertising', 'Candidate Fundraiser Tickets', 'Postage/Mailing', 'Printing', 'Surveys, Polls & Voter Lists']
+    else if category in ['Advertising', 'Candidate Fundraiser Tickets', 'Postage/Mailing', 'Printing', 'Surveys, Polls & Voter Lists', 'Advertising, Media & Collateral Materials', 'Printing, Postage, Mailing & Freight', 'Surveys, Polls, Research & Voter Lists']
       'communication'
-    else if category in ['Employee Services', 'Professional Services']
+    else if category in ['Employee Services', 'Professional Services', 'Contract, Employee & Professional Services']
       'staff'
     else if category in ['Bank Charges & Adjustments', 'Filing Fee', 'Taxes']
       'fees'
     else if category in ['Other']
       'other'
     else
+      # console.log('category', category)
       'other'
 
   # Turn "Abercrombie, Neil" to "Abercrombie (D)"
@@ -574,11 +575,13 @@ class BubbleChart
   # Updates records on modal
   update_modal: (reg_no, category) =>
     console.log('updating modal')
-    url = 'https://data.hawaii.gov/resource/3maa-4fgr.json'
+    url = 'https://hicscdata.hawaii.gov/resource/3maa-4fgr.json'
+
     encoded_category = encodeURIComponent(category);
     year = candidate_utils.get_vis_year()
-    election_period = "#{year-2}-#{year}"
-    url_params = "$limit=20&$where=reg_no='" + reg_no + "'and expenditure_category='#{encoded_category}' and election_period = '" + election_period + "'&$order=amount desc"
+    # https://dev.socrata.com/docs/functions/like.html
+    # Example working link https://hicscdata.hawaii.gov/resource/fmfj-bac2.json?$limit=5&$where=election_period%20like%20%27%25-2008%27
+    url_params = "$limit=20&$where=reg_no='" + reg_no + "'and expenditure_category='#{encoded_category}' and election_period like '%25" + year + "'&$order=amount desc"
 
     modal = $('#candidate_modal')
     modal.find('.expenditure-error').hide()
@@ -755,6 +758,9 @@ root = exports ? this
 
 # Helper class for things that don't rely on BubbleChart data
 class CandidateUtil
+  MAUI: 'Maui, Lanai, Molokai'
+  KAUAI: 'Kauai, Niihau'
+
   get_vis_year: () =>
     $year_el = $('.viz_nav.year')
     cur_year = $year_el.data('year')
@@ -767,45 +773,49 @@ class CandidateUtil
     #14-01 to 16-05  Kauai
     #16-06           Niihau
     #17-01 to 51-06  Oahu
-    maui = 'Maui, Lanai, Molokai'
-    kauai = 'Kauai, Niihau'
-    get_island_by_precinct = (precinct) ->
-      as_number = parseInt(precinct.substring(0,2) + precinct.substring(3,5))
-      island = if as_number <= 707
-        'Hawaii'
-      else if as_number <= 1303
-        maui
-      else if as_number <= 1304
-        maui # Lanai
-      else if as_number <= 1309
-        maui # Molokai
-      else if as_number <= 1605
-        kauai
-      else if as_number <= 1606
-        kauai # Niihau
-      else if as_number <= 5106
-        'Oahu'
-      else
-        'Error'
 
     if record.office in ['Governor', 'Mayor', 'Lt. Governor', 'Prosecuting Attorney', 'OHA', 'BOE']
       'All'
     else if record.office in ['Honolulu Council']
       'Oahu'
     else if record.office in ['Maui Council']
-      maui
+      @MAUI
     else if record.office in ['Kauai Council']
-      kauai
+      @KAUAI
     else if record.office in ['Hawaii Council']
       'Hawaii'
     else if record.office in ['Senate']
       matches = window.precinct_records.filter (d) -> d.senate == record.district
-      get_island_by_precinct(matches[0].precinct)
+      unless matches[0]
+        console.log('no matches', record)
+      @get_island_by_precinct(matches[0].precinct)
     else if record.office in ['House']
       matches = window.precinct_records.filter (d) -> d.house == record.district
-      get_island_by_precinct(matches[0].precinct)
+      @get_island_by_precinct(matches[0].precinct)
     else
       'Other'
+
+  get_island_by_precinct: (precinct) ->
+
+    as_number = parseInt(precinct.substring(0,2) + precinct.substring(3,5))
+    # console.log("as number #{as_number} precinct #{precinct}")
+    # console.log("as num", as_number)
+    island = if as_number <= 707
+      'Hawaii'
+    else if as_number <= 1303
+      @MAUI
+    else if as_number <= 1304
+      @MAUI # Lanai
+    else if as_number <= 1309
+      @MAUI # Molokai
+    else if as_number <= 1605
+      @KAUAI
+    else if as_number <= 1606
+      @KAUAI # Niihau
+    else if as_number <= 5106
+      'Oahu'
+    else
+      'Error'
 
 root.candidate_utils = new CandidateUtil
 
@@ -866,18 +876,25 @@ $ ->
       # Only a handful of records have negative amounts so it is safe to ignore them
       if parseInt(d.amount) < 0
         false
+      # TODO: Might be better to just check the last year
+      else if year == 2024
+        d.election_period == '2022-2024' || d.election_period == '2020-2024'
+      else if year == 2022
+        d.election_period == '2020-2022' || d.election_period == '2018-2022'
+      else if year == 2020
+        d.election_period == '2018-2020' || d.election_period == '2016-2020'
       else if year == 2018
-        d.election_period == '2016-2018'
+        d.election_period == '2016-2018' || d.election_period == '2014-2018'
       else if year == 2016
-        d.election_period == '2014-2016'
+        d.election_period == '2014-2016' || d.election_period == '2012-2016'
       else if year == 2014
-        d.election_period == '2012-2014'
+        d.election_period == '2012-2014' || d.election_period == '2010-2014'
       else if year == 2012
-        d.election_period == '2010-2012'
+        d.election_period == '2010-2012' || d.election_period == '2008-2012'
       else if year == 2010
-        d.election_period == '2008-2010'
+        d.election_period == '2008-2010' || d.election_period == '2006-2010'
       else if year == 2008
-        d.election_period == '2006-2008'
+        d.election_period == '2006-2008' || d.election_period == '2004-2008'
       else if year == 'gov'
         d.election_period == '2012-2014' && d.office == 'Governor'
       else if year == 'senate'
@@ -885,8 +902,7 @@ $ ->
       else
         return false
       #else if year == 'gov2'
-      #  d.election_period == '2010-2012' && d.office == 'House'
-
+      # d.election_period == '2014-2016' && d.office == 'Senate'
       #d.election_period == '2010-2012' && d.office == 'Governor'
       #d.election_period == '2010-2012' && d.office == 'Senate'
     )
@@ -924,15 +940,15 @@ $ ->
       $('.viz_nav.year .left-arrow').attr('src', 'images/year_arrow_transparent.png')
         .addClass('clickable')
 
-    if next_year == 2018
+    if next_year == 2022
       $('.viz_nav.year .right-arrow').attr('src', 'images/year_arrow_disabled.png')
         .removeClass('clickable')
     else
       $('.viz_nav.year .right-arrow').attr('src', 'images/year_arrow_transparent.png')
         .addClass('clickable')
 
-    # TODO: What is the .1 for?
-    range = d3.range(2008, 2018.1, 2)
+    # This defines the acceptable range of years to navigate to
+    range = d3.range(2008, 2022.1, 2)
     unless next_year in range
       return
 
@@ -954,7 +970,8 @@ $ ->
   render_vis = (error, expenditure_records, organizational_records, precinct_records) ->
     raw_records = join_data(expenditure_records, organizational_records)
     window.raw_records = raw_records
-    filtered_records = filter_data(raw_records, 2018)
+    # This is the default data to show
+    filtered_records = filter_data(raw_records, 2022)
     #filtered_records = filter_data(raw_records, 'gov')
     #filtered_records = filter_data(raw_records, 'senate')
 

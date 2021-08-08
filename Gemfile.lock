@@ -14,6 +14,7 @@ GEM
     coffee-script-source (1.11.1)
     colorator (1.1.0)
     concurrent-ruby (1.0.5)
+    dotenv (2.7.6)
     execjs (2.7.0)
     extras (0.3.0)
       forwardable-extended (~> 2.5)
@@ -97,6 +98,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  dotenv
   jekyll
   jekyll-assets
   jekyll-coffeescript

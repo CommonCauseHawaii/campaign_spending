@@ -8,7 +8,7 @@ CSV.open('_jekyll/data/campaign_spending_summary.csv', 'w',
              entry = {
                expenditure_category: row['Expenditure Category'].strip,
                election_period: row['Election Period'].strip,
-               amount: row['sum_amount'].strip,
+               amount: row['Amount'].strip,
                reg_no: row['Reg No'].strip,
                id: id,
              }
@@ -22,18 +22,18 @@ CSV.open('_jekyll/data/organizational_report.csv', 'w',
          :headers => %w(reg_no candidate_name office district county party)) do |output_csv|
            CSV.foreach("raw_data/organizational_reports.csv", :headers => true) do |row|
              # Skip Ronald, Strode since his data is bad
-             next if row['Reg No'] == 'CC11033'
-             if row['Party'].nil?
-               puts "Skipping candidate with Reg No #{row['Reg No']} and name #{row['Candidate Name']} because missing party"
+             next if row['reg_no'] == 'CC11033'
+             if row['party'].nil?
+               puts "Skipping candidate with Reg No #{row['reg_no']} and name #{row['candidate_name']} because missing party"
                next
              end
              entry = {
-               reg_no: row['Reg No'].strip,
-               candidate_name: row['Candidate Name'].strip,
-               office: row['Office'].strip,
-               district: row['District'] && row['District'].strip,
-               county: row['County'] && row['County'].strip,
-               party: row['Party'].strip
+               reg_no: row['reg_no'].strip,
+               candidate_name: row['candidate_name'].strip,
+               office: row['office'].strip,
+               district: row['district'] && row['district'].strip,
+               county: row['county'] && row['county'].strip,
+               party: row['party'].strip
              }
              output_csv << entry.values
            end
