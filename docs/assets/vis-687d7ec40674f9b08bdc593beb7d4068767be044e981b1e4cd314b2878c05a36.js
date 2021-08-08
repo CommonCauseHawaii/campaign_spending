@@ -488,9 +488,9 @@
         return 'overhead';
       } else if (category === 'Contribution to Community Organization' || category === 'Contribution to Political Party' || category === 'Hawaii Election Campaign Fund') {
         return 'contributions';
-      } else if (category === 'Advertising' || category === 'Candidate Fundraiser Tickets' || category === 'Postage/Mailing' || category === 'Printing' || category === 'Surveys, Polls & Voter Lists') {
+      } else if (category === 'Advertising' || category === 'Candidate Fundraiser Tickets' || category === 'Postage/Mailing' || category === 'Printing' || category === 'Surveys, Polls & Voter Lists' || category === 'Advertising, Media & Collateral Materials' || category === 'Printing, Postage, Mailing & Freight' || category === 'Surveys, Polls, Research & Voter Lists') {
         return 'communication';
-      } else if (category === 'Employee Services' || category === 'Professional Services') {
+      } else if (category === 'Employee Services' || category === 'Professional Services' || category === 'Contract, Employee & Professional Services') {
         return 'staff';
       } else if (category === 'Bank Charges & Adjustments' || category === 'Filing Fee' || category === 'Taxes') {
         return 'fees';
@@ -631,13 +631,12 @@
     };
 
     BubbleChart.prototype.update_modal = function(reg_no, category) {
-      var candidate_info, candidate_name, candidate_office, cur_year, election_period, encoded_category, modal, url, url_params, year;
+      var candidate_info, candidate_name, candidate_office, cur_year, encoded_category, modal, url, url_params, year;
       console.log('updating modal');
-      url = 'https://data.hawaii.gov/resource/3maa-4fgr.json';
+      url = 'https://hicscdata.hawaii.gov/resource/3maa-4fgr.json';
       encoded_category = encodeURIComponent(category);
       year = candidate_utils.get_vis_year();
-      election_period = (year - 2) + "-" + year;
-      url_params = "$limit=20&$where=reg_no='" + reg_no + ("'and expenditure_category='" + encoded_category + "' and election_period = '") + election_period + "'&$order=amount desc";
+      url_params = "$limit=20&$where=reg_no='" + reg_no + ("'and expenditure_category='" + encoded_category + "' and election_period like '%25") + year + "'&$order=amount desc";
       modal = $('#candidate_modal');
       modal.find('.expenditure-error').hide();
       modal.find('.expenditure-loading').show();
@@ -883,6 +882,10 @@
       this.get_vis_year = bind(this.get_vis_year, this);
     }
 
+    CandidateUtil.prototype.MAUI = 'Maui, Lanai, Molokai';
+
+    CandidateUtil.prototype.KAUAI = 'Kauai, Niihau';
+
     CandidateUtil.prototype.get_vis_year = function() {
       var $year_el, cur_year;
       $year_el = $('.viz_nav.year');
@@ -890,37 +893,39 @@
     };
 
     CandidateUtil.prototype.get_island = function(record) {
-      var get_island_by_precinct, kauai, matches, maui, ref, ref1, ref2, ref3, ref4, ref5, ref6;
-      maui = 'Maui, Lanai, Molokai';
-      kauai = 'Kauai, Niihau';
-      get_island_by_precinct = function(precinct) {
-        var as_number, island;
-        as_number = parseInt(precinct.substring(0, 2) + precinct.substring(3, 5));
-        return island = as_number <= 707 ? 'Hawaii' : as_number <= 1303 ? maui : as_number <= 1304 ? maui : as_number <= 1309 ? maui : as_number <= 1605 ? kauai : as_number <= 1606 ? kauai : as_number <= 5106 ? 'Oahu' : 'Error';
-      };
+      var matches, ref, ref1, ref2, ref3, ref4, ref5, ref6;
       if ((ref = record.office) === 'Governor' || ref === 'Mayor' || ref === 'Lt. Governor' || ref === 'Prosecuting Attorney' || ref === 'OHA' || ref === 'BOE') {
         return 'All';
       } else if ((ref1 = record.office) === 'Honolulu Council') {
         return 'Oahu';
       } else if ((ref2 = record.office) === 'Maui Council') {
-        return maui;
+        return this.MAUI;
       } else if ((ref3 = record.office) === 'Kauai Council') {
-        return kauai;
+        return this.KAUAI;
       } else if ((ref4 = record.office) === 'Hawaii Council') {
         return 'Hawaii';
       } else if ((ref5 = record.office) === 'Senate') {
         matches = window.precinct_records.filter(function(d) {
           return d.senate === record.district;
         });
-        return get_island_by_precinct(matches[0].precinct);
+        if (!matches[0]) {
+          console.log('no matches', record);
+        }
+        return this.get_island_by_precinct(matches[0].precinct);
       } else if ((ref6 = record.office) === 'House') {
         matches = window.precinct_records.filter(function(d) {
           return d.house === record.district;
         });
-        return get_island_by_precinct(matches[0].precinct);
+        return this.get_island_by_precinct(matches[0].precinct);
       } else {
         return 'Other';
       }
+    };
+
+    CandidateUtil.prototype.get_island_by_precinct = function(precinct) {
+      var as_number, island;
+      as_number = parseInt(precinct.substring(0, 2) + precinct.substring(3, 5));
+      return island = as_number <= 707 ? 'Hawaii' : as_number <= 1303 ? this.MAUI : as_number <= 1304 ? this.MAUI : as_number <= 1309 ? this.MAUI : as_number <= 1605 ? this.KAUAI : as_number <= 1606 ? this.KAUAI : as_number <= 5106 ? 'Oahu' : 'Error';
     };
 
     return CandidateUtil;
@@ -996,18 +1001,24 @@
       filtered_csv = records.filter(function(d) {
         if (parseInt(d.amount) < 0) {
           return false;
+        } else if (year === 2024) {
+          return d.election_period === '2022-2024' || d.election_period === '2020-2024';
+        } else if (year === 2022) {
+          return d.election_period === '2020-2022' || d.election_period === '2018-2022';
+        } else if (year === 2020) {
+          return d.election_period === '2018-2020' || d.election_period === '2016-2020';
         } else if (year === 2018) {
-          return d.election_period === '2016-2018';
+          return d.election_period === '2016-2018' || d.election_period === '2014-2018';
         } else if (year === 2016) {
-          return d.election_period === '2014-2016';
+          return d.election_period === '2014-2016' || d.election_period === '2012-2016';
         } else if (year === 2014) {
-          return d.election_period === '2012-2014';
+          return d.election_period === '2012-2014' || d.election_period === '2010-2014';
         } else if (year === 2012) {
-          return d.election_period === '2010-2012';
+          return d.election_period === '2010-2012' || d.election_period === '2008-2012';
         } else if (year === 2010) {
-          return d.election_period === '2008-2010';
+          return d.election_period === '2008-2010' || d.election_period === '2006-2010';
         } else if (year === 2008) {
-          return d.election_period === '2006-2008';
+          return d.election_period === '2006-2008' || d.election_period === '2004-2008';
         } else if (year === 'gov') {
           return d.election_period === '2012-2014' && d.office === 'Governor';
         } else if (year === 'senate') {
@@ -1046,12 +1057,12 @@
       } else {
         $('.viz_nav.year .left-arrow').attr('src', 'images/year_arrow_transparent.png').addClass('clickable');
       }
-      if (next_year === 2018) {
+      if (next_year === 2022) {
         $('.viz_nav.year .right-arrow').attr('src', 'images/year_arrow_disabled.png').removeClass('clickable');
       } else {
         $('.viz_nav.year .right-arrow').attr('src', 'images/year_arrow_transparent.png').addClass('clickable');
       }
-      range = d3.range(2008, 2018.1, 2);
+      range = d3.range(2008, 2022.1, 2);
       if (indexOf.call(range, next_year) < 0) {
         return;
       }
@@ -1076,7 +1087,7 @@
       var filtered_records, raw_records;
       raw_records = join_data(expenditure_records, organizational_records);
       window.raw_records = raw_records;
-      filtered_records = filter_data(raw_records, 2018);
+      filtered_records = filter_data(raw_records, 2022);
       window.precinct_records = precinct_records;
       window.records = filtered_records;
       window.organizational_records = organizational_records;
